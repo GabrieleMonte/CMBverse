@@ -1,0 +1,17 @@
+body {
+    font-family: 'Lenora', sans-serif;
+    background-color: #e0f7fa; /* Light blue background */
+    color: black; /* Main text color */
+}
+
+.navbar {
+    background-color: #004d40 !important; /* Darker blue for navbar */
+}
+
+.nav-link, .navbar-brand {
+    color: #ff5252 !important; /* Red for text in the navbar */
+}
+
+h1 {
+    color: #004d40; /* Darker blue for headings */
+}
