@@ -15,3 +15,10 @@ body {
 h1 {
     color: #004d40; /* Darker blue for headings */
 }
+
+header img {
+    width: 70%; /* 100% width minus 15% padding on each side */
+    display: block;
+    margin: 0 auto; /* Center the image */
+    padding: 0 15%; /* Padding of 15% on both sides */
+}
