@@ -1,24 +1,263 @@
+/* Reset some default styles */
+body, h1, h2, h3, p {
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Lenora', sans-serif;
+    line-height: 1.6;
     background-color: #e0f7fa; /* Light blue background */
     color: black; /* Main text color */
+    margin: 0 auto;
+    max-width: 1000px;
+    padding: 20px;
 }
 
-.navbar {
-    background-color: #004d40 !important; /* Darker blue for navbar */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 250px;
+    position: relative;
+    text-align: center;
+    background-color: #004d40; /* Darker blue for the header */
+    color: #fff;
+    border-bottom: 2px solid #555;
+    box-sizing: border-box;
 }
 
-.nav-link, .navbar-brand {
-    color: #ff5252 !important; /* Red for text in the navbar */
+/* Main page header with big logo */
+header.main-header {
+    background: url('images/Physics_concerto1.png') no-repeat center center;
+    background-size: cover;
 }
 
-h1 {
-    color: #004d40; /* Darker blue for headings */
+/* Header styles for non-main pages */
+header.page-header {
+    background-color: #004d40; /* Darker blue for the header */
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px;
+    height: 250px;
+    box-sizing: border-box;
 }
 
-header img {
-    width: 70%; /* 100% width minus 15% padding on each side */
-    display: block;
-    margin: 0 auto; /* Center the image */
-    padding: 0 15%; /* Padding of 15% on both sides */
+header.page-header h1 {
+    font-size: 3.2rem;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    background-color: #ff5252; /* Red for the navbar */
+    padding: 0.5rem 0;
+}
+
+nav a {
+    color: #fff;
+    margin: 0 15px;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+nav a:hover {
+    background-color: #e04040; /* Darker red on hover */
+}
+
+main {
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    border-radius: 5px;
+}
+
+footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.8rem;
+    padding: 10px 0;
+    background-color: #444;
+    color: #fff;
+    border-top: 2px solid #555;
+    border-radius: 0 0 5px 5px;
+}
+
+/* Emphasized text in the main page */
+.emphasized-text {
+    margin: 20px 0;
+}
+
+/* Ensure elements don't exceed 100% of the viewport width */
+img, video, iframe, embed {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Responsive typography */
+body {
+    font-size: 16px;
+}
+
+/* Set navigation links to stack vertically on smaller screens */
+@media (max-width: 600px) {
+    nav a {
+        display: block;
+        padding: 10px;
+        text-align: center;
+        border-top: 1px solid #ddd;
+    }
+
+    nav a:first-child {
+        border-top: none;
+    }
+}
+
+@media (max-width: 600px) {
+    nav {
+        display: block;  /* Change to block display for better stacking */
+        text-align: center;  /* Center align the navigation links */
+    }
+    
+    nav a {
+        display: block;  /* Display links as block elements */
+        width: 100%;  /* Make them fit the width of the page */
+        padding: 10px 0;  /* Adjust padding */
+        margin: 0;  /* Remove side margins */
+        border-top: 1px solid #ddd;  /* Adjust border for clear separation */
+        border-radius: 0;  /* Remove rounded corners for a simpler look */
+    }
+
+    nav a:first-child {
+        border-top: none;  /* No border for the first link */
+    }
+}
+
+/* Adjust header height for smaller screens */
+@media (max-width: 550px) {
+    header {
+        height: 250px; /* Consistent height for mobile screens */
+    }
+}
+
+/* Mobile styles for the main page header */
+@media (max-width: 550px) {
+    header.main-header {
+        background: url('images/Physics_concerto2.png') no-repeat center center;
+        background-size: cover;
+    }
+}
+
+/* Mobile styles for non-main pages headers */
+@media (max-width: 550px) {
+    header.page-header {
+        background: none;
+        height: 250px;
+    }
+}
+
+/* Desktop styles for non-main pages headers */
+@media (min-width: 601px) {
+    header.page-header {
+        background-image: url('images/Physics_concerto1v2_white.png');
+        background-repeat: no-repeat;
+        background-position: center bottom;
+        background-size: auto 60px;
+        padding-bottom: 60px;
+    }
+}
+
+/* Desktop styles for the main page header */
+@media (min-width: 601px) {
+    header.main-header {
+        background-image: url('images/Physics_concerto1.png');
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
+    }
+}
+
+/* Computer Version Updates for non-main pages */
+@media (min-width: 601px) {
+    header.page-header h1 {
+        font-size: 3.2rem; /* Make the header title smaller */
+        margin: 0 auto; /* Center the header title */
+    }
+
+    header.page-header {
+        justify-content: center; /* Center the title and image */
+    }
+}
+
+/* Mobile Version Updates for non-main pages */
+@media (max-width: 550px) {
+    header.page-header h1 {
+        font-size: 1. rem; /* Make the header title much smaller */
+        margin: 2 auto; /* Center the header title */
+    }
+
+    header.page-header {
+        background-color: #004d40; /* Darker blue for the header */
+        justify-content: center; /* Center the title */
+    }
+}
+
+/* Adjust header height for smaller screens */
+@media (max-width: 550px) {
+    header {
+        height: 250px; /* Consistent height for mobile screens */
+    }
+}
+
+h2 {
+    margin-top: 30px; /* Adjust as needed */
+    margin-bottom: 15px; /* Adjust as needed */
+}
+
+/* Adjustments for search bar on mobile */
+@media (max-width: 550px) {
+    input[type="text"], input[type="search"] {  
+        width: 100%;  /* Make it fit the width of the page */
+        padding: 10px;  /* Add some padding for better appearance */
+        margin: 0;  /* Remove any margins */
+        box-sizing: border-box;  /* Ensure padding and border are included in the element's total width and height */
+        border: 1px solid #ddd;  /* Simple border */
+        border-radius: 4px;  /* Slightly rounded corners */
+        font-size: 16px;  /* Font size for better readability */
+        appearance: none;  /* Remove default browser styling */
+        -webkit-appearance: none;  /* Remove default browser styling for Webkit browsers */
+    }
+
+    /* Simplify appearance of search submit button */
+    input[type="submit"] {  
+        appearance: none;
+        -webkit-appearance: none;
+        background-color: #f4f4f4;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px 15px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #ddd;
+    }
+}
+
+@media (max-width: 550px) {
+    body > input[type="text"], 
+    body > input[type="search"] {  
+        /* ... styles ... */
+    }
+
+    body > input[type="submit"] {  
+        /* ... styles ... */
+    }
 }
