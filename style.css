@@ -148,7 +148,7 @@ body {
 /* Mobile styles for the main page header */
 @media (max-width: 550px) {
     header.main-header {
-        background: url('images/Physics_concerto2.png') no-repeat center center;
+        background: url('figures/cmbverse_logo.png') no-repeat center center;
         background-size: cover;
     }
 }
@@ -164,7 +164,7 @@ body {
 /* Desktop styles for non-main pages headers */
 @media (min-width: 601px) {
     header.page-header {
-        background-image: url('images/Physics_concerto1v2_white.png');
+        background-image: url('figures/cmbverse_logo.png');
         background-repeat: no-repeat;
         background-position: center bottom;
         background-size: auto 60px;
@@ -175,7 +175,7 @@ body {
 /* Desktop styles for the main page header */
 @media (min-width: 601px) {
     header.main-header {
-        background-image: url('images/Physics_concerto1.png');
+        background-image: url('figures/cmbverse_logo.png');
         background-repeat: no-repeat;
         background-position: center center;
         background-size: cover;
