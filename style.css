@@ -52,7 +52,6 @@ header.page-header {
 header.page-header h1 {
     font-size: 3.2rem;
 }
-
 nav {
     display: flex;
     justify-content: center;
@@ -61,7 +60,7 @@ nav {
 }
 
 nav a {
-    color: #fff;
+    color: #fff; /* White for all navigation items */
     margin: 0 15px;
     text-decoration: none;
     padding: 5px 10px;
@@ -71,6 +70,10 @@ nav a {
 
 nav a:hover {
     background-color: #e04040; /* Darker red on hover */
+}
+
+.dropdown-menu a {
+    color: #fff; /* Ensure dropdown items are white */
 }
 
 main {
