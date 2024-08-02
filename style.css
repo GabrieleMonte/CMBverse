@@ -10,6 +10,7 @@ body {
     background-color: #e0f7fa; /* Light blue background */
     color: black; /* Main text color */
     margin: 0 auto;
+    max-width: 1000px;
     padding: 20px;
 }
 
@@ -17,19 +18,23 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 250px;
     position: relative;
     text-align: center;
     background-color: #004d40; /* Darker blue for the header */
     color: #fff;
     border-bottom: 2px solid #555;
     box-sizing: border-box;
+    height: 250px; /* Default height for larger screens */
 }
 
 /* Main page header with big logo */
 header.main-header {
     background: url('figures/cmbverse_logo.png') no-repeat center center;
-    background-size: cover;
+    background-size: contain; /* Ensure the entire image is shown */
+    padding: 20px; /* Add some padding to ensure the image is centered */
+    height: auto; /* Let the height adjust automatically */
+    min-height: 250px; /* Ensure a minimum height */
+    max-height: 400px; /* Ensure a maximum height */
 }
 
 /* Header styles for non-main pages */
@@ -140,7 +145,9 @@ body {
 /* Adjust header height for smaller screens */
 @media (max-width: 550px) {
     header {
-        height: 250px; /* Consistent height for mobile screens */
+        height: auto; /* Allow height to adjust automatically */
+        min-height: 150px; /* Ensure a minimum height */
+        max-height: 250px; /* Ensure a maximum height */
     }
 }
 
@@ -148,7 +155,8 @@ body {
 @media (max-width: 550px) {
     header.main-header {
         background: url('figures/cmbverse_logo.png') no-repeat center center;
-        background-size: cover;
+        background-size: contain; /* Ensure the entire image is shown */
+        padding: 10px; /* Add some padding to ensure the image is centered */
     }
 }
 
@@ -156,107 +164,11 @@ body {
 @media (max-width: 550px) {
     header.page-header {
         background: none;
-        height: 250px;
-    }
-}
-
-/* Desktop styles for non-main pages headers */
-@media (min-width: 601px) {
-    header.page-header {
-        background-image: url('figures/cmbverse_logo.png');
-        background-repeat: no-repeat;
-        background-position: center bottom;
-        background-size: auto 60px;
-        padding-bottom: 60px;
-    }
-}
-
-/* Desktop styles for the main page header */
-@media (min-width: 601px) {
-    header.main-header {
-        background-image: url('figures/cmbverse_logo.png');
-        background-repeat: no-repeat;
-        background-position: center center;
-        background-size: cover;
-    }
-}
-
-/* Computer Version Updates for non-main pages */
-@media (min-width: 601px) {
-    header.page-header h1 {
-        font-size: 3.2rem; /* Make the header title smaller */
-        margin: 0 auto; /* Center the header title */
-    }
-
-    header.page-header {
-        justify-content: center; /* Center the title and image */
-    }
-}
-
-/* Mobile Version Updates for non-main pages */
-@media (max-width: 550px) {
-    header.page-header h1 {
-        font-size: 1. rem; /* Make the header title much smaller */
-        margin: 2 auto; /* Center the header title */
-    }
-
-    header.page-header {
-        background-color: #004d40; /* Darker blue for the header */
-        justify-content: center; /* Center the title */
-    }
-}
-
-/* Adjust header height for smaller screens */
-@media (max-width: 550px) {
-    header {
-        height: 250px; /* Consistent height for mobile screens */
+        height: 150px; /* Adjust height for mobile screens */
     }
 }
 
 h2 {
     margin-top: 30px; /* Adjust as needed */
     margin-bottom: 15px; /* Adjust as needed */
-}
-
-/* Adjustments for search bar on mobile */
-@media (max-width: 550px) {
-    input[type="text"], input[type="search"] {  
-        width: 100%;  /* Make it fit the width of the page */
-        padding: 10px;  /* Add some padding for better appearance */
-        margin: 0;  /* Remove any margins */
-        box-sizing: border-box;  /* Ensure padding and border are included in the element's total width and height */
-        border: 1px solid #ddd;  /* Simple border */
-        border-radius: 4px;  /* Slightly rounded corners */
-        font-size: 16px;  /* Font size for better readability */
-        appearance: none;  /* Remove default browser styling */
-        -webkit-appearance: none;  /* Remove default browser styling for Webkit browsers */
-    }
-
-    /* Simplify appearance of search submit button */
-    input[type="submit"] {  
-        appearance: none;
-        -webkit-appearance: none;
-        background-color: #f4f4f4;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 10px 15px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    input[type="submit"]:hover {
-        background-color: #ddd;
-    }
-}
-
-@media (max-width: 550px) {
-    body > input[type="text"], 
-    body > input[type="search"] {  
-        /* ... styles ... */
-    }
-
-    body > input[type="submit"] {  
-        /* ... styles ... */
-    }
 }
