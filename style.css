@@ -61,12 +61,14 @@ nav ul li a {
     text-decoration: none; /* Remove underline */
     padding: 0.5rem 1rem;
     border-radius: 5px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s;
     font-weight: bold; /* Bold navigation links */
 }
 
 nav ul li a:hover {
     background-color: #7B4397; /* Dark Lavender on Hover */
+    color: #fff; /* Keep the text white on hover */
+    text-decoration: none; /* Ensure no underline on hover */
 }
 
 nav ul li ul {
