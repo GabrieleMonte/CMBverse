@@ -29,7 +29,7 @@ header {
 
 /* Main page header with big logo */
 header.main-header {
-    background: url('figures/cmbverse_logo.png') no-repeat center center;
+    background: url('figures/cmbverse_logo2.png') no-repeat center center;
     background-size: contain; /* Ensure the entire image is shown */
     padding: 2%; /* Add some padding to ensure the image is centered */
     height: auto; /* Let the height adjust automatically */
