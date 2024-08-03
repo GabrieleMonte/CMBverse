@@ -15,6 +15,20 @@ function callMyScriptDL(value) {
     img.src = 'class_figures/Dl_Neff_damping_images/Dl_damping_Neff_v' + value + '.png';
 }
 
+// Function to update Cosmo value
+function updateValueCosmo(val) {
+    const N_eff_value = N_eff_array[val - 1];
+    document.getElementById('sliderValueCosmo').innerText = N_eff_value.toFixed(2);
+    callMyScriptCosmo(val);
+}
+
+// Function to change Cosmo image
+function callMyScriptCosmo(value) {
+    console.log("dl dampening slider value is: " + value);
+    var img = document.getElementById("Cosmoimage");
+    img.src = 'class_figures/Dl_cosmo_pars_images/Dl_Neff_v' + value + '.png';
+}
+
 // Function to update kTT value
 function updateValuekTT(val) {
     const N_eff_value = N_eff_array[val - 1];
