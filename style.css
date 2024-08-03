@@ -187,11 +187,11 @@ h2 {
 
 /* Style the slider */
 .slider-container input[type="range"] {
-    width: 80%; /* Length relative to the container width */
-    height: 10px; /* Increased thickness of the slider */
+    width: 60%; /* Length relative to the container width */
+    height: 0.5em; /* Thickness of the slider */
     margin: 10px 0;
-    background: #7B4397; /* Purple color from the palette */
-    border-radius: 5px;
+    background: linear-gradient(to right, #7B4397 0%, #7B4397 var(--value), #e0e0e0 var(--value), #e0e0e0 100%);
+    border-radius: 0.25em;
     outline: none;
     -webkit-appearance: none;
     appearance: none;
@@ -202,16 +202,16 @@ h2 {
 .slider-container input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 1.5em;
+    height: 1.5em;
     background: #7B4397; /* Purple color from the palette */
     border-radius: 50%;
     cursor: pointer;
 }
 
 .slider-container input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+    width: 1.5em;
+    height: 1.5em;
     background: #7B4397; /* Purple color from the palette */
     border-radius: 50%;
     cursor: pointer;
@@ -219,7 +219,7 @@ h2 {
 
 /* Style the value display */
 .slider-value {
-    margin-top: 15px;
+    margin-top: 1em;
     font-size: 1.5rem; /* Larger font size */
     font-weight: bold;
     font-family: 'sans-serif', Arial; /* San-serif font */
@@ -233,13 +233,13 @@ h2 {
     font-family: 'sans-serif', Arial; /* San-serif font */
     font-weight: bold;
     color: #7B4397; /* Purple color for the number */
-    margin-left: 5px;
+    margin-left: 0.5em;
 }
 
 /* Media queries for responsiveness */
 @media (max-width: 768px) {
     .slider-container input[type="range"] {
-        width: 100%; /* Full width on smaller screens */
+        width: 80%; /* Full width on smaller screens */
     }
 
     .slider-value {
@@ -249,11 +249,10 @@ h2 {
 
 @media (max-width: 480px) {
     .slider-container input[type="range"] {
-        height: 8px; /* Slightly thinner slider on very small screens */
+        height: 0.4em; /* Slightly thinner slider on very small screens */
     }
 
     .slider-value {
         font-size: 1rem; /* Smaller font size on very small screens */
     }
 }
-
