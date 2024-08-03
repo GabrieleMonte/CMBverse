@@ -25,45 +25,47 @@
             <li><a href="about.html">About Us</a></li>
         </ul>
     </nav>
-    <div class="container">
-        <h1 class="mt-5">Neutrinos</h1>
-        <br>
-        <p class="lead">Neutrinos, unlike photons, were free-streaming in the early universe. This free-streaming leads to a different distribution of energy and can damp small-scale anisotropies. A larger presence of neutrinos also contributes to the radiation density of the early universe, contributing to its expansion and effect the damping of the CMB we measure today. All of this is probably wrong please fix me later</p>
-        
-        <h3 class="mt-5">Neutrino levels and CMB damping</h3>
-        <div class="Dl-container">
-            <img id="Dlimage" src="class_figures/Dl_Neff_damping_images/Dl_damping_Neff_v50.png">
-            <div class="slider-container">
-                <input type="range" id="mySliderDL" min="1" max="100" value="50" oninput="updateValueDL(this.value)">
-                <div class="slider-value">
-                    <span>\(N_{\nu} = \)</span><span id="sliderValueDL">3.50</span>
-                </div>
+   <div class="container">
+    <h1 class="mt-5">Neutrinos</h1>
+    <br>
+    <p class="lead">Neutrinos, unlike photons, were free-streaming in the early universe. This free-streaming leads to a different distribution of energy and can damp small-scale anisotropies. A larger presence of neutrinos also contributes to the radiation density of the early universe, contributing to its expansion and effect the damping of the CMB we measure today. All of this is probably wrong please fix me later</p>
+    
+    <h3 class="mt-5">Neutrino levels and CMB damping</h3>
+    <div class="Dl-container">
+        <img id="Dlimage" src="class_figures/Dl_Neff_damping_images/Dl_damping_Neff_v50.png">
+        <div class="slider-container">
+            <input type="range" id="mySliderDL" min="1" max="100" value="50" oninput="updateValueDL(this.value); updateSliderBackground(this.value, 'mySliderDL');">
+            <div class="slider-value">
+                <span>N<sub>ν</sub> = </span><span id="sliderValueDL">3.50</span>
             </div>
         </div>
-        
-        <h3 class="mt-5">Neutrino levels and CMB damping considering in kTT phase shift and lensing signal</h3>
-        <div class="kTT-container">
-            <img id="KTTImage" src="class_figures/kTT_phase_shift_neff_lens_images/kTT_phase_shift_Neff_v50_lens.png">
-            <div class="slider-container">
-                <input type="range" id="mySliderkTT" min="1" max="100" value="50" oninput="updateValuekTT(this.value)">
-                <div class="slider-value">
-                    <span>\(N_{\nu} = \)</span><span id="sliderValuekTT">3.50</span>
-                </div>
+    </div>
+    
+    <h3 class="mt-5">Neutrino levels and CMB damping considering in kTT phase shift and lensing signal</h3>
+    <div class="kTT-container">
+        <img id="KTTImage" src="class_figures/kTT_phase_shift_neff_lens_images/kTT_phase_shift_Neff_v50_lens.png">
+        <div class="slider-container">
+            <input type="range" id="mySliderkTT" min="1" max="100" value="50" oninput="updateValuekTT(this.value); updateSliderBackground(this.value, 'mySliderkTT');">
+            <div class="slider-value">
+                <span>N<sub>ν</sub> = </span><span id="sliderValuekTT">3.50</span>
             </div>
         </div>
-        <h3 class="mt-5">Neutrino levels and CMB damping considering in kEE phase shift and lensing signal</h3>
-        <div class="kEE-container">
-            <img id="kEEimage" src="class_figures/kEE_phase_shift_neff_lens_images/kEE_phase_shift_Neff_v50_lens.png">
-            <div class="slider-container">
-                <input type="range" id="mySliderkEE" min="1" max="100" value="50" oninput="updateValuekEE(this.value)">
-                <div class="slider-value">
-                    <span>\(N_{\nu} = \)</span><span id="sliderValuekEE">3.50</span>
-                </div>
+    </div>
+    
+    <h3 class="mt-5">Neutrino levels and CMB damping considering in kEE phase shift and lensing signal</h3>
+    <div class="kEE-container">
+        <img id="kEEimage" src="class_figures/kEE_phase_shift_neff_lens_images/kEE_phase_shift_Neff_v50_lens.png">
+        <div class="slider-container">
+            <input type="range" id="mySliderkEE" min="1" max="100" value="50" oninput="updateValuekEE(this.value); updateSliderBackground(this.value, 'mySliderkEE');">
+            <div class="slider-value">
+                <span>N<sub>ν</sub> = </span><span id="sliderValuekEE">3.50</span>
             </div>
         </div>
-    <script src="imageSwitch.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </div>
+</div>
+<script src="imageSwitch.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
