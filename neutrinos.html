@@ -7,6 +7,9 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <link rel="icon" href="favicon.png" type="image/x-icon">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 </head>
 <body>
     <header class="main-header"></header>
@@ -34,7 +37,7 @@
             <img id="Dlimage" src="class_figures/Dl_Neff_damping_images/Dl_damping_Neff_v50.png">
             <div class="vertical-slider">
                 <input type="range" id="mySliderDL" min="1" max="100" value="50" oninput="updateValueDL(this.value)" orient="vertical">
-                <span id="sliderValueDL">$$N_\\nu$$=<span id="sliderValueDLNumber">50</span></span>
+                <span id="sliderValueDL">\(N_\nu =\)<span id="sliderValueDLNumber">50</span></span>
             </div>
         </div>
         
@@ -43,7 +46,7 @@
             <img id="KTTImage" src="class_figures/kTT_phase_shift_neff_lens_images/kTT_phase_shift_Neff_v50_lens.png">
             <div class="vertical-slider">
                 <input type="range" id="mySliderkTT" min="1" max="100" value="50" oninput="updateValuekTT(this.value)" orient="vertical">
-                <span id="sliderValuekTT">$$N_\\nu$$=<span id="sliderValuekTTNumber">50</span></span>
+                <span id="sliderValuekTT">\(N_\nu =\)<span id="sliderValuekTTNumber">50</span></span>
             </div>
         </div>
         
@@ -52,7 +55,7 @@
             <img id="kEEimage" src="class_figures/kEE_phase_shift_neff_lens_images/kEE_phase_shift_Neff_v50_lens.png">
             <div class="vertical-slider">
                 <input type="range" id="mySliderkEE" min="1" max="100" value="50" oninput="updateValuekEE(this.value)" orient="vertical">
-                <span id="sliderValuekEE">$$N_\\nu$$=<span id="sliderValuekEENumber">50</span></span>
+                <span id="sliderValuekEE">\(N_\nu =\)<span id="sliderValuekEENumber">50</span></span>
             </div>
         </div>
     </div>
