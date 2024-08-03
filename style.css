@@ -167,19 +167,28 @@ h2 {
     margin-top: 2rem; /* Adjust as needed */
     margin-bottom: 1.5rem; /* Adjust as needed */
 }
+/* Ensure the image container adjusts its size dynamically */
+.Cosmo-container, .Dl-container, .kTT-container, .kEE-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+/* Style the slider container to match the image size */
 .slider-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 10px;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
+    justify-content: center;
+    width: 100%; /* Match the width of the image container */
 }
 
+/* Style the slider */
 .slider-container input[type="range"] {
-    width: 80%; /* Length of the slider relative to the image width */
-    height: 10px; /* Thickness of the slider */
+    width: 80%; /* Length relative to the container width */
+    height: 10px; /* Increased thickness of the slider */
     margin: 10px 0;
     background: #7B4397; /* Purple color from the palette */
     border-radius: 5px;
@@ -189,6 +198,7 @@ h2 {
     cursor: pointer;
 }
 
+/* Style the slider thumb */
 .slider-container input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -207,6 +217,7 @@ h2 {
     cursor: pointer;
 }
 
+/* Style the value display */
 .slider-value {
     margin-top: 15px;
     font-size: 1.5rem; /* Larger font size */
@@ -215,6 +226,7 @@ h2 {
     color: #2C3E50; /* Dark Slate Blue Text Color */
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .slider-value span {
@@ -222,5 +234,26 @@ h2 {
     font-weight: bold;
     color: #7B4397; /* Purple color for the number */
     margin-left: 5px;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .slider-container input[type="range"] {
+        width: 100%; /* Full width on smaller screens */
+    }
+
+    .slider-value {
+        font-size: 1.2rem; /* Slightly smaller font size on smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .slider-container input[type="range"] {
+        height: 8px; /* Slightly thinner slider on very small screens */
+    }
+
+    .slider-value {
+        font-size: 1rem; /* Smaller font size on very small screens */
+    }
 }
 
