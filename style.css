@@ -5,10 +5,11 @@ body, h1, h2, h3, p {
 }
 
 body {
-    font-family: 'Lenora', sans-serif;
+    font-family: 'sans-serif', Arial; /* Using generic sans-serif font with Arial fallback */
+    font-weight: 700; /* Bold font */
     line-height: 1.6;
-    background-color: #e0f7fa; /* Light blue background */
-    color: black; /* Main text color */
+    background-color: #E0E7FF; /* Very Light Blue Background */
+    color: #2C3E50; /* Dark Slate Blue Text Color */
     margin: 0 auto;
     max-width: 100%;
     padding: 1rem;
@@ -20,7 +21,7 @@ header {
     justify-content: center;
     position: relative;
     text-align: center;
-    background-color: #004d40; /* Darker blue for the header */
+    background-color: #4A90E2; /* Moderate Blue for Header */
     color: #fff;
     border-bottom: 2px solid #555;
     box-sizing: border-box;
@@ -29,7 +30,7 @@ header {
 
 /* Main page header with big logo */
 header.main-header {
-    background: url('figures/cmbverse_logo2.png') no-repeat center center;
+    background: url('figures/cmbverse_logo.png') no-repeat center center;
     background-size: contain; /* Ensure the entire image is shown */
     padding: 2%; /* Add some padding to ensure the image is centered */
     height: auto; /* Let the height adjust automatically */
@@ -37,25 +38,8 @@ header.main-header {
     max-height: 40vh; /* Ensure a maximum height */
 }
 
-/* Header styles for non-main pages */
-header.page-header {
-    background-color: #004d40; /* Darker blue for the header */
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0;
-    height: 25vh;
-    box-sizing: border-box;
-}
-
-header.page-header h1 {
-    font-size: 3.2rem;
-}
-
-
 nav {
-    background-color: #ff5252; /* Red for the navbar */
+    background-color: #4A90E2; /* Moderate Blue for Nav Background */
     padding: 0.5rem 1rem;
 }
 
@@ -74,14 +58,15 @@ nav ul li {
 nav ul li a {
     color: #fff; /* White for all navigation items */
     margin: 0 1rem;
-    text-decoration: none;
+    text-decoration: none; /* Remove underline */
     padding: 0.5rem 1rem;
     border-radius: 5px;
     transition: background-color 0.3s;
+    font-weight: bold; /* Bold navigation links */
 }
 
 nav ul li a:hover {
-    background-color: #e04040; /* Darker red on hover */
+    background-color: #7B4397; /* Dark Lavender on Hover */
 }
 
 nav ul li ul {
@@ -89,7 +74,7 @@ nav ul li ul {
     position: absolute;
     top: 100%;
     left: 0;
-    background-color: #ff5252;
+    background-color: #4A90E2; /* Moderate Blue for Dropdown */
     padding: 0.5rem 0;
     border-radius: 5px;
 }
@@ -120,7 +105,7 @@ footer {
     text-align: center;
     font-size: 0.8rem;
     padding: 1rem 0;
-    background-color: #444;
+    background-color: #4A90E2; /* Moderate Blue for Footer */
     color: #fff;
     border-top: 2px solid #555;
     border-radius: 0 0 5px 5px;
@@ -140,6 +125,32 @@ img, video, iframe, embed {
 /* Responsive typography */
 body {
     font-size: 1rem;
+}
+
+/* Adjust header height for smaller screens */
+@media (max-width: 550px) {
+    header {
+        height: auto; /* Allow height to adjust automatically */
+        min-height: 15vh; /* Ensure a minimum height */
+        max-height: 25vh; /* Ensure a maximum height */
+    }
+}
+
+/* Mobile styles for the main page header */
+@media (max-width: 550px) {
+    header.main-header {
+        background: url('figures/cmbverse_logo.png') no-repeat center center;
+        background-size: contain; /* Ensure the entire image is shown */
+        padding: 1rem; /* Add some padding to ensure the image is centered */
+    }
+}
+
+/* Mobile styles for non-main pages headers */
+@media (max-width: 550px) {
+    header.page-header {
+        background: none;
+        height: 15vh; /* Adjust height for mobile screens */
+    }
 }
 
 /* Set navigation links to stack vertically on smaller screens */
@@ -170,34 +181,7 @@ body {
     }
 }
 
-/* Adjust header height for smaller screens */
-@media (max-width: 550px) {
-    header {
-        height: auto; /* Allow height to adjust automatically */
-        min-height: 15vh; /* Ensure a minimum height */
-        max-height: 25vh; /* Ensure a maximum height */
-    }
-}
-
-/* Mobile styles for the main page header */
-@media (max-width: 550px) {
-    header.main-header {
-        background: url('figures/cmbverse_logo.png') no-repeat center center;
-        background-size: contain; /* Ensure the entire image is shown */
-        padding: 1rem; /* Add some padding to ensure the image is centered */
-    }
-}
-
-/* Mobile styles for non-main pages headers */
-@media (max-width: 550px) {
-    header.page-header {
-        background: none;
-        height: 15vh; /* Adjust height for mobile screens */
-    }
-}
-
 h2 {
     margin-top: 2rem; /* Adjust as needed */
     margin-bottom: 1.5rem; /* Adjust as needed */
 }
-
