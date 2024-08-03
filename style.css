@@ -53,14 +53,25 @@ header.page-header h1 {
     font-size: 3.2rem;
 }
 
+
 nav {
-    display: flex;
-    justify-content: center;
     background-color: #ff5252; /* Red for the navbar */
-    padding: 0.5rem 0;
+    padding: 0.5rem 1rem;
 }
 
-nav a {
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    position: relative;
+}
+
+nav ul li a {
     color: #fff; /* White for all navigation items */
     margin: 0 1rem;
     text-decoration: none;
@@ -69,12 +80,31 @@ nav a {
     transition: background-color 0.3s;
 }
 
-nav a:hover {
+nav ul li a:hover {
     background-color: #e04040; /* Darker red on hover */
 }
 
-.dropdown-menu a {
-    color: #fff; /* Ensure dropdown items are white */
+nav ul li ul {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #ff5252;
+    padding: 0.5rem 0;
+    border-radius: 5px;
+}
+
+nav ul li ul li {
+    display: block;
+}
+
+nav ul li ul li a {
+    margin: 0;
+    padding: 0.5rem 1rem;
+}
+
+nav ul li:hover ul {
+    display: block;
 }
 
 main {
@@ -114,35 +144,29 @@ body {
 
 /* Set navigation links to stack vertically on smaller screens */
 @media (max-width: 600px) {
-    nav a {
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    nav ul li {
+        width: 100%;
+    }
+
+    nav ul li a {
         display: block;
-        padding: 1rem;
+        width: 100%;
         text-align: center;
-        border-top: 1px solid #ddd;
+        margin: 0;
+        padding: 1rem 0;
     }
 
-    nav a:first-child {
-        border-top: none;
-    }
-}
-
-@media (max-width: 600px) {
-    nav {
-        display: block;  /* Change to block display for better stacking */
-        text-align: center;  /* Center align the navigation links */
-    }
-    
-    nav a {
-        display: block;  /* Display links as block elements */
-        width: 100%;  /* Make them fit the width of the page */
-        padding: 1rem 0;  /* Adjust padding */
-        margin: 0;  /* Remove side margins */
-        border-top: 1px solid #ddd;  /* Adjust border for clear separation */
-        border-radius: 0;  /* Remove rounded corners for a simpler look */
+    nav ul li ul {
+        position: static;
     }
 
-    nav a:first-child {
-        border-top: none;  /* No border for the first link */
+    nav ul li ul li a {
+        padding: 1rem 0;
     }
 }
 
