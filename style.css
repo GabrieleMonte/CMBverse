@@ -167,56 +167,20 @@ h2 {
     margin-top: 2rem; /* Adjust as needed */
     margin-bottom: 1.5rem; /* Adjust as needed */
 }
-/* Container for the image and the slider */
 .slider-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    margin-bottom: 2rem; /* Add some space below each section */
-}
-
-/* Vertical slider styling */
-.vertical-slider {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.vertical-slider input[type="range"] {
-    -webkit-appearance: none;
-    width: 15px; /* Reduced thickness of the slider */
-    background: #E0E7FF; /* Background color for the slider track */
-    border-radius: 5px;
-    background: #7B4397; /* Purple color from the palette */
-    margin-left: 20px; /* Distance from the image */
-    cursor: pointer; /* Ensure the slider is clickable */
-}
-
-.vertical-slider input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    background: #7B4397; /* Purple color from the palette */
-    width: 20px; /* Thickness of the thumb */
-    height: 20px; /* Height of the thumb */
-    border-radius: 50%;
-    cursor: pointer; /* Ensure the thumb is clickable */
-}
-
-.vertical-slider input[type="range"]::-moz-range-thumb {
-    background: #7B4397; /* Purple color from the palette */
-    width: 20px; /* Thickness of the thumb */
-    height: 20px; /* Height of the thumb */
-    border-radius: 50%;
-    cursor: pointer; /* Ensure the thumb is clickable */
-}
-
-.vertical-slider span {
     margin-top: 10px;
-    font-weight: bold;
-    font-size: 1rem;
-    color: #2C3E50; /* Dark Slate Blue Text Color */
 }
 
-.vertical-slider span span {
-    color: #7B4397; /* Purple color for the number */
+.slider-container input[type="range"] {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.slider-container span {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
 }
