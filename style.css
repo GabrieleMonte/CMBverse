@@ -206,7 +206,6 @@ h2 {
     width:60%;
 }
 
-
 /* Container for the image and the slider */
 .slider-container {
     display: flex;
@@ -223,9 +222,9 @@ h2 {
 }
 
 .vertical-slider input[type="range"] {
-    -webkit-appearance: slider-vertical;
-    width: 10px; /* Thickness of the slider */
-    height: auto; /* Let the height adjust automatically */
+    -webkit-appearance: none;
+    width: 15px; /* Thickness of the slider */
+    height: 300px; /* Ensure the height matches the image height */
     background: #E0E7FF; /* Background color for the slider track */
     border-radius: 5px;
     background: #7B4397; /* Purple color from the palette */
@@ -234,17 +233,17 @@ h2 {
 
 .vertical-slider input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    background: #4A90E2; /* Blue color from the palette */
-    width: 20px; /* Thickness of the thumb */
-    height: 20px; /* Height of the thumb */
+    background: #7B4397; /* Purple color from the palette */
+    width: 30px; /* Thickness of the thumb */
+    height: 30px; /* Height of the thumb */
     border-radius: 50%;
     cursor: pointer;
 }
 
 .vertical-slider input[type="range"]::-moz-range-thumb {
-    background: #4A90E2; /* Blue color from the palette */
-    width: 20px; /* Thickness of the thumb */
-    height: 20px; /* Height of the thumb */
+    background: #7B4397; /* Purple color from the palette */
+    width: 30px; /* Thickness of the thumb */
+    height: 30px; /* Height of the thumb */
     border-radius: 50%;
     cursor: pointer;
 }
