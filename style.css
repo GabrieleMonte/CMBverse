@@ -1,211 +1,3 @@
-/* Reset some default styles */
-body, h1, h2, h3, p {
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: 'sans-serif', Arial; /* Using generic sans-serif font with Arial fallback */
-    font-weight: 700; /* Bold font */
-    line-height: 1.6;
-    background-color: #E0E7FF; /* Very Light Blue Background */
-    color: #2C3E50; /* Dark Slate Blue Text Color */
-    margin: 0 auto;
-    max-width: 100%;
-    padding: 1rem;
-}
-
-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    text-align: center;
-    background-color: #4A90E2; /* Moderate Blue for Header */
-    color: #fff;
-    border-bottom: 2px solid #555;
-    box-sizing: border-box;
-    height: 25vh; /* Height based on viewport height */
-}
-
-/* Main page header with big logo */
-header.main-header {
-    background: url('figures/cmbverse_logo.png') no-repeat center center;
-    background-size: contain; /* Ensure the entire image is shown */
-    padding: 2%; /* Add some padding to ensure the image is centered */
-    height: auto; /* Let the height adjust automatically */
-    min-height: 25vh; /* Ensure a minimum height */
-    max-height: 40vh; /* Ensure a maximum height */
-}
-
-nav {
-    background-color: #4A90E2; /* Moderate Blue for Nav Background */
-    padding: 0.5rem 1rem;
-}
-
-nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-}
-
-nav ul li {
-    position: relative;
-}
-
-nav ul li a {
-    color: #fff; /* White for all navigation items */
-    margin: 0 1rem;
-    text-decoration: none; /* Remove underline */
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    transition: background-color 0.3s, color 0.3s;
-    font-weight: bold; /* Bold navigation links */
-}
-
-nav ul li a:hover {
-    background-color: #7B4397; /* Dark Lavender on Hover */
-    color: #fff; /* Keep the text white on hover */
-    text-decoration: none; /* Ensure no underline on hover */
-}
-
-nav ul li ul {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: #4A90E2; /* Moderate Blue for Dropdown */
-    padding: 0.5rem 0;
-    border-radius: 5px;
-}
-
-nav ul li ul li {
-    display: block;
-}
-
-nav ul li ul li a {
-    margin: 0;
-    padding: 0.5rem 1rem;
-    text-decoration: none; /* Remove underline for dropdown items */
-}
-
-nav ul li ul li a:hover {
-    background-color: #7B4397; /* Dark Lavender on Hover */
-    color: #fff; /* Keep the text white on hover */
-    text-decoration: none; /* Ensure no underline on hover */
-}
-
-nav ul li:hover ul {
-    display: block;
-}
-
-main {
-    background-color: #fff;
-    padding: 2rem;
-    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
-    margin-top: 2rem;
-    border-radius: 5px;
-}
-
-footer {
-    margin-top: 2rem;
-    text-align: center;
-    font-size: 0.8rem;
-    padding: 1rem 0;
-    background-color: #4A90E2; /* Moderate Blue for Footer */
-    color: #fff;
-    border-top: 2px solid #555;
-    border-radius: 0 0 5px 5px;
-}
-
-/* Emphasized text in the main page */
-.emphasized-text {
-    margin: 2rem 0;
-}
-
-/* Ensure elements don't exceed 100% of the viewport width */
-img, video, iframe, embed {
-    max-width: 100%;
-    height: auto;
-}
-
-/* Responsive typography */
-body {
-    font-size: 1rem;
-}
-
-/* Adjust header height for smaller screens */
-@media (max-width: 550px) {
-    header {
-        height: auto; /* Allow height to adjust automatically */
-        min-height: 15vh; /* Ensure a minimum height */
-        max-height: 25vh; /* Ensure a maximum height */
-    }
-}
-
-/* Mobile styles for the main page header */
-@media (max-width: 550px) {
-    header.main-header {
-        background: url('figures/cmbverse_logo.png') no-repeat center center;
-        background-size: contain; /* Ensure the entire image is shown */
-        padding: 1rem; /* Add some padding to ensure the image is centered */
-    }
-}
-
-/* Mobile styles for non-main pages headers */
-@media (max-width: 550px) {
-    header.page-header {
-        background: none;
-        height: 15vh; /* Adjust height for mobile screens */
-    }
-}
-
-/* Set navigation links to stack vertically on smaller screens */
-@media (max-width: 600px) {
-    nav ul {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    nav ul li {
-        width: 100%;
-    }
-
-    nav ul li a {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin: 0;
-        padding: 1rem 0;
-    }
-
-    nav ul li ul {
-        position: static;
-    }
-
-    nav ul li ul li a {
-        padding: 1rem 0;
-    }
-}
-
-h2 {
-    margin-top: 2rem; /* Adjust as needed */
-    margin-bottom: 1.5rem; /* Adjust as needed */
-}
-#mySliderkTT {
-    width:60%;
-}
-
-#mySliderDL {
-    width:60%;
-}
-
-#mySliderkEE {
-    width:60%;
-}
-
 /* Container for the image and the slider */
 .slider-container {
     display: flex;
@@ -223,29 +15,30 @@ h2 {
 
 .vertical-slider input[type="range"] {
     -webkit-appearance: none;
-    width: 15px; /* Thickness of the slider */
-    height: 300px; /* Ensure the height matches the image height */
+    width: 15px; /* Reduced thickness of the slider */
     background: #E0E7FF; /* Background color for the slider track */
     border-radius: 5px;
     background: #7B4397; /* Purple color from the palette */
     margin-left: 20px; /* Distance from the image */
+    cursor: pointer; /* Ensure the slider is clickable */
 }
 
 .vertical-slider input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
     background: #7B4397; /* Purple color from the palette */
-    width: 30px; /* Thickness of the thumb */
-    height: 30px; /* Height of the thumb */
+    width: 20px; /* Thickness of the thumb */
+    height: 20px; /* Height of the thumb */
     border-radius: 50%;
-    cursor: pointer;
+    cursor: pointer; /* Ensure the thumb is clickable */
 }
 
 .vertical-slider input[type="range"]::-moz-range-thumb {
     background: #7B4397; /* Purple color from the palette */
-    width: 30px; /* Thickness of the thumb */
-    height: 30px; /* Height of the thumb */
+    width: 20px; /* Thickness of the thumb */
+    height: 20px; /* Height of the thumb */
     border-radius: 50%;
-    cursor: pointer;
+    cursor: pointer; /* Ensure the thumb is clickable */
 }
 
 .vertical-slider span {
