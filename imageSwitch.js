@@ -57,7 +57,6 @@ function callMyScriptkEE(value) {
     img.src = 'class_figures/kEE_phase_shift_neff_lens_images/kEE_phase_shift_Neff_v' + value + '_lens.png';
 }
 
-
 // Function to update slider background
 function updateSliderBackground(value, sliderId) {
     const slider = document.getElementById(sliderId);
