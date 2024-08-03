@@ -40,7 +40,9 @@
         </div>
         <div class="slider-container">
             <input type="range" id="mySliderDL" min="1" max="100" value="50" oninput="updateValueDL(this.value)">
-            <span id="sliderValueDL">50</span>
+            <div class="slider-value">
+                <span>N<sub>ν</sub>: <span id="sliderValueDL">50</span></span>
+            </div>
         </div>
         
         <h3 class="mt-5">Neutrino levels and CMB damping considering in kTT phase shift and lensing signal</h3>
@@ -49,7 +51,9 @@
         </div>
         <div class="slider-container">
             <input type="range" id="mySliderkTT" min="1" max="100" value="50" oninput="updateValuekTT(this.value)">
-            <span id="sliderValuekTT">50</span>
+            <div class="slider-value">
+                <span>N<sub>ν</sub>: <span id="sliderValuekTT">50</span></span>
+            </div>
         </div>
         
         <h3 class="mt-5">Neutrino levels and CMB damping considering in kEE phase shift and lensing signal</h3>
@@ -58,7 +62,9 @@
         </div>
         <div class="slider-container">
             <input type="range" id="mySliderkEE" min="1" max="100" value="50" oninput="updateValuekEE(this.value)">
-            <span id="sliderValuekEE">50</span>
+            <div class="slider-value">
+                <span>N<sub>ν</sub>: <span id="sliderValuekEE">50</span></span>
+            </div>
         </div>
     </div>
     <script src="imageSwitch.js"></script>
@@ -67,4 +73,3 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
-
