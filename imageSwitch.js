@@ -56,3 +56,11 @@ function callMyScriptkEE(value) {
     var img = document.getElementById("kEEimage");
     img.src = 'class_figures/kEE_phase_shift_neff_lens_images/kEE_phase_shift_Neff_v' + value + '_lens.png';
 }
+
+
+// Function to update slider background
+function updateSliderBackground(value, sliderId) {
+    const slider = document.getElementById(sliderId);
+    const percentage = (value - slider.min) / (slider.max - slider.min) * 100;
+    slider.style.background = `linear-gradient(to right, #7B4397 0%, #7B4397 ${percentage}%, #e0e0e0 ${percentage}%, #e0e0e0 100%)`;
+}
