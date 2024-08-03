@@ -205,3 +205,57 @@ h2 {
 #mySliderkEE {
     width:60%;
 }
+
+
+/* Container for the image and the slider */
+.slider-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin-bottom: 2rem; /* Add some space below each section */
+}
+
+/* Vertical slider styling */
+.vertical-slider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.vertical-slider input[type="range"] {
+    -webkit-appearance: slider-vertical;
+    width: 10px; /* Thickness of the slider */
+    height: auto; /* Let the height adjust automatically */
+    background: #E0E7FF; /* Background color for the slider track */
+    border-radius: 5px;
+    background: #7B4397; /* Purple color from the palette */
+    margin-left: 20px; /* Distance from the image */
+}
+
+.vertical-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    background: #4A90E2; /* Blue color from the palette */
+    width: 20px; /* Thickness of the thumb */
+    height: 20px; /* Height of the thumb */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.vertical-slider input[type="range"]::-moz-range-thumb {
+    background: #4A90E2; /* Blue color from the palette */
+    width: 20px; /* Thickness of the thumb */
+    height: 20px; /* Height of the thumb */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.vertical-slider span {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #2C3E50; /* Dark Slate Blue Text Color */
+}
+
+.vertical-slider span span {
+    color: #7B4397; /* Purple color for the number */
+}
