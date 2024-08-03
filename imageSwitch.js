@@ -30,3 +30,17 @@ function callMyScriptkEE(value) {
     var img = document.getElementById("kEEimage");
     img.src = 'class_figures/kEE_phase_shift_neff_lens_images/kEE_phase_shift_Neff_v' + value + '_lens.png';
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    var dlImage = document.getElementById('Dlimage');
+    var mySliderDL = document.getElementById('mySliderDL');
+    mySliderDL.style.height = dlImage.clientHeight + 'px';
+
+    var kTTImage = document.getElementById('KTTImage');
+    var mySliderkTT = document.getElementById('mySliderkTT');
+    mySliderkTT.style.height = kTTImage.clientHeight + 'px';
+
+    var kEEImage = document.getElementById('kEEimage');
+    var mySliderkEE = document.getElementById('mySliderkEE');
+    mySliderkEE.style.height = kEEImage.clientHeight + 'px';
+});
