@@ -190,7 +190,7 @@ h2 {
     width: 60%; /* Length relative to the container width */
     height: 0.5em; /* Thickness of the slider */
     margin: 10px 0;
-    background: linear-gradient(to right, #7B4397 0%, #7B4397 50%, #e0e0e0 50%, #e0e0e0 100%);
+    background:  linear-gradient(#7B4397, #fff);
     border-radius: 0.25em;
     outline: none;
     -webkit-appearance: none;
