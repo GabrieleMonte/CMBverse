@@ -75,7 +75,7 @@ function updateCombinedValue() {
 // Function to update image based on As and ns values
 function updateImage(As_value, ns_value) {
     const img = document.getElementById("Dlimage");
-    img.src = `class_figures/Dl_As_${As_value}_ns_${ns_value}.png`;
+    img.src = `class_figures/As_ns_figures/Dl_As_${As_value}_ns_${ns_value}.png`;
 }
 
 // Function to update slider background
