@@ -57,6 +57,27 @@ function callMyScriptkEE(value) {
     img.src = 'class_figures/kEE_phase_shift_neff_lens_images/kEE_phase_shift_Neff_v' + value + '_lens.png';
 }
 
+
+// Function to update As and ns values and change image
+function updateCombinedValue() {
+    const As_value = document.getElementById('mySliderAs').value;
+    const ns_value = document.getElementById('mySliderNs').value;
+
+    document.getElementById('sliderValueAs').innerText = As_value;
+    document.getElementById('sliderValueNs').innerText = ns_value;
+
+    updateSliderBackground(As_value, 'mySliderAs');
+    updateSliderBackground(ns_value, 'mySliderNs');
+
+    updateImage(As_value, ns_value);
+}
+
+// Function to update image based on As and ns values
+function updateImage(As_value, ns_value) {
+    const img = document.getElementById("Dlimage");
+    img.src = `class_figures/Dl_As_${As_value}_ns_${ns_value}.png`;
+}
+
 // Function to update slider background
 function updateSliderBackground(value, sliderId) {
     const slider = document.getElementById(sliderId);
