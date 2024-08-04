@@ -82,6 +82,24 @@ function updateImage(As_index, ns_index) {
     img.src = `class_figures/As_ns_figures/Dl_As_${As_index}_ns_${ns_index}.png`;
 }
 
+// Function to initialize the sliders and their backgrounds
+function initialize_As_ns_Sliders() {
+    const initialAsValue = 8;
+    const initialNsValue = 6;
+
+    document.getElementById('mySliderAs').value = initialAsValue;
+    document.getElementById('mySliderNs').value = initialNsValue;
+
+    document.getElementById('sliderValueAs').innerText = ln1010As_array[initialAsValue - 1].toFixed(2);
+    document.getElementById('sliderValueNs').innerText = ns_array[initialNsValue - 1].toFixed(2);
+
+    updateSliderBackground(initialAsValue, 'mySliderAs');
+    updateSliderBackground(initialNsValue, 'mySliderNs');
+}
+
+// Call initializeSliders when the page loads
+window.onload = initialize_As_ns_Sliders;
+
 // Function to update slider background
 function updateSliderBackground(value, sliderId) {
     const slider = document.getElementById(sliderId);
