@@ -256,3 +256,85 @@ h2 {
         font-size: 1rem; /* Smaller font size on very small screens */
     }
 }
+
+/* Style for the new slider container */
+.new-slider-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Match the width of the image container */
+    margin-top: 20px;
+}
+
+/* Style the new sliders */
+.new-slider-container input[type="range"] {
+    width: 60%; /* Length relative to the container width */
+    height: 1em; /* Increased thickness of the slider */
+    margin: 10px 0;
+    background: #e0e0e0; /* Gray background */
+    border-radius: 0.25em;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+/* Style the new slider thumb */
+.new-slider-container input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.5em;
+    height: 1.5em;
+    background: #7B4397; /* Purple color from the palette */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.new-slider-container input[type="range"]::-moz-range-thumb {
+    width: 1.5em;
+    height: 1.5em;
+    background: #7B4397; /* Purple color from the palette */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Style the value display for the new sliders */
+.new-slider-value {
+    margin-top: 1em;
+    font-size: 1.5rem; /* Larger font size */
+    font-weight: bold;
+    font-family: 'sans-serif', Arial; /* San-serif font */
+    color: #2C3E50; /* Dark Slate Blue Text Color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.new-slider-value span {
+    font-family: 'sans-serif', Arial; /* San-serif font */
+    font-weight: bold;
+    color: #7B4397; /* Purple color for the number */
+    margin-left: 0.5em;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .new-slider-container input[type="range"] {
+        width: 80%; /* Full width on smaller screens */
+    }
+
+    .new-slider-value {
+        font-size: 1.2rem; /* Slightly smaller font size on smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .new-slider-container input[type="range"] {
+        height: 0.8em; /* Slightly thinner slider on very small screens */
+    }
+
+    .new-slider-value {
+        font-size: 1rem; /* Smaller font size on very small screens */
+    }
+}
