@@ -61,22 +61,25 @@ function callMyScriptkEE(value) {
 
 // Function to update As and ns values and change image
 function updateCombinedValue() {
-    const As_value = document.getElementById('mySliderAs').value;
-    const ns_value = document.getElementById('mySliderNs').value;
+    const As_index = document.getElementById('mySliderAs').value - 1;
+    const ns_index = document.getElementById('mySliderNs').value - 1;
 
-    document.getElementById('sliderValueAs').innerText = As_value;
-    document.getElementById('sliderValueNs').innerText = ns_value;
+    const As_value = ln1010As_array[As_index];
+    const ns_value = ns_array[ns_index];
 
-    updateSliderBackground(As_value, 'mySliderAs');
-    updateSliderBackground(ns_value, 'mySliderNs');
+    document.getElementById('sliderValueAs').innerText = As_value.toFixed(2);
+    document.getElementById('sliderValueNs').innerText = ns_value.toFixed(2);
 
-    updateImage(As_value, ns_value);
+    updateSliderBackground(As_index + 1, 'mySliderAs');
+    updateSliderBackground(ns_index + 1, 'mySliderNs');
+
+    updateImage(As_index + 1, ns_index + 1);
 }
 
 // Function to update image based on As and ns values
-function updateImage(As_value, ns_value) {
+function updateImage(As_index, ns_index) {
     const img = document.getElementById("Dlimage");
-    img.src = `class_figures/As_ns_figures/Dl_As_${As_value}_ns_${ns_value}.png`;
+    img.src = `class_figures/As_ns_figures/Dl_As_${As_index}_ns_${ns_index}.png`;
 }
 
 // Function to update slider background
