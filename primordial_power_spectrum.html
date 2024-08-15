@@ -28,7 +28,8 @@
     </nav>
     <div class="container">
         <h1 class="mt-5">Primordial Power Spectrum</h1>
-        <p class="lead">Information about the Primordial Power Spectrum and its impact on the Cosmic Microwave Background.</p>
+        <p class="lead">The Primordial Power Spectrum shows the size of the fluctuations in the CMB as a function of angular scale, constructed from anisotropy data.
+        It describes the initial perturbations in the universe which eventually grew into the cosmic structures we observe today. </p>
         <div class="Dl-container">
             <img id="Dlimage" src="class_figures/As_ns_figures/Dl_As_8_ns_6.png">
             <div class="new-slider-container">
@@ -39,6 +40,24 @@
                 <input type="range" id="mySliderNs" min="1" max="15" value="6" oninput="updateCombinedValue()">
                 <div class="new-slider-value">
                     <span>\( n_s = \)</span><span id="sliderValueNs">0.98</span>
+                </div>
+            </div>
+        </div>
+        <div class="Dl-container">
+            <img id="imageAS" src="class_figures/a_s_figures/Dl_a_s_15.png">
+            <div class="slider-container">
+                <input type="range" id="mySlidera_s" min="1" max="30" value="15" oninput="updateValuea_s(this.value); updateSliderBackground(this.value, 'mySlidera_s');">
+                <div class="slider-value">
+                    <span>\( \ln(10^{10} A_s) = \)</span><span id="sliderValuea_s">3.50</span>
+                </div>
+            </div>
+        </div>
+        <div class="Dl-container">
+            <img id="imageNS" src="class_figures/n_s_figures/Dl_s_n15.png">
+            <div class="slider-container">
+                <input type="range" id="mySlidern_s" min="1" max="30" value="15" oninput="updateValuen_s(this.value); updateSliderBackground(this.value, 'mySlidern_s');">
+                <div class="slider-value">
+                    <span>\( n_s = \)</span><span id="sliderValuen_s">0.98</span>
                 </div>
             </div>
         </div>
