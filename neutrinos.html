@@ -38,7 +38,7 @@
     <p class="lead">
         If we increase the mass of non-cold dark matter species, \(m_ncdm$\) (interpreted as massive neutrinos), the additional matter density of the early universe would increase the amplitude of gravitational potentials, altering the zero-point of acoustic oscillations. This in turn decreases the relative peak heights, most notably at lower multipoles. Additionally, since the neutrino species travel at relativistic speeds, their effect suppresses the matter power spectrum. Thus, a greater mass reduces the lensing power measured, manifesting as a reduced amplitude in the lensing spectrum and sharper peaks in the power spectrum. It is important to note that these effects are quite subtle, as the additional mass density is relatively small compared to greater contributors such as baryons or dark matter.
     </p>
-    <div class="mncdm-container">
+    <div class="Cosmo-container">
         <img id="mncdmImage" src="class_figures/Neutrino_m_ncdm_images/Dl_ns_v1.png" width="65%">
         <div class="slider-container">
             <input type="range" id="mySlidermncdm" min="1" max="21" value="1" oninput="updateValuemncdm(this.value); updateSliderBackground(this.value, 'mySlidermncdm');">
@@ -53,7 +53,7 @@
     <p class="lead">
         If we instead increase the number of relativistic neutrino species, \(N_\nu\), this not only increases the photon-baryon interaction rate but also lengthens the radiation-dominated stage of the universe. These effects combine to enhance the damping on the power spectrum at higher multipoles. Additionally, since the decay of potential wells in the radiation-dominated universe is extended, the lensing power acting on the photons will be lessened. In this simulation, we fix the values for \(theta_s\), \(a_{eq}\), and \(\omega_b\).
     </p>
-    <div class="Nnu1-container">
+    <div class="Cosmo-container">
         <img id="Nnu1Image" src="class_figures/Neutrino_Nnu1_images/Dl_damping_Neff_v50_lens.png">
         <div class="slider-container">
             <input type="range" id="mySliderNnu1" min="1" max="100" value="50" oninput="updateValueNnu1(this.value); updateSliderBackground(this.value, 'mySliderNnu1');">
@@ -67,7 +67,7 @@
     <p class="lead">
         A critical feature of the neutrino species is that they are free-streaming, which allows their influence on the gravitational metric ahead of the sound horizon. This manifests as a phase shift towards lower multipoles. By examining the spectrums of our transfer function, which removes the damping envelope, we can isolate this effect. For this simulation, we fix the values for \(\theta_s\) , \(a_{eq}\), \(\omega_b\), \(\theta_d\), and \(A\).
     </p>
-    <div class="Nnu2-container">
+    <div class="Cosmo-container">
         <img id="Nnu2image" src="class_figures/Neutrino_Nnu2_images/kTT_phase_shift_Neff_v50_lens.png">
         <div class="slider-container">
             <input type="range" id="mySliderNnu2" min="1" max="100" value="50" oninput="updateValueNnu2(this.value); updateSliderBackground(this.value, 'mySliderNnu2');">
