@@ -42,7 +42,7 @@ function updateValueNnu1(val) {
 function callMyScriptNnu1(value) {
     console.log("Nnu1 slider value is: " + value);
     var img = document.getElementById("Nnu1Image");
-    img.src = 'class_figures/Neutrino_Nnu1_images/Dl_damping_Neff_v' + value + '_lens.png';
+    img.src = 'class_figures/Neutrino_Nnu1_images/Dl_damping_Neff_v' + value + '.png';
 }
 
 // Function to update kEE value
