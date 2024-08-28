@@ -100,8 +100,8 @@ function updateCombinedValue() {
     const omega_m_index = document.getElementById('mySlideromegam').value - 1;
     const omega_b_index = document.getElementById('mySlideromegab').value - 1;
     const Omega_L_value = Omega_L_pie_array[Omega_L_index];
-    const omega_m_value = Omega_m_pie_array[omega_m_index];
-    const omega_b_value = Omega_b_pie_array[omega_b_index];
+    const omega_m_value = omega_m_pie_array[omega_m_index];
+    const omega_b_value = omega_b_pie_array[omega_b_index];
 
     document.getElementById('sliderValueOmegaL').innerText = Omega_L_value.toFixed(2);
     document.getElementById('sliderValueomegam').innerText = omega_m_value.toFixed(2);
