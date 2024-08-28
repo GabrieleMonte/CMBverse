@@ -6,26 +6,7 @@ const m_nus_array = [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45,
 const Omega_L_pie_array = [0.409, 0.44 , 0.471, 0.502, 0.533, 0.564, 0.596, 0.627, 0.658, 0.689, 0.72 , 0.751, 0.782, 0.813, 0.844, 0.876, 0.907, 0.938, 0.969]
 const omega_m_pie_array = [0.099, 0.104, 0.109, 0.113, 0.118, 0.123, 0.128, 0.133, 0.138, 0.142, 0.147, 0.152, 0.157, 0.162, 0.167, 0.171, 0.176, 0.181, 0.186]
 const omega_b_pie_array = [0.0154, 0.0162, 0.017 , 0.0178, 0.0185, 0.0193, 0.0201, 0.0209, 0.0216, 0.0224, 0.0232, 0.024 , 0.0248, 0.0255, 0.0263, 0.0271, 0.0279, 0.0286, 0.0294]
-# Create all combinations of indices
-num_points = 15
-indices = np.arange(num_points)
-all_index_combinations = list(itertools.product(indices, repeat=3))
 
-# Create an array to store all combinations of parameter values
-num_combinations = num_points**3
-pie_pars_combinations = np.zeros((3, num_combinations))
-pie_ind_combinations = np.zeros((3, num_combinations), dtype=int)
-
-parameter_names = list(pie_pars_arrays.keys())
-
-# Fill the arrays with parameter values and indices
-for i, idx_comb in enumerate(all_index_combinations):
-    for j, param_name in enumerate(parameter_names):
-        pie_pars_combinations[j, i] = pie_pars_arrays[param_name][idx_comb[j]]
-        pie_ind_combinations[j, i] = idx_comb[j]
-pie_pars_combinations=np.transpose(pie_pars_combinations)
-print(np.shape(pie_pars_combinations))
-# Create all combinatio
 // Function to update DL value
 function updateValuemncdm(val) {
     const m_nus_value = m_nus_array[val - 1];
