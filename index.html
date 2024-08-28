@@ -30,14 +30,22 @@
     <div class="container">
         <h1 class="mt-5">Welcome to CMBverse</h1>
         <p class="lead">Explore the fascinating world of cosmological parameters and their impact on the Cosmic Microwave Background.</p>
-        <div class="Cosmo-container">
-                <img id="Cosmoimage" src="class_figures/Dl_cosmo_pars_images/Dl_Neff_v50.png">
-                <div class="slider-container">
-                    <input type="range" id="mySliderCosmo" min="1" max="100" value="50" oninput="updateValueCosmo(this.value); updateSliderBackground(this.value, 'mySliderCosmo');">
-                    <div class="slider-value">
-                        <span>\(N_{\nu} = \)</span><span id="sliderValueCosmo">3.50</span>
-                    </div>
+        <div class="Dl-container">
+            <img id="Dlimage" src="class_figures/pie_chart_figures/Dl_pie_chart_OmegaL_10_omegam_10_omegab_10.png">
+            <div class="new-slider-container">
+                <input type="range" id="mySliderOmegaL" min="1" max="19" value="10" oninput="updateCombinedValue()">
+                <div class="new-slider-value">
+                    <span>\( \Omega_\Lambda) = \)</span><span id="sliderValueOmegaL">3.1</span>
                 </div>
+                <input type="range" id="mySlideromegam" min="1" max="19" value="10" oninput="updateCombinedValue()">
+                <div class="new-slider-value">
+                    <span>\( \omega_m = \)</span><span id="sliderValueomegam">0.98</span>
+                </div>
+                <input type="range" id="mySlideromegab" min="1" max="19" value="10" oninput="updateCombinedValue()">
+                <div class="new-slider-value">
+                    <span>\( \omega_b = \)</span><span id="sliderValueomegab">0.98</span>
+                </div>
+            </div>
         </div>
     </div>
     <script src="imageSwitch.js"></script>
