@@ -6,6 +6,9 @@ const m_nus_array = [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45,
 const Omega_L_pie_array = [0.409, 0.44 , 0.471, 0.502, 0.533, 0.564, 0.596, 0.627, 0.658, 0.689, 0.72 , 0.751, 0.782, 0.813, 0.844, 0.876, 0.907, 0.938, 0.969]
 const omega_m_pie_array = [0.099, 0.104, 0.109, 0.113, 0.118, 0.123, 0.128, 0.133, 0.138, 0.142, 0.147, 0.152, 0.157, 0.162, 0.167, 0.171, 0.176, 0.181, 0.186]
 const omega_b_pie_array = [0.0154, 0.0162, 0.017 , 0.0178, 0.0185, 0.0193, 0.0201, 0.0209, 0.0216, 0.0224, 0.0232, 0.024 , 0.0248, 0.0255, 0.0263, 0.0271, 0.0279, 0.0286, 0.0294]
+const omega_cdm_arrary = [0.00, 0.00, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03, 0.03, 0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.07, 0.07, 0.07, 0.08, 0.08, 0.08, 0.08, 0.09, 0.09, 0.09, 0.10, 0.10, 0.10, 0.10, 0.11, 0.11, 0.11, 0.12, 0.12, 0.12, 0.13, 0.13, 0.13, 0.13, 0.14, 0.14, 0.14]
+const omega_b_arrary = [0.02, 0.02, 0.03, 0.03, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.07, 0.07, 0.07, 0.07, 0.08, 0.08, 0.08, 0.08, 0.09, 0.09, 0.09, 0.09, 0.10, 0.10, 0.10, 0.10, 0.11, 0.11, 0.11, 0.11, 0.12, 0.12, 0.12, 0.12, 0.13, 0.13, 0.13, 0.13, 0.14, 0.14, 0.14, 0.14]
+
 
 // Function to update DL value
 function updateValuemncdm(val) {
@@ -35,32 +38,60 @@ function callMyScriptCosmo(value) {
     img.src = 'class_figures/Dl_cosmo_pars_images/Dl_Neff_v' + value + '.png';
 }
 
-// Function to update kTT value
+// Function to update Neutrino Nnu1 value
 function updateValueNnu1(val) {
     const N_eff_value = N_eff_array[val - 1];
     document.getElementById('sliderValueNnu1').innerText = N_eff_value.toFixed(2);
     callMyScriptNnu1(val);
 }
 
-// Function to change kTT image
+// Function to change Neutrino Nnu1 image
 function callMyScriptNnu1(value) {
     console.log("Nnu1 slider value is: " + value);
     var img = document.getElementById("Nnu1Image");
     img.src = 'class_figures/Neutrino_Nnu1_images/Dl_damping_Neff_v' + value + '.png';
 }
 
-// Function to update kEE value
+// Function to update Neutrino Nnu2 value
 function updateValueNnu2(val) {
     const N_eff_value = N_eff_array[val - 1];
     document.getElementById('sliderValueNnu2').innerText = N_eff_value.toFixed(2);
     callMyScriptNnu2(val);
 }
 
-// Function to change kEE image
+// Function to change Neutrino Nnu2 image
 function callMyScriptNnu2(value) {
     console.log("Nnu2 dampening slider value is: " + value);
     var img = document.getElementById("Nnu2image");
     img.src = 'class_figures/Neutrino_Nnu2_images/kTT_phase_shift_Neff_v' + value + '_lens.png';
+}
+
+// Function to update omega_cdm value
+function updateValueomega_cdm(val) {
+    const omega_cdm_value = omega_cdm_array[val - 1];
+    document.getElementById('sliderValueomega_cdm').innerText = omega_cdm_value.toFixed(2);
+    callMyScriptomega_cdm(val);
+}
+
+// Function to change omega_cdm image
+function callMyScriptomega_cdm(value) {
+    console.log("omega_cdm slider value is: " + value);
+    var img = document.getElementById("omega_cdmImage");
+    img.src = 'class_figures/omega_cdm_images/Dl_omega_cdm_v' + value + '.png';
+}
+
+// Function to update Neutrino Nnu2 value
+function updateValueomega_cdm_aeq_fixed(val) {
+    const omega_cdm_aeq_fixed_value = omega_cdm_aeq_fixed_array[val - 1];
+    document.getElementById('sliderValueomega_cdm_aeq_fixed').innerText = omega_cdm_aeq_fixed_value.toFixed(2);
+    callMyScriptomega_cdm_aeq_fixed(val);
+}
+
+// Function to change Neutrino Nnu2 image
+function callMyScriptomega_cdm_aeq_fixed(value) {
+    console.log("omega_cdm_aeq_fixed dampening slider value is: " + value);
+    var img = document.getElementById("omega_cdm_aeq_fixedimage");
+    img.src = 'class_figures/omega_cdm_aeq_fixed_images/Dl_omega_cdm_fixed_aeq_v' + value + '_new.png';
 }
 
 // Function to update A_S value
