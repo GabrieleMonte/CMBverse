@@ -8,7 +8,7 @@ const omega_m_pie_array = [0.099, 0.104, 0.109, 0.113, 0.118, 0.123, 0.128, 0.13
 const omega_b_pie_array = [0.0154, 0.0162, 0.017 , 0.0178, 0.0185, 0.0193, 0.0201, 0.0209, 0.0216, 0.0224, 0.0232, 0.024 , 0.0248, 0.0255, 0.0263, 0.0271, 0.0279, 0.0286, 0.0294]
 const omega_cdm_arrary = [0.00, 0.00, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03, 0.03, 0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.07, 0.07, 0.07, 0.08, 0.08, 0.08, 0.08, 0.09, 0.09, 0.09, 0.10, 0.10, 0.10, 0.10, 0.11, 0.11, 0.11, 0.12, 0.12, 0.12, 0.13, 0.13, 0.13, 0.13, 0.14, 0.14, 0.14]
 const omega_b_arrary = [0.02, 0.02, 0.03, 0.03, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.07, 0.07, 0.07, 0.07, 0.08, 0.08, 0.08, 0.08, 0.09, 0.09, 0.09, 0.09, 0.10, 0.10, 0.10, 0.10, 0.11, 0.11, 0.11, 0.11, 0.12, 0.12, 0.12, 0.12, 0.13, 0.13, 0.13, 0.13, 0.14, 0.14, 0.14, 0.14]
-
+const omega_b_arrary_reverse = omega_b_array.reverse();
 
 // Function to update DL value
 function updateValuemncdm(val) {
@@ -66,10 +66,12 @@ function callMyScriptNnu2(value) {
     img.src = 'class_figures/Neutrino_Nnu2_images/kTT_phase_shift_Neff_v' + value + '_lens.png';
 }
 
-// Function to update omega_cdm value
+// Function to update omega_cdm value and omega_b value
 function updateValueomega_cdm(val) {
     const omega_cdm_value = omega_cdm_array[val - 1];
+    const omega_b_value = omega_b_array_reverse[val - 1];
     document.getElementById('sliderValueomega_cdm').innerText = omega_cdm_value.toFixed(2);
+    document.getElementById('sliderValueomega_b').innerText = omega_b_value.toFixed(2);
     callMyScriptomega_cdm(val);
 }
 
