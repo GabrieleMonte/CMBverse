@@ -35,20 +35,21 @@
         <h1 class="mt-5">Dark Matter</h1>
         <p class="lead">Information about Dark Matter and its impact on the Cosmic Microwave Background.</p>
         <div class="Cosmo-container">
-        <img id="omega_cdmImage" src="class_figures/omega_cdm_images/Dl_omega_cdm_v1.png" width="65%">
+        <img id="omega_cdmImage" src="class_figures/omega_cdm_images/Dl_omega_cdm_v25.png" width="65%">
         <div class="slider-container">
-            <input type="range" id="mySlideromega_cdm" min="1" max="50" value="1" oninput="updateValueomega_cdm(this.value); updateSliderBackground(this.value, 'mySlideromega_cdm');">
+            <input type="range" id="mySlideromega_cdm" min="1" max="50" value="25" oninput="updateValueomega_cdm(this.value); updateSliderBackground(this.value, 'mySlideromega_cdm');">
             <div class="slider-value">
-                <span>\(m_{ncdm} = \)</span><span id="sliderValueomega_cdm">3.50</span>
+                <span>\(\omega_{cdm} = \)</span><span id="sliderValueomega_cdm">0.12</span>
             </div>
         </div>
         <p class="lead">Information about Dark Matter and its impact on the Cosmic Microwave Background.</p>
         <div class="Cosmo-container">
         <img id="omega_cdm_aeq_fixedImage" src="class_figures/omega_cdm_aeq_fixed_images/Dl_omega_cdm_fixed_aeq_v1.png" width="65%">
-        <div class="slider-container">
+        <div class="new-slider-container">
             <input type="range" id="mySlideromega_cdm_aeq_fixed" min="1" max="50" value="1" oninput="updateValueomega_cdm_aeq_fixed(this.value); updateSliderBackground(this.value, 'mySlideromega_cdm_aeq_fixed');">
             <div class="slider-value">
-                <span>\(m_{ncdm} = \)</span><span id="sliderValueomega_cdm_aeq_fixed">3.50</span>
+                <span>\(\omega_{cdm} = \)</span><span id="sliderValueomega_cdm_aeq_fixed">0</span>
+                <span>\(\omega_{b} = \)</span><span id="sliderValueomega_b">0.14</span>
             </div>
         </div>
     </div>
