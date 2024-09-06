@@ -69,9 +69,7 @@ function callMyScriptNnu2(value) {
 // Function to update omega_cdm value and omega_b value
 function updateValueomega_cdm(val) {
     const omega_cdm_value = omega_cdm_array[val - 1];
-    const omega_b_value = omega_b_array_reverse[val - 1];
     document.getElementById('sliderValueomega_cdm').innerText = omega_cdm_value.toFixed(2);
-    document.getElementById('sliderValueomega_b').innerText = omega_b_value.toFixed(2);
     callMyScriptomega_cdm(val);
 }
 
