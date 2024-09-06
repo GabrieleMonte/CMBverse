@@ -34,23 +34,26 @@
         <p class="lead">We can initially just change the amount of dark matter in the universe \(\omega_{cdm}\). By holding the amount of baryonic matter \(\omega_{b}\) constant, we then expect the total matter content to change accordingly.</p>
 
         <div class="Cosmo-container">
-        <img id="omega_cdmImage" src="class_figures/omega_cdm_images/Dl_omega_cdm_v25.png" width="65%">
-        <div class="slider-container">
-            <input type="range" id="mySlideromega_cdm" min="1" max="50" value="25" oninput="updateValueomega_cdm(this.value); updateSliderBackground(this.value, 'mySlideromega_cdm');">
-            <div class="slider-value">
-                <span>\( \omega_{cdm} = \)</span><span id="sliderValueomega_cdm">0.12</span>
+            <img id="omega_cdmImage" src="class_figures/omega_cdm_images/Dl_omega_cdm_v25.png" width="65%">
+            <div class="slider-container">
+                <input type="range" id="mySlideromega_cdm" min="1" max="50" value="25" oninput="updateValueomega_cdm(this.value); updateSliderBackground(this.value, 'mySlideromega_cdm');">
+                <div class="slider-value">
+                    <span>\( \omega_{cdm} = \)</span><span id="sliderValueomega_cdm">0.12</span>
+                </div>
             </div>
         </div>
+        
         <p class="lead">We can then adjust the amount of dark matter and baryonic matter degenerately. Doing so keeps the total matter content constant, which highlights the key effects of dark matter versus baryonic matter.</p>
+        
         <div class="Cosmo-container">
-        <img id="omega_cdm_aeq_fixedImage" src="class_figures/omega_cdm_aeq_fixed_images/Dl_omega_cdm_fixed_aeq_v1_new.png" width="65%">
-        <div class="slider-container">
-            <input type="range" id="mySlideromega_cdm_aeq_fixed" min="1" max="50" value="1" oninput="updateValueomega_cdm_aeq_fixed(this.value); updateSliderBackground(this.value, 'mySlideromega_cdm_aeq_fixed');">
-            <div class="slider-value">
-                <span>\( \omega_{cdm} = \)</span><span id="sliderValueomega_cdm_aeq_fixed">0.00</span>
+            <img id="omega_cdm_aeq_fixedImage" src="class_figures/omega_cdm_aeq_fixed_images/Dl_omega_cdm_fixed_aeq_v1_new.png" width="65%">
+            <div class="slider-container">
+                <input type="range" id="mySlideromega_cdm_aeq_fixed" min="1" max="50" value="1" oninput="updateValueomega_cdm_aeq_fixed(this.value); updateSliderBackground(this.value, 'mySlideromega_cdm_aeq_fixed');">
+                <div class="slider-value">
+                    <span>\( \omega_{cdm} = \)</span><span id="sliderValueomega_cdm_aeq_fixed">0.00</span>
+                </div>
             </div>
         </div>
-    </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
