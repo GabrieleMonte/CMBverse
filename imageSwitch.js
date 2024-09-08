@@ -167,6 +167,22 @@ function initialize_pie_chart_Sliders() {
     updateSliderBackground(initialomegamValue, 'mySlideromegam');
     updateSliderBackground(initialomegabValue, 'mySlideromegab');
 }
+function initialize_Nnu1_slider() {
+    const initialNnu1Value = 44;
+    document.getElementById('mySliderNnu1').value = initialNnu1Value;
+
+    document.getElementById('sliderValueNnu1').innerText = N_eff_array[initialNnu1Value - 1].toFixed(2);
+
+    updateSliderBackground(initialNnu1Value, 'mySliderNnu1');
+}
+function initialize_Nnu2_slider() {
+    const initialNnu2Value = 51;
+    document.getElementById('mySliderNnu2').value = initialNnu2Value;
+
+    document.getElementById('sliderValueNnu2').innerText = N_eff_array2[initialNnu2Value - 1].toFixed(2);
+
+    updateSliderBackground(initialNnu2Value, 'mySliderNnu2');
+}
 
 // Function to update pie chart (omega_m, omega_b, Omega_L) and change image
 function updateCombinedValue2() {
@@ -216,6 +232,8 @@ function initialize_pie_chart_Sliders_2() {
 window.onload = function() {
     initialize_pie_chart_Sliders();
     initialize_pie_chart_Sliders_2();
+    initialize_Nnu1_slider();
+    initialize_Nnu2_slider();
 };
 
 // Function to update slider background
