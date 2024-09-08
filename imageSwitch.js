@@ -216,10 +216,21 @@ function initialize_pie_chart_Sliders_2() {
 
 // Call initializeSliders when the page loads
 window.onload = function() {
-    initialize_pie_chart_Sliders();
-    initialize_pie_chart_Sliders_2();
-    initialize_Nnu1_slider();
-    initialize_Nnu2_slider();
+    const currentPage = window.location.pathname;
+
+    // Check if the current page is 'index.html' or '/'
+    if (currentPage.endsWith('index.html') || currentPage === '/') {
+        // Run these functions only on the index.html page
+        initialize_pie_chart_Sliders();
+        initialize_pie_chart_Sliders_2();
+    }
+
+    // Check if the current page is 'neutrino.html'
+    if (currentPage.endsWith('neutrino.html')) {
+        // Run these functions only on the neutrino.html page
+        initialize_Nnu1_slider();
+        initialize_Nnu2_slider();
+    }
 };
 
 // Function to update slider background
