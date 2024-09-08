@@ -139,6 +139,7 @@ function initialize_pie_chart_Sliders() {
     updateSliderBackground(initialomegamValue, 'mySlideromegam');
     updateSliderBackground(initialomegabValue, 'mySlideromegab');
 }
+
 // Function to update pie chart (omega_m, omega_b, Omega_L) and change image
 function updateCombinedValue2() {
     const A_s_index = document.getElementById('mySliderPieAs').value - 1;
@@ -185,9 +186,15 @@ function initialize_pie_chart_Sliders_2() {
 
 // Call initializeSliders when the page loads
 window.onload = initialize_pie_chart_Sliders_2;
+window.onload = initialize_pie_chart_Sliders;
 
 // Function to update slider background
 function updateSliderBackground2(value, sliderId) {
+    const slider = document.getElementById(sliderId);
+    const percentage = (value - slider.min) / (slider.max - slider.min) * 100;
+    slider.style.background = `linear-gradient(to right, #7B4397 0%, #7B4397 ${percentage}%, #e0e0e0 ${percentage}%, #e0e0e0 100%)`;
+}
+function updateSliderBackground(value, sliderId) {
     const slider = document.getElementById(sliderId);
     const percentage = (value - slider.min) / (slider.max - slider.min) * 100;
     slider.style.background = `linear-gradient(to right, #7B4397 0%, #7B4397 ${percentage}%, #e0e0e0 ${percentage}%, #e0e0e0 100%)`;
