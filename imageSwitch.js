@@ -87,7 +87,7 @@ function callMyScripta_s(value) {
 //function to update n_s value
 function updateValuen_s(val){
     const ns_value = ns_array[val-1];
-    document.getElementById('sliderValuen_s').innerText = ns_value.toFixed(2);
+    document.getElementById('sliderValuen_s').innerText = ns_value.toFixed(3);
     callMyScriptn_s(val)
 }
 
@@ -101,7 +101,7 @@ function callMyScriptn_s(value){
 //function to update omega_cdm value in DM page
 function updateValue_omega_cdm(val){
     const omega_cdm_value = omega_cdm_array_DMpage[val-1];
-    document.getElementById('sliderValueomega_cdm_DMpage').innerText = omega_cdm_value.toFixed(2);
+    document.getElementById('sliderValueomega_cdm_DMpage').innerText = omega_cdm_value.toFixed(4);
     callMyScript_omega_cdm_DMpage(val)
 }
 
@@ -115,7 +115,7 @@ function callMyScript_omega_cdm_DMpage(value){
 //function to update omega_b value in DM page
 function updateValue_omega_b(val){
     const omega_b_value = omega_b_array_DMpage[val-1];
-    document.getElementById('sliderValueomega_b_DMpage').innerText = omega_b_value.toFixed(2);
+    document.getElementById('sliderValueomega_b_DMpage').innerText = omega_b_value.toFixed(4);
     callMyScript_omega_b_DMpage(val)
 }
 
@@ -136,8 +136,8 @@ function updateCombinedValue() {
     const omega_b_value = omega_b_pie_array[omega_b_index];
 
     document.getElementById('sliderValueOmegaL').innerText = Omega_L_value.toFixed(2);
-    document.getElementById('sliderValueomegam').innerText = omega_m_value.toFixed(2);
-    document.getElementById('sliderValueomegab').innerText = omega_b_value.toFixed(2);
+    document.getElementById('sliderValueomegam').innerText = omega_m_value.toFixed(4);
+    document.getElementById('sliderValueomegab').innerText = omega_b_value.toFixed(4);
 
     updateSliderBackground(Omega_L_index + 1, 'mySliderOmegaL');
     updateSliderBackground(omega_m_index + 1, 'mySlideromegam');
@@ -148,7 +148,7 @@ function updateCombinedValue() {
 
 // Function to update image based on Omega_L, omega_m, omega_b
 function updateImage(Omega_L_index, omega_m_index,omega_b_index) {
-    const img = document.getElementById("Dlimage2");
+    const img = document.getElementById("Dlimage");
     img.src = `class_figures/pie_chart_figures/Dl_pie_chart_OmegaL_${Omega_L_index}_omegam_${omega_m_index}_omegab_${omega_b_index}.png`;
 }
 
@@ -162,8 +162,8 @@ function initialize_pie_chart_Sliders() {
     document.getElementById('mySlideromegab').value = initialomegabValue;
 
     document.getElementById('sliderValueOmegaL').innerText = Omega_L_pie_array[initialOmegaLValue - 1].toFixed(2);
-    document.getElementById('sliderValueomegam').innerText = omega_m_pie_array[initialomegamValue - 1].toFixed(2);
-    document.getElementById('sliderValueomegam').innerText = omega_b_pie_array[initialomegabValue - 1].toFixed(2);
+    document.getElementById('sliderValueomegam').innerText = omega_m_pie_array[initialomegamValue - 1].toFixed(4);
+    document.getElementById('sliderValueomegam').innerText = omega_b_pie_array[initialomegabValue - 1].toFixed(4);
 
     updateSliderBackground(initialOmegaLValue, 'mySliderOmegaL');
     updateSliderBackground(initialomegamValue, 'mySlideromegam');
@@ -180,8 +180,8 @@ function updateCombinedValue2() {
     const tau_reio_value = tau_reio_pie_array[tau_reio_index];
 
     document.getElementById('sliderValuePieAs').innerText = A_s_value.toFixed(2);
-    document.getElementById('sliderValuePiens').innerText = n_s_value.toFixed(2);
-    document.getElementById('sliderValuePietau').innerText = tau_reio_value.toFixed(2);
+    document.getElementById('sliderValuePiens').innerText = n_s_value.toFixed(3);
+    document.getElementById('sliderValuePietau').innerText = tau_reio_value.toFixed(4);
 
     updateSliderBackground2(A_s_index + 1, 'mySliderPieAs');
     updateSliderBackground2(n_s_index + 1, 'mySliderPiens');
@@ -192,7 +192,7 @@ function updateCombinedValue2() {
 
 // Function to update image based on Omega_L, omega_m, omega_b
 function updateImage2(A_s_index, n_s_index,tau_reio_index) {
-    const img = document.getElementById("Dlimage");
+    const img = document.getElementById("Dlimage2");
     img.src = `class_figures/prim_figures/Dl_prim_tau_reio_${tau_reio_index}_As_${A_s_index}_ns_${n_s_index}.png`;
 }
 
@@ -206,8 +206,8 @@ function initialize_pie_chart_Sliders_2() {
     document.getElementById('mySliderPietau').value = initialtauValue;
 
     document.getElementById('sliderValuePieAs').innerText = ln1010A_s_pie_array[initialAsValue - 1].toFixed(2);
-    document.getElementById('sliderValuePiens').innerText = n_s_pie_array[initialnsValue - 1].toFixed(2);
-    document.getElementById('sliderValuePietau').innerText = tau_reio_pie_array[initialtauValue - 1].toFixed(2);
+    document.getElementById('sliderValuePiens').innerText = n_s_pie_array[initialnsValue - 1].toFixed(3);
+    document.getElementById('sliderValuePietau').innerText = tau_reio_pie_array[initialtauValue - 1].toFixed(4);
 
     updateSliderBackground2(initialAsValue, 'mySliderPieAs');
     updateSliderBackground2(initialnsValue, 'mySliderPiens');
