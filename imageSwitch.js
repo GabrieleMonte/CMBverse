@@ -222,7 +222,19 @@ window.onload = function() {
 
 function updateSliderBackground(value, sliderId) {
     const slider = document.getElementById(sliderId);
-    const percentage = ((value - slider.min) / (slider.max - slider.min)) * 100;
+
+    // Convert values to numbers
+    const min = Number(slider.min);
+    const max = Number(slider.max);
+    const currentValue = Number(value);
+
+    // Calculate the correct percentage
+    const percentage = ((currentValue - min) / (max - min)) * 100;
+
+    // Log the values for debugging
+    console.log(`Slider ID: ${sliderId}, Value: ${currentValue}, Min: ${min}, Max: ${max}, Percentage: ${percentage}%`);
+
+    // Update the slider's background gradient
     slider.style.background = `linear-gradient(to right, #7B4397 0%, #7B4397 ${percentage}%, #e0e0e0 ${percentage}%, #e0e0e0 100%)`;
 }
 
