@@ -9,6 +9,10 @@ const omega_b_pie_array = [0.0154, 0.0162, 0.017 , 0.0178, 0.0185, 0.0193, 0.020
 const tau_reio_pie_array = [0.0064, 0.0188, 0.0312, 0.0437, 0.0561, 0.0632, 0.0948, 0.1265, 0.1581, 0.1897, 0.2213, 0.253,  0.2846, 0.3162, 0.3478, 0.3795, 0.4111]
 const ln1010A_s_pie_array = [1.647, 1.822, 1.997, 2.172, 2.347, 2.522, 2.697, 2.872, 3.047, 3.222, 3.397, 3.572, 3.747, 3.922, 4.097, 4.272, 4.447]
 const n_s_pie_array = [0.5865, 0.634,  0.6815, 0.729,  0.7765, 0.824,  0.8715, 0.919,  0.9665, 1.014, 1.0615, 1.109,  1.1565, 1.204,  1.2515, 1.299,  1.3465]
+const omega_b_array_DMpage = [0.0224, 0.0248, 0.0273, 0.0297, 0.0322, 0.0346, 0.0371, 0.0395, 0.042, 0.0444, 0.0469, 0.0493, 0.0518, 0.0542, 0.0567, 0.0592, 0.0616, 0.0641, 0.0665, 0.069, 0.0714, 0.0739, 0.0763, 0.0788, 0.0812, 0.0837, 0.0861, 0.0886, 0.091, 0.0935, 0.0959, 0.0984, 0.1008, 0.1033, 0.1057, 0.1082, 0.1106, 0.1131, 0.1155, 0.118, 0.1204, 0.1229, 0.1253, 0.1278, 0.1302, 0.1327, 0.1351, 0.1376, 0.14, 0.1425]
+const omega_cdm_array_DMpage = [0., 0.0029, 0.0058, 0.0087, 0.0116, 0.0145, 0.0174, 0.0204, 0.0233, 0.0262, 0.0291, 0.032,  0.0349, 0.0378, 0.0407, 0.0436, 0.0465, 0.0494, 0.0523, 0.0553,
+ 0.0582, 0.0611, 0.064,  0.0669, 0.0698, 0.0727, 0.0756, 0.0785, 0.0814, 0.0843, 0.0872, 0.0901, 0.0931, 0.096,  0.0989, 0.1018, 0.1047, 0.1076, 0.1105, 0.1134, 0.1163, 0.1192, 0.1221, 0.125,  0.128,  0.1309, 0.1338, 0.1367, 0.1396, 0.1425]
+
 // Function to update DL value
 function updateValuemncdm(val) {
     const m_nus_value = m_nus_array[val - 1];
@@ -94,7 +98,33 @@ function callMyScriptn_s(value){
     img.src = 'class_figures/n_s_figures/Dl_s_n' + value + '.png';
 }
 
+//function to update omega_cdm value in DM page
+function updateValue_omega_cdm(val){
+    const omega_cdm_value = omega_cdm_array_DMpage[val-1];
+    document.getElementById('sliderValueomega_cdm_DMpage').innerText = omega_cdm_value.toFixed(2);
+    callMyScript_omega_cdm_DMpage(val)
+}
 
+// function to update omega_cdm image in DM page
+function callMyScript_omega_cdm_DMpage(value){
+    console.log('omega_cdm slider value is: ' + value);
+    var img = document.getElementById('imageomegacdmDMpage');
+    img.src = 'class_figures/omega_cdm_images/Dl_omega_cdm_v' + value + '.png';
+}
+
+//function to update omega_b value in DM page
+function updateValue_omega_b(val){
+    const omega_b_value = omega_b_array_DMpage[val-1];
+    document.getElementById('sliderValueomega_b_DMpage').innerText = omega_b_value.toFixed(2);
+    callMyScript_omega_b_DMpage(val)
+}
+
+// function to update omega_b image in DM page
+function callMyScript_omega_b_DMpage(value){
+    console.log('omega_b slider value is: ' + value);
+    var img = document.getElementById('imageomegabDMpage');
+    img.src = 'class_figures/DM_aeq_fixed_figures/Dl_DM_aeq_fixed_omega_b_' + value + '.png';
+}
 
 // Function to update pie chart (omega_m, omega_b, Omega_L) and change image
 function updateCombinedValue() {
