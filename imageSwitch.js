@@ -198,14 +198,14 @@ function updateImage2(A_s_index, n_s_index,tau_reio_index) {
 
 // Function to initialize the sliders and their backgrounds
 function initialize_pie_chart_Sliders_2() {
-    const initialAsValue = 10;
-    const initialnsValue = 10;
-    const initialtauValue = 10;
+    const initialAsValue = 9;
+    const initialnsValue = 9;
+    const initialtauValue = 5;
     document.getElementById('mySliderPieAs').value = initialAsValue;
     document.getElementById('mySliderPiens').value = initialnsValue;
     document.getElementById('mySliderPietau').value = initialtauValue;
 
-    document.getElementById('sliderValuePieAs').innerText = ln1010A_s_pie_array[initialAsValue - 1].toFixed(2);
+    document.getElementById('sliderValuePieAs').innerText = ln1010A_s_pie_array[initialAsValue - 1].toFixed(3);
     document.getElementById('sliderValuePiens').innerText = n_s_pie_array[initialnsValue - 1].toFixed(3);
     document.getElementById('sliderValuePietau').innerText = tau_reio_pie_array[initialtauValue - 1].toFixed(4);
 
