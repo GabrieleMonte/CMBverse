@@ -563,3 +563,11 @@ h2 {
     }
 }
 
+/* Ensure the list font matches the body text */
+.resource-list li, .citation-list li {
+    font-size: 1.2rem;  /* Match the paragraph font size */
+    font-weight: 700;   /* Match the paragraph weight */
+    line-height: 1.6;   /* Match the line height */
+    color: #2C3E50;     /* Match the color */
+}
+
