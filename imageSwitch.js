@@ -118,7 +118,7 @@ function updateCombinedValue() {
 
 // Function to update image based on Omega_L, omega_m, omega_b
 function updateImage(Omega_L_index, omega_m_index,omega_b_index) {
-    const img = document.getElementById("Dlimage");
+    const img = document.getElementById("Dlimage2");
     img.src = `class_figures/pie_chart_figures/Dl_pie_chart_OmegaL_${Omega_L_index}_omegam_${omega_m_index}_omegab_${omega_b_index}.png`;
 }
 
