@@ -216,8 +216,10 @@ function initialize_pie_chart_Sliders_2() {
 }
 
 // Call initializeSliders when the page loads
-window.onload = initialize_pie_chart_Sliders_2;
-window.onload = initialize_pie_chart_Sliders;
+window.onload = function() {
+    initialize_pie_chart_Sliders();
+    initialize_pie_chart_Sliders_2();
+};
 
 // Function to update slider background
 
