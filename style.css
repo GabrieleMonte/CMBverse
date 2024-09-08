@@ -343,10 +343,10 @@ h2 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 2rem; /* Responsive padding */
+    padding: 2rem;
     margin: 2rem 0;
     background-color: #f4f4f4;
-    border-radius: 1rem; /* Slightly rounded corners */
+    border-radius: 1rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -358,29 +358,33 @@ h2 {
 
 /* Name style */
 .about-name {
-    font-size: 2.5rem; /* Scales with root font size */
+    font-size: 2.5rem;
     font-weight: bold;
-    color: #2C3E50; /* Same dark slate blue */
+    color: #2C3E50;
     margin-bottom: 1rem;
 }
 
-/* Description style */
+/* Description style - matching body text style */
 .about-description {
-    font-size: 1.5rem; /* Responsive font size */
-    color: #333;
+    font-family: 'sans-serif', Arial;
+    font-weight: 700; /* Matching the body font weight */
+    color: #2C3E50; /* Dark slate blue */
     line-height: 1.6;
+    background-color: #E0E7FF; /* Light blue background */
+    padding: 1rem;
+    border-radius: 0.5rem;
 }
 
 /* Picture style */
 .about-picture {
     flex-shrink: 0;
-    width: 20vw; /* Dynamic width based on viewport */
-    height: 20vw; /* Keep aspect ratio */
-    max-width: 150px; /* Set a max size */
-    max-height: 150px; /* Prevent image from getting too big */
-    border-radius: 50%; /* Circle shape */
+    width: 20vw;
+    height: 20vw;
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 50%;
     object-fit: cover;
-    border: 0.3rem solid #7B4397; /* Purple border, dynamic size */
+    border: 0.3rem solid #7B4397;
 }
 
 /* Mobile responsiveness */
@@ -397,8 +401,8 @@ h2 {
     }
 
     .about-picture {
-        width: 25vw; /* Increase width for smaller screens */
-        height: 25vw; /* Keep aspect ratio */
+        width: 25vw;
+        height: 25vw;
         max-width: 100px;
         max-height: 100px;
     }
@@ -411,3 +415,81 @@ h2 {
         font-size: 1.2rem;
     }
 }
+/* About Us page container */
+.about-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem;
+    margin: 2rem 0;
+    background-color: #f4f4f4;
+    border-radius: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Name and description container */
+.about-text {
+    flex: 1;
+    margin-right: 2rem;
+}
+
+/* Name style */
+.about-name {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2C3E50;
+    margin-bottom: 1rem;
+}
+
+/* Description style - matching body text style */
+.about-description {
+    font-family: 'sans-serif', Arial;
+    font-weight: 700; /* Matching the body font weight */
+    color: #2C3E50; /* Dark slate blue */
+    line-height: 1.6;
+    background-color: #E0E7FF; /* Light blue background */
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Picture style */
+.about-picture {
+    flex-shrink: 0;
+    width: 20vw;
+    height: 20vw;
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 0.3rem solid #7B4397;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .about-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .about-text {
+        margin-right: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .about-picture {
+        width: 25vw;
+        height: 25vw;
+        max-width: 100px;
+        max-height: 100px;
+    }
+
+    .about-name {
+        font-size: 2rem;
+    }
+
+    .about-description {
+        font-size: 1.2rem;
+    }
+}
+
