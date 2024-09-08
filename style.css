@@ -5,7 +5,7 @@ body, h1, h2, h3, p {
 }
 body {
     font-family: 'sans-serif', Arial; /* Using generic sans-serif font with Arial fallback */
-    font-weight: 400; /* Bold font */
+    font-weight: 500; /* Bold font */
     line-height: 1.6;
     background-color: #E0E7FF; /* Very Light Blue Background */
     color: #2C3E50; /* Dark Slate Blue Text Color */
@@ -24,7 +24,7 @@ body {
 /* Custom class for section descriptions/body text */
 .section-body {
     font-size: 1.2rem;  /* Consistent body text */
-    font-weight: 400;   /* Bold text */
+    font-weight: 500;   /* Bold text */
     line-height: 1.6;   /* Consistent line height */
     color: #2C3E50;     /* Dark slate blue for consistency */
     padding-bottom: 1rem; /* Bottom padding for spacing */
@@ -412,7 +412,7 @@ h2 {
 /* Description style - matching body text style */
 .about-description {
     font-family: 'sans-serif', Arial;
-    font-weight: 400; /* Matching the body font weight */
+    font-weight: 500; /* Matching the body font weight */
     color: #2C3E50; /* Dark slate blue */
     line-height: 1.6;
     background-color: #E0E7FF; /* Light blue background */
@@ -489,7 +489,7 @@ h2 {
 /* Description style - matching body text style */
 .about-description {
     font-family: 'sans-serif', Arial;
-    font-weight: 400; /* Matching the body font weight */
+    font-weight: 500; /* Matching the body font weight */
     color: #2C3E50; /* Dark slate blue */
     line-height: 1.6;
     background-color: #E0E7FF; /* Light blue background */
