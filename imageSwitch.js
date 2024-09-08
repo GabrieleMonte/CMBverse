@@ -183,9 +183,9 @@ function updateCombinedValue2() {
     document.getElementById('sliderValuePiens').innerText = n_s_value.toFixed(3);
     document.getElementById('sliderValuePietau').innerText = tau_reio_value.toFixed(4);
 
-    updateSliderBackground2(A_s_index + 1, 'mySliderPieAs');
-    updateSliderBackground2(n_s_index + 1, 'mySliderPiens');
-    updateSliderBackground2(tau_reio_index + 1, 'mySliderPietau');
+    updateSliderBackground(A_s_index + 1, 'mySliderPieAs');
+    updateSliderBackground(n_s_index + 1, 'mySliderPiens');
+    updateSliderBackground(tau_reio_index + 1, 'mySliderPietau');
 
     updateImage2(A_s_index + 1, n_s_index + 1, tau_reio_index + 1);
 }
@@ -209,9 +209,9 @@ function initialize_pie_chart_Sliders_2() {
     document.getElementById('sliderValuePiens').innerText = n_s_pie_array[initialnsValue - 1].toFixed(3);
     document.getElementById('sliderValuePietau').innerText = tau_reio_pie_array[initialtauValue - 1].toFixed(4);
 
-    updateSliderBackground2(initialAsValue, 'mySliderPieAs');
-    updateSliderBackground2(initialnsValue, 'mySliderPiens');
-    updateSliderBackground2(initialtauValue, 'mySliderPietau');
+    updateSliderBackground(initialAsValue, 'mySliderPieAs');
+    updateSliderBackground(initialnsValue, 'mySliderPiens');
+    updateSliderBackground(initialtauValue, 'mySliderPietau');
 }
 
 // Call initializeSliders when the page loads
@@ -219,11 +219,7 @@ window.onload = initialize_pie_chart_Sliders_2;
 window.onload = initialize_pie_chart_Sliders;
 
 // Function to update slider background
-function updateSliderBackground2(value, sliderId) {
-    const slider = document.getElementById(sliderId);
-    const percentage = (value - slider.min) / (slider.max - slider.min) * 100;
-    slider.style.background = `linear-gradient(to right, #7B4397 0%, #7B4397 ${percentage}%, #e0e0e0 ${percentage}%, #e0e0e0 100%)`;
-}
+
 function updateSliderBackground(value, sliderId) {
     const slider = document.getElementById(sliderId);
     const percentage = (value - slider.min) / (slider.max - slider.min) * 100;
