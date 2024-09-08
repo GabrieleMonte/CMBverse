@@ -570,4 +570,14 @@ h2 {
     line-height: 1.6;   /* Match the line height */
     color: #2C3E50;     /* Match the color */
 }
+/* Citation link styling */
+.citation-link {
+    color: #7B4397; /* Purple color to match the site's palette */
+    text-decoration: underline;
+    font-weight: bold; /* Make it stand out */
+    transition: color 0.3s ease; /* Smooth transition for hover effect */
+}
 
+.citation-link:hover {
+    color: #2C3E50; /* Dark slate blue on hover */
+}
