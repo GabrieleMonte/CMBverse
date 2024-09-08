@@ -28,8 +28,8 @@ function callMyScriptmncdm(value) {
 }
 
 function updateValueNnu1(val) {
-    const N_eff_value = N_eff_array[val - 1];
-    document.getElementById('sliderValueNnu1').innerText = N_eff_value.toFixed(2);
+    const N_eff_value1 = N_eff_array[val - 1];
+    document.getElementById('sliderValueNnu1').innerText = N_eff_value1.toFixed(2);
     callMyScriptNnu1(val);
 }
 
@@ -41,8 +41,8 @@ function callMyScriptNnu1(value) {
 
 
 function updateValueNnu2(val) {
-    const N_eff_value = N_eff_array2[val - 1];
-    document.getElementById('sliderValueNnu2').innerText = N_eff_value.toFixed(2);
+    const N_eff_value2 = N_eff_array2[val - 1];
+    document.getElementById('sliderValueNnu2').innerText = N_eff_value2.toFixed(2);
     callMyScriptNnu2(val);
 }
 
@@ -71,7 +71,7 @@ function callMyScripta_s(value) {
 //function to update n_s value
 function updateValuen_s(val){
     const ns_value = ns_array[val-1];
-    document.getElementById('sliderValuen_s').innerText = ns_value.toFixed(3);
+    document.getElementById('sliderValuen_s').innerText = ns_value.toFixed(2);
     callMyScriptn_s(val)
 }
 
