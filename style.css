@@ -5,13 +5,58 @@ body, h1, h2, h3, p {
 }
 body {
     font-family: 'sans-serif', Arial; /* Using generic sans-serif font with Arial fallback */
-    font-weight: 700; /* Bold font */
+    font-weight: 400; /* Bold font */
     line-height: 1.6;
     background-color: #E0E7FF; /* Very Light Blue Background */
     color: #2C3E50; /* Dark Slate Blue Text Color */
     margin: 0 auto;
     max-width: 100%;
     padding: 1rem;
+}
+/* Custom class for section titles */
+.section-title {
+    font-size: 2.5rem;  /* Larger font for section titles */
+    font-weight: bold;  /* Bold text */
+    color: #2C3E50;     /* Dark slate blue */
+    margin-top: 2rem;   /* Top margin for spacing */
+}
+
+/* Custom class for section descriptions/body text */
+.section-body {
+    font-size: 1.2rem;  /* Consistent body text */
+    font-weight: 400;   /* Bold text */
+    line-height: 1.6;   /* Consistent line height */
+    color: #2C3E50;     /* Dark slate blue for consistency */
+    padding-bottom: 1rem; /* Bottom padding for spacing */
+}
+
+/* Adjust spacing if needed */
+.mt-2 {
+    margin-top: 1rem;
+}
+
+.mt-5 {
+    margin-top: 2rem;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    /* Smaller font sizes for section titles on mobile */
+    .section-title {
+        font-size: 2rem;  /* Reduce font size for smaller screens */
+        margin-top: 1.5rem; /* Adjust top margin */
+    }
+
+    /* Slightly smaller font for body text on mobile */
+    .section-body {
+        font-size: 1rem;   /* Slightly smaller for readability */
+        line-height: 1.4;  /* Tighter line height for mobile */
+    }
+
+    /* Adjust margins for mobile */
+    .mt-5 {
+        margin-top: 1.5rem;
+    }
 }
 header {
     display: flex;
@@ -367,7 +412,7 @@ h2 {
 /* Description style - matching body text style */
 .about-description {
     font-family: 'sans-serif', Arial;
-    font-weight: 700; /* Matching the body font weight */
+    font-weight: 400; /* Matching the body font weight */
     color: #2C3E50; /* Dark slate blue */
     line-height: 1.6;
     background-color: #E0E7FF; /* Light blue background */
@@ -444,7 +489,7 @@ h2 {
 /* Description style - matching body text style */
 .about-description {
     font-family: 'sans-serif', Arial;
-    font-weight: 700; /* Matching the body font weight */
+    font-weight: 400; /* Matching the body font weight */
     color: #2C3E50; /* Dark slate blue */
     line-height: 1.6;
     background-color: #E0E7FF; /* Light blue background */
