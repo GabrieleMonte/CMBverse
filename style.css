@@ -338,3 +338,76 @@ h2 {
         font-size: 1rem; /* Smaller font size on very small screens */
     }
 }
+/* About Us page container */
+.about-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem; /* Responsive padding */
+    margin: 2rem 0;
+    background-color: #f4f4f4;
+    border-radius: 1rem; /* Slightly rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Name and description container */
+.about-text {
+    flex: 1;
+    margin-right: 2rem;
+}
+
+/* Name style */
+.about-name {
+    font-size: 2.5rem; /* Scales with root font size */
+    font-weight: bold;
+    color: #2C3E50; /* Same dark slate blue */
+    margin-bottom: 1rem;
+}
+
+/* Description style */
+.about-description {
+    font-size: 1.5rem; /* Responsive font size */
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Picture style */
+.about-picture {
+    flex-shrink: 0;
+    width: 20vw; /* Dynamic width based on viewport */
+    height: 20vw; /* Keep aspect ratio */
+    max-width: 150px; /* Set a max size */
+    max-height: 150px; /* Prevent image from getting too big */
+    border-radius: 50%; /* Circle shape */
+    object-fit: cover;
+    border: 0.3rem solid #7B4397; /* Purple border, dynamic size */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .about-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .about-text {
+        margin-right: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .about-picture {
+        width: 25vw; /* Increase width for smaller screens */
+        height: 25vw; /* Keep aspect ratio */
+        max-width: 100px;
+        max-height: 100px;
+    }
+
+    .about-name {
+        font-size: 2rem;
+    }
+
+    .about-description {
+        font-size: 1.2rem;
+    }
+}
