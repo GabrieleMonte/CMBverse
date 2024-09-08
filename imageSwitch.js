@@ -123,7 +123,7 @@ function updateValue_omega_b(val){
 function callMyScript_omega_b_DMpage(value){
     console.log('omega_b slider value is: ' + value);
     var img = document.getElementById('imageomegabDMpage');
-    img.src = 'class_figures/DM_aeq_fixed_figures/Dl_DM_aeq_fixed_omega_b_' + value + '.png';
+    img.src = 'class_figures/DM_aeq_fixed_figures/Dl_DM_aeq_fixed__omega_b_' + value + '.png';
 }
 
 // Function to update pie chart (omega_m, omega_b, Omega_L) and change image
