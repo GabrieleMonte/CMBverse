@@ -183,11 +183,11 @@ function updateCombinedValue2() {
     document.getElementById('sliderValuePiens').innerText = n_s_value.toFixed(2);
     document.getElementById('sliderValuePietau').innerText = tau_reio_value.toFixed(2);
 
-    updateSliderBackground(A_s_index + 1, 'mySliderPieAs');
-    updateSliderBackground(n_s_index + 1, 'mySliderPiens');
-    updateSliderBackground(tau_reio_index + 1, 'mySliderPietau');
+    updateSliderBackground2(A_s_index + 1, 'mySliderPieAs');
+    updateSliderBackground2(n_s_index + 1, 'mySliderPiens');
+    updateSliderBackground2(tau_reio_index + 1, 'mySliderPietau');
 
-    updateImage(A_s_index + 1, n_s_index + 1, tau_reio_index + 1);
+    updateImage2(A_s_index + 1, n_s_index + 1, tau_reio_index + 1);
 }
 
 // Function to update image based on Omega_L, omega_m, omega_b
