@@ -6,7 +6,9 @@ const m_nus_array = [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45,
 const Omega_L_pie_array = [0.409, 0.44 , 0.471, 0.502, 0.533, 0.564, 0.596, 0.627, 0.658, 0.689, 0.72 , 0.751, 0.782, 0.813, 0.844, 0.876, 0.907, 0.938, 0.969]
 const omega_m_pie_array = [0.099, 0.104, 0.109, 0.113, 0.118, 0.123, 0.128, 0.133, 0.138, 0.142, 0.147, 0.152, 0.157, 0.162, 0.167, 0.171, 0.176, 0.181, 0.186]
 const omega_b_pie_array = [0.0154, 0.0162, 0.017 , 0.0178, 0.0185, 0.0193, 0.0201, 0.0209, 0.0216, 0.0224, 0.0232, 0.024 , 0.0248, 0.0255, 0.0263, 0.0271, 0.0279, 0.0286, 0.0294]
-
+const tau_reio_pie_array = [0.0206,  0.02454, 0.02849, 0.03243, 0.03638, 0.04032, 0.04427, 0.04821, 0.05216, 0.0561,  0.06004, 0.06399, 0.06793, 0.07188, 0.07582, 0.07977, 0.08371, 0.08766, 0.0916 ]
+const A_s_pie_array = [2.977, 2.985, 2.993, 3., 3.008, 3.016, 3.024, 3.031, 3.039, 3.047, 3.055, 3.063, 3.07,  3.078, 3.086, 3.094, 3.101, 3.109, 3.117]
+const n_s_pie_array = [0.9475, 0.9496, 0.9517, 0.9538, 0.9559, 0.9581, 0.9602, 0.9623, 0.9644, 0.9665, 0.9686, 0.9707, 0.9728, 0.9749, 0.9771, 0.9792, 0.9813, 0.9834, 0.9855]
 // Function to update DL value
 function updateValuemncdm(val) {
     const m_nus_value = m_nus_array[val - 1];
@@ -94,7 +96,7 @@ function callMyScriptn_s(value){
 
 
 
-// Function to update As and ns values and change image
+// Function to update pie chart (omega_m, omega_b, Omega_L) and change image
 function updateCombinedValue() {
     const Omega_L_index = document.getElementById('mySliderOmegaL').value - 1;
     const omega_m_index = document.getElementById('mySlideromegam').value - 1;
@@ -137,12 +139,55 @@ function initialize_pie_chart_Sliders() {
     updateSliderBackground(initialomegamValue, 'mySlideromegam');
     updateSliderBackground(initialomegabValue, 'mySlideromegab');
 }
+// Function to update pie chart (omega_m, omega_b, Omega_L) and change image
+function updateCombinedValue2() {
+    const A_s_index = document.getElementById('mySliderPieAs').value - 1;
+    const n_s_index = document.getElementById('mySliderPiens').value - 1;
+    const tau_reio_index = document.getElementById('mySliderPietau').value - 1;
+    const A_s_value = A_s_pie_array[A_s_index];
+    const n_s_value = n_s_pie_array[n_s_index];
+    const tau_reio_value = tau_reio_pie_array[tau_reio_index];
+
+    document.getElementById('sliderValuePieAs').innerText = A_s_value.toFixed(2);
+    document.getElementById('sliderValuePiens').innerText = n_s_value.toFixed(2);
+    document.getElementById('sliderValuePietau').innerText = tau_reio_value.toFixed(2);
+
+    updateSliderBackground(A_s_index + 1, 'mySliderPieAs');
+    updateSliderBackground(n_s_index + 1, 'mySliderPiens');
+    updateSliderBackground(tau_reio_index + 1, 'mySliderPietau');
+
+    updateImage(A_s_index + 1, n_s_index + 1, tau_reio_index + 1);
+}
+
+// Function to update image based on Omega_L, omega_m, omega_b
+function updateImage2(A_s_index, n_s_index,tau_reio_index) {
+    const img = document.getElementById("Dlimage");
+    img.src = `class_figures/prim_figures/Dl_prim_tau_reio_${tau_reio_index}_As_${A_s_index}_ns_${n_s_index}.png`;
+}
+
+// Function to initialize the sliders and their backgrounds
+function initialize_pie_chart_Sliders_2() {
+    const initialAsValue = 10;
+    const initialnsValue = 10;
+    const initialtauValue = 10;
+    document.getElementById('mySliderPieAs').value = initialAsValue;
+    document.getElementById('mySliderPiens').value = initialnsValue;
+    document.getElementById('mySliderPietau').value = initialtauValue;
+
+    document.getElementById('sliderValuePieAs').innerText = A_s_pie_array[initialAsValue - 1].toFixed(2);
+    document.getElementById('sliderValuePiens').innerText = n_s_pie_array[initialnsValue - 1].toFixed(2);
+    document.getElementById('sliderValuePietau').innerText = tau_reio_pie_array[initialtauValue - 1].toFixed(2);
+
+    updateSliderBackground2(initialAsValue, 'mySliderPieAs');
+    updateSliderBackground2(initialnsValue, 'mySliderPiens');
+    updateSliderBackground2(initialtauValue, 'mySliderPietau');
+}
 
 // Call initializeSliders when the page loads
-window.onload = initialize_pie_chart_Sliders;
+window.onload = initialize_pie_chart_Sliders_2;
 
 // Function to update slider background
-function updateSliderBackground(value, sliderId) {
+function updateSliderBackground2(value, sliderId) {
     const slider = document.getElementById(sliderId);
     const percentage = (value - slider.min) / (slider.max - slider.min) * 100;
     slider.style.background = `linear-gradient(to right, #7B4397 0%, #7B4397 ${percentage}%, #e0e0e0 ${percentage}%, #e0e0e0 100%)`;
