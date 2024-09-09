@@ -226,7 +226,7 @@ window.onload = function() {
     }
 
     // Check if the current page is 'neutrino.html'
-    if (currentPage.endsWith('neutrino.html')) {
+    if (currentPage.endsWith('neutrinos.html')) {
         // Run these functions only on the neutrino.html page
         initialize_Nnu1_slider();
         initialize_Nnu2_slider();
