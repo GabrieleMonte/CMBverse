@@ -24,41 +24,41 @@
                 </ul>
             </li>
             <li><a href="about.html">About Us</a></li>
-            <li><a href="credits.html">Credits</a></li>
         </ul>
     </nav>
     <div class="container">
-        <h1 class="section-title mt-5">Dark Matter</h1>
+        <h1 class="mt-5">Dark Matter</h1>
         <br>
-        <p class="section-body">Dark matter in the early universe explains the pattern of anisotropies in the Cosmic Microwave Background, as photons would be deflected by the dark matter and create hot and cold spots on the CMB. The dark matter density also affects the timing of the transition from a radiation-dominated universe to a matter-dominated universe, therefore influencing the heights and positions of the peaks in the power spectrum.</p>
-        <br>
-        <p class="section-body">We can initially just change the amount of dark matter in the universe \(\omega_{cdm}\). By holding the amount of baryonic matter \(\omega_{b}\) constant, we then expect the total matter content to change accordingly. An increased amount of dark matter will shift the moment of radiation-matter equality to a later time and increase the Integrated Sachs–Wolfe effect, thus creating peaks with a lesser amplitude.</p>
+        <p class="lead">We can initially just change the amount of dark matter in the universe, \(\omega_{CDM}\). By holding the amount of baryonic matter \(\omega_{b}\) constant, we then expect the total matter content to change accordingly. Dark matter influences the rate of expansion, which alters the distance acoustic waves can travel before reionization; greater dark matter density decreases this sound horizon, resulting in the peaks appearing at smaller angular scales. Similarly, greater dark matter reduces the time to recombination (although minimally), limiting the diffusion effects. A greater matter density also moves the moment of matter-radiation equality in the universe to an earlier time, reducing any radiation-driven effects and thus decreasing the peak heights. Lastly, a higher matter density means less pronounced effects of time-evolving gravitational wells, which boost the energy of streaming photons. Thus, the first few peaks should decrease in amplitude as matter density increases.</p>
 
         <div class="Cosmo-container">
-            <img id="imageomegacdmDMpage" src="class_figures/omega_cdm_images/Dl_omega_cdm_v25.png">
+            <img id="omega_cdmImage" src="class_figures/omega_cdm_images/Dl_omega_cdm_v25.png" width="65%">
             <div class="slider-container">
-                <input type="range" id="mySlideromegacdmDMpage" min="1" max="50" value="25" oninput="updateValue_omega_cdm(this.value); updateSliderBackground(this.value, 'mySlideromegacdmDMpage');">
+                <input type="range" id="mySlideromega_cdm" min="1" max="50" value="25" oninput="updateValue_omega_cdm(this.value); updateSliderBackground(this.value, 'mySlideromega_cdm');">
                 <div class="slider-value">
-                    <span>\( \omega_{cdm} = \)</span><span id="sliderValueomega_cdm_DMpage">0.1201</span>
+                    <span>\( \omega_{cdm} = \)</span><span id="sliderValueomega_cdm">1201</span>
                 </div>
             </div>
         </div>
         
-        <p class="section-body">We can then adjust the amount of dark matter and baryonic matter degenerately. Doing so keeps the total matter content constant, which highlights the key effects of dark matter versus baryonic matter. The baryonic matter energy density influences the zero-point of acoustic oscillations in the photon-baryon plasma. Thus, a greater baryonic matter density would enhance the amplitude differences between even and odd peaks.</p>
+        <p class="lead">We can then adjust the amount of dark matter and baryonic matter degenerately. Doing so keeps the total matter content constant, which highlights the difference between baryonic matter effects and dark matter effects. Firstly, a greater amount of baryonic matter decreases the sound speed of the baryon-photon plasma. This reduces the distance acoustic waves travel before recombination, which shifts the acoustic peaks towards smaller angular scales. The baryonic matter energy density also influences the zero-point of acoustic oscillations in the photon-baryon plasma. Thus, a greater baryonic matter density would enhance the amplitude differences between even and odd peaks. Lastly, a greater baryonic matter density increases the coupling, and thus interaction rate, between photons and baryons. Such a change helps sustain the amplitude of fluctuations at smaller scales, thus decreasing Silk damping effects.</p>
         
         <div class="Cosmo-container">
-            <img id="imageomegabDMpage" src="class_figures/DM_aeq_fixed_figures/Dl_DM_aeq_fixed__omega_b_1.png">
+            <img id="omega_cdm_aeq_fixedImage" src="class_figures/DM_aeq_fixed_figures/Dl_DM_aeq_fixed__omega_b_1.png" width="65%">
             <div class="new-slider-container">
-                <input type="range" id="mySlideromegabDMpage" min="1" max="50" value="1" oninput="updateValue_omega_b(this.value); updateSliderBackground(this.value, 'mySlideromegabDMpage');">
+                <input type="range" id="mySlideromega_cdm_aeq_fixed" min="1" max="50" value="1" oninput="updateValue_omega_b(this.value); updateSliderBackground(this.value, 'mySlideromega_cdm_aeq_fixed');">
                 <div class="new-slider-value">
-                    <span>\( \omega_b = \)</span><span id="sliderValueomega_b_DMpage">0.0224</span>
+                    <span>\( \omega_{cdm} = \)</span><span id="sliderValueomega_cdm_aeq_fixed">0.00</span>
                 </div>
             </div>
         </div>
+        
+        <p class="lead">In these simulations, we chose to keep other parameters consistent, so as not to introduce any outside effects. Many parameters act degenerately with \(\omega_{b}\) and \(\omega_{CDM}\), which can act degenerately with our alterations and reduce or even fully counteract key effects on the power spectrum.</p>
+        
     </div>
     <script src="imageSwitch.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script></body>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
