@@ -219,7 +219,7 @@ window.onload = function() {
     const currentPage = window.location.pathname;
 
     // Check if the current page is 'index.html' or '/'
-    if (currentPage.endsWith('index.html') || currentPage === '/') {
+    if (currentPage.endsWith('index.html') || currentPage.endsWith('/')) {
         // Run these functions only on the index.html page
         initialize_pie_chart_Sliders();
         initialize_pie_chart_Sliders_2();
