@@ -36,7 +36,25 @@
     <div class="container">
         <h1 class="section-title mt-5">Curvature</h1>
         <br>
-        <h3>Coming Soon</h3>
+        <p class="section-body">
+            The peaks in the CMB power spectrum are highly sensitive to the curvature of the early universe, as curvature affects both the angular scale and the sound horizon—the 
+            distance sound waves traveled from the Big Bang to the surface of last scattering. In a flat universe, \(\Omega_{k}\) = 0, the angular scale of the sound horizon aligns with 
+            predictions, requiring dark energy to account for the universe’s flatness despite insufficient visible matter. In an open universe,\(\Omega_{k}\) < 0, 
+            with a saddle-shaped geometry, light waves diverge, making the angular size of CMB fluctuations appear smaller and shifting acoustic peaks to smaller angular scales. 
+            Conversely, in a closed universe, \(\Omega_{k}\) > 0, resembling a sphere, light rays converge, making fluctuations appear larger and shifting peaks to larger angular scales. 
+            We can have confidence in the flatness of the universe due to fact that the angle at which we observe the CMB sound horizion would vary given a different curvature, and the angle we see only makes sense in a flat universe.
+        </p> 
+        <p class="section-body">
+            
+        <div class="Cosmo-container">
+            <img id="Omega_k_image" src="class_figures/Omega_k_figures/Dl_Omega_k_16.png">
+            <div class="slider-container">
+                <input type="range" id="mySliderOmega_k" min="1" max="31" value="16" oninput="updateValue_Omega_k(this.value); updateSliderBackground(this.value, 'mySliderOmega_k');">
+                <div class="slider-value">
+                    <span>\(\Omega_{k}\)</span><span id="sliderValueOmega_k">0</span>
+                </div>
+            </div>
+        </div>
     </div>
 
 <script src="imageSwitch.js"></script>
