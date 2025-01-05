@@ -11,6 +11,8 @@ const tau_reio_pie_array = [0.0064, 0.0188, 0.0312, 0.0437, 0.0561, 0.0632, 0.09
 const ln1010A_s_pie_array = [1.647, 1.822, 1.997, 2.172, 2.347, 2.522, 2.697, 2.872, 3.047, 3.222, 3.397, 3.572, 3.747, 3.922, 4.097, 4.272, 4.447]
 const n_s_pie_array = [0.5865, 0.634,  0.6815, 0.729,  0.7765, 0.824,  0.8715, 0.919,  0.9665, 1.014, 1.0615, 1.109,  1.1565, 1.204,  1.2515, 1.299,  1.3465]
 const omega_b_array_DMpage = [0.0224, 0.0248, 0.0273, 0.0297, 0.0322, 0.0346, 0.0371, 0.0395, 0.042, 0.0444, 0.0469, 0.0493, 0.0518, 0.0542, 0.0567, 0.0592, 0.0616, 0.0641, 0.0665, 0.069, 0.0714, 0.0739, 0.0763, 0.0788, 0.0812, 0.0837, 0.0861, 0.0886, 0.091, 0.0935, 0.0959, 0.0984, 0.1008, 0.1033, 0.1057, 0.1082, 0.1106, 0.1131, 0.1155, 0.118, 0.1204, 0.1229, 0.1253, 0.1278, 0.1302, 0.1327, 0.1351, 0.1376, 0.14, 0.1425]
+const tau_reio_array_page = [0.00173814, 0.00717433, 0.01261051, 0.0180467,  0.02348288, 0.02891907, 0.03435526, 0.03979144, 0.04522763, 0.05066381, 0.0561, 0.06153619, 0.06697237, 0.07240856, 0.07784474, 0.08328093, 0.08871712, 0.0941533, 0.09958949, 0.10502567, 0.11046186, 0.11589805, 0.12133423, 0.12677042, 0.1322066,  0.13764279, 0.14307898, 0.14851516, 0.15395135, 0.15938753, 0.16482372]
+const tau_reio_degen_array_page = [1.8883268774992175e-09, 1.90896948347073e-09, 1.9298377480325916e-09, 1.9509341380147883e-09, 1.9722611472139295e-09, 1.9938212966880384e-09, 2.0156171350545652e-09, 2.0376512387916587e-09, 2.059926212542731e-09, 2.0824446894243523e-09, 2.105209331337507e-09, 2.1282228292822607e-09, 2.1514879036758593e-09, 2.1750073046743094e-09, 2.1987838124974745e-09, 2.222820237757721e-09, 2.2471194217921624e-09, 2.2716842369985317e-09, 2.296517587174726e-09, 2.3216224078620622e-09, 2.347001666692291e-09, 2.372658363738394e-09, 2.3985955318692252e-09, 2.4248162371080232e-09, 2.451323578994845e-09, 2.4781206909529618e-09, 2.5052107406592603e-09, 2.532596930418693e-09, 2.560282497542818e-09, 2.5882707147324863e-09, 2.6165648904647014e-09]
 const omega_cdm_array_DMpage = [0., 0.0029, 0.0058, 0.0087, 0.0116, 0.0145, 0.0174, 0.0204, 0.0233, 0.0262, 0.0291, 0.032,  0.0349, 0.0378, 0.0407, 0.0436, 0.0465, 0.0494, 0.0523, 0.0553, 0.0582, 0.0611, 0.064,  0.0669, 0.0698, 0.0727, 0.0756, 0.0785, 0.0814, 0.0843, 0.0872, 0.0901, 0.0931, 0.096,  0.0989, 0.1018, 0.1047, 0.1076, 0.1105, 0.1134, 0.1163, 0.1192, 0.1221, 0.125,  0.128,  0.1309, 0.1338, 0.1367, 0.1396, 0.1425]
 const Omega_k_array = [-0.200, -0.186, -0.172, -0.159, -0.145, -0.131, -0.117, -0.103, -0.090, -0.076, -0.062, -0.048, -0.034, -0.021, -0.007, 0.000, 0.007, 0.021, 0.034, 0.048, 0.062, 0.076, 0.090, 0.103, 0.117, 0.131, 0.145, 0.159, 0.172, 0.186, 0.200];
 // Function to update DL value
@@ -122,6 +124,33 @@ function callMyScript_omega_b_DMpage(value){
     console.log('omega_b slider value is: ' + value);
     var img = document.getElementById('imageomegabDMpage');
     img.src = 'class_figures/DM_aeq_fixed_figures/Dl_DM_aeq_fixed__omega_b_' + value + '.png';
+}
+
+//function to update tau_reio value in Photon depth page
+function updateValue_tau_reio(val){
+    const tau_reio_value = tau_reio_array_page[val-1];
+    document.getElementById('sliderValuetau_reiopage').innerText = tau_reio_value.toFixed(4);
+    callMyScript_tau_reio_page(val)
+}
+
+// function to update tau_reio image in DM page
+function callMyScript_tau_reio_page(value){
+    console.log('tau_reio slider value is: ' + value);
+    var img = document.getElementById('imagetau_reiopage');
+    img.src = 'class_figures/tau_reionization_figures/Dl_tau_reio_' + value + '.png';
+
+//function to update tau_reio_degen value in DM page
+function updateValue_tau_reio_degen(val){
+    const tau_reio_value_degen = tau_reio_degen_array_page[val-1];
+    document.getElementById('sliderValuetau_reio_degenpage').innerText = tau_reio_degen_value.toFixed(4);
+    callMyScript_tau_reio_degen_page(val)
+}
+
+// function to update tau_reio_degen image in photon depth page
+function callMyScript_tau_reio_degen_page(value){
+    console.log('tau_reio_degen slider value is: ' + value);
+    var img = document.getElementById('imagetau_reio_degenpage');
+    img.src = 'class_figures/tau_reionization_figures/Dl_tau_reio_degen_' + value + '.png';
 }
 
 // Function to update pie chart (omega_m, omega_b, Omega_L) and change image
