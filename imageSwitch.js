@@ -14,6 +14,7 @@ const omega_b_array_DMpage = [0.0224, 0.0248, 0.0273, 0.0297, 0.0322, 0.0346, 0.
 const tau_reio_array_page = [0.00173814, 0.00717433, 0.01261051, 0.0180467,  0.02348288, 0.02891907, 0.03435526, 0.03979144, 0.04522763, 0.05066381, 0.0561, 0.06153619, 0.06697237, 0.07240856, 0.07784474, 0.08328093, 0.08871712, 0.0941533, 0.09958949, 0.10502567, 0.11046186, 0.11589805, 0.12133423, 0.12677042, 0.1322066,  0.13764279, 0.14307898, 0.14851516, 0.15395135, 0.15938753, 0.16482372]
 const omega_cdm_array_DMpage = [0., 0.0029, 0.0058, 0.0087, 0.0116, 0.0145, 0.0174, 0.0204, 0.0233, 0.0262, 0.0291, 0.032,  0.0349, 0.0378, 0.0407, 0.0436, 0.0465, 0.0494, 0.0523, 0.0553, 0.0582, 0.0611, 0.064,  0.0669, 0.0698, 0.0727, 0.0756, 0.0785, 0.0814, 0.0843, 0.0872, 0.0901, 0.0931, 0.096,  0.0989, 0.1018, 0.1047, 0.1076, 0.1105, 0.1134, 0.1163, 0.1192, 0.1221, 0.125,  0.128,  0.1309, 0.1338, 0.1367, 0.1396, 0.1425]
 const Omega_k_array = [-0.200, -0.186, -0.172, -0.159, -0.145, -0.131, -0.117, -0.103, -0.090, -0.076, -0.062, -0.048, -0.034, -0.021, -0.007, 0.000, 0.007, 0.021, 0.034, 0.048, 0.062, 0.076, 0.090, 0.103, 0.117, 0.131, 0.145, 0.159, 0.172, 0.186, 0.200];
+const Omega_L_array = [0.100, 0.128, 0.155, 0.183, 0.210, 0.238, 0.266, 0.293, 0.321, 0.348, 0.376, 0.403, 0.431, 0.459, 0.486, 0.514, 0.541, 0.569, 0.597, 0.624, 0.652, 0.679, 0.707, 0.734, 0.762, 0.790, 0.817, 0.845, 0.872, 0.900]
 // Function to update DL value
 function updateValuemncdm(val) {
     const m_nus_value = m_nus_array[val - 1];
@@ -96,6 +97,21 @@ function callMyScript_omega_cdm_DMpage(value){
     var img = document.getElementById('imageomegacdmDMpage');
     img.src = 'class_figures/omega_cdm_images/Dl_omega_cdm_v' + value + '.png';
 }
+
+//function to update omega_L value in dark energy page
+function updateValue_Omega_L(value){
+    const Omega_L_value = Omega_L_array[value-1]
+    document.getElementById('sliderValue_Omega_L').innerText = Omega_L_value.toFixed(2);
+    callMyScript_Omega_L(value);
+}
+
+//function to update omega_L image in dark energy page
+function callMyScript_Omega_L(value){
+    console.log('Omega_L slider value is: ' + value);
+    var img = document.getElementById('Omega_L_image');
+    img.src = 'class_figures/Omega_L_figures/Dl_Omega_L_' + value + '.png';
+}
+
 
 //function to update omega_k value in curavture page
 function updateValue_Omega_k(val){
