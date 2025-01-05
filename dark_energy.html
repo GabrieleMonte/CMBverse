@@ -32,11 +32,25 @@
 
         </ul>
     </nav>
-
-    <div class="container">
+<div class="container">
         <h1 class="section-title mt-5">Dark Energy</h1>
-        <h3>Coming Soon</h3>
-    </div>
+        <p> Dark energy plays a pivotal role in shaping the universe, especially in respects to the CMB, where variation in dark energy density influences the distance to the last-scattering surface. Assuming a flat universe, variations 
+            in the initial dark energy density affect this distance by changing the Hubble constant after recombination, as described in the equation below:</p>
+        <p style="text-align: center;">\({H}^2 (a) = {H}^2_0(\Omega_m a^{-3} + \Omega_\Lambda) \)</p>
+        When the dark energy density,  \( \Omega_\Lambda \), increases at a fixed matter density, \( \Omega_m \)​, the Hubble constant also increases, resulting in a reduced distance to the last-scattering. Conversely, if \( \Omega_\Lambda \)​ is decreased, the distance to the last-scattering
+         will increase due to the smaller Hubble constant. Furthermore, the increase of \( \Omega_\Lambda \)​ will amplify the power on larger angular scales due to the Integrated Sachs-Wolfe Effect (ISW). This is caused by the decay of gravitation potential 
+         from the onset of dark energy, hence increasing the CMB temperature fluctuations on large scales.</p>
+        <p class="section-body"></p>
+
+        <div class="Cosmo-container">
+            <img id="Omega_L_image" src="class_figures/Omega_L_figures/Dl_Omega_L_15.png">
+            <div class="slider-container">
+                <input type="range" id="slideValue_Omega_L" min="1" max="30" value="15" oninput="updateValue_Omega_L(this.value); updateSliderBackground(this.value, 'slideValue_Omega_L');">
+                <div class="slider-value">
+                    <span>\( \Omega_\Lambda = \)</span><span id="sliderValue_Omega_L">0.490</span>
+                </div>
+            </div>
+        </div>
 
 <script src="imageSwitch.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
