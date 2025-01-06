@@ -154,7 +154,7 @@ function callMyScript_tau_reio_page(value){
     var img = document.getElementById('imagetau_reiopage');
     img.src = 'class_figures/tau_reionization_figures/Dl_tau_reio_' + value + '.png';
 
-
+}
 
 // Function to update pie chart (omega_m, omega_b, Omega_L) and change image
 function updateCombinedValue() {
@@ -298,4 +298,3 @@ function updateSliderBackground(value, sliderId) {
     // Update the slider's background gradient
     slider.style.background = `linear-gradient(to right, #7B4397 0%, #7B4397 ${percentage}%, #e0e0e0 ${percentage}%, #e0e0e0 100%)`;
 }
-
