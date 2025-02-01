@@ -109,7 +109,7 @@ function updateValue_Omega_L(value){
 function callMyScript_Omega_L(value){
     console.log('Omega_L slider value is: ' + value);
     var img = document.getElementById('Omega_L_image');
-    img.src = 'class_figures/Omega_L_Figures_New/Dl_Omega_L_' + value + '.png';
+    img.src = 'class_figures/Omega_L_Figures_New/Dl_Omega_L_v' + value + '.png';
 }
 
 
