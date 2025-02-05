@@ -157,6 +157,18 @@ nav ul li ul li a:hover {
 nav ul li:hover ul {
     display: block;
 }
+
+/* Increase the width of the dropdown menu */
+nav ul ul {
+    min-width: 250px; /* Adjust the width as needed */
+    width: auto; /* Allow the width to grow based on content */
+}
+
+/* Ensure the dropdown items are displayed properly */
+nav ul ul li {
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
 main {
     background-color: #fff;
     padding: 2rem;
