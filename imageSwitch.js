@@ -141,18 +141,18 @@ function callMyScript_omega_b_DMpage(value){
     img.src = 'class_figures/DM_aeq_fixed_figures/Dl_DM_aeq_fixed__omega_b_' + value + '.png';
 }
 
-//function to update tau_reio value in Photon depth page
-function updateValue_tau_reio(val){
-    const tau_reio_value = tau_reio_array_page[val-1];
-    document.getElementById('sliderValuetau_reiopage').innerText = tau_reio_value.toFixed(4);
-    callMyScript_tau_reio_page(val)
+//function to update tau_ value in Photon depth page
+function updateValue_tau_(val){
+    const tau__value = tau__array_page[val-1];
+    document.getElementById('sliderValuetau_page').innerText = tau__value.toFixed(4);
+    callMyScript_tau__page(val)
 }
 
-// function to update tau_reio image in Photon depth page
-function callMyScript_tau_reio_page(value){
-    console.log('tau_reio slider value is: ' + value);
-    var img = document.getElementById('imagetau_reiopage');
-    img.src = 'class_figures/tau_reionization_figures/Dl_tau_reio_' + value + '.png';
+// function to update tau_ image in Photon depth page
+function callMyScript_tau__page(value){
+    console.log('tau_ slider value is: ' + value);
+    var img = document.getElementById('imagetau_page');
+    img.src = 'class_figures/tau_nization_figures/Dl_tau__' + value + '.png';
 
 }
 
@@ -220,7 +220,7 @@ function initialize_tau_reio_slider() {
     const initialtauValue = 11;
     document.getElementById('mySlidertau_reiopage').value = initialtauValue;
 
-    document.getElementById('sliderValuetau_reiopage').innerText = tau_reio_array_page[initialtauValue - 1].toFixed(2);
+    document.getElementById('sliderValuetau_reiopage').innerText = tau_reio_array_page[initialtauValue - 1].toFixed(4);
 
     updateSliderBackground(initialtauValue, 'mySlidertau_reiopage');
 }
