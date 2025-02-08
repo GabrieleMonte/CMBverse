@@ -225,6 +225,15 @@ function initialize_tau_reio_slider() {
     updateSliderBackground(initialtauValue, 'mySlidertau_reiopage');
 }
 
+function initialize_Omega_L_slider() {
+    const initialLValue = 22;
+    document.getElementById('slideValue_Omega_L').value = initialLValue;
+
+    document.getElementById('sliderValue_Omega_L').innerText = Omega_L_array[initialLValue - 1].toFixed(2);
+
+    updateSliderBackground(initialLValue, 'slideValue_Omega_L');
+}
+
 // Function to update pie chart (omega_m, omega_b, Omega_L) and change image
 function updateCombinedValue2() {
     const A_s_index = document.getElementById('mySliderPieAs').value - 1;
@@ -292,7 +301,12 @@ window.onload = function() {
         // Run these functions only on the neutrino.html page
         initialize_tau_reio_slider();
     }
-    
+
+    // Check if the current page is 'dark_energy.html'
+    if (currentPage.endsWith('dark_energy.html')) {
+    // Run these functions only on the dark_energy.html page
+    initialize_Omega_L_slider();
+    }
 };
 
 // Function to update slider background
