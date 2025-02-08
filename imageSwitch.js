@@ -216,6 +216,15 @@ function initialize_Nnu2_slider() {
     updateSliderBackground(initialNnu2Value, 'mySliderNnu2');
 }
 
+function initialize_tau_reio_slider() {
+    const initialtauValue = 51;
+    document.getElementById('mySlidertau_reiopage').value = initialtauValue;
+
+    document.getElementById('sliderValuetau_reiopage').innerText = tau_reio_array_page[initialtauValue - 1].toFixed(2);
+
+    updateSliderBackground(initialtauValue, 'mySlidertau_reiopage');
+}
+
 // Function to update pie chart (omega_m, omega_b, Omega_L) and change image
 function updateCombinedValue2() {
     const A_s_index = document.getElementById('mySliderPieAs').value - 1;
@@ -277,6 +286,13 @@ window.onload = function() {
         initialize_Nnu1_slider();
         initialize_Nnu2_slider();
     }
+
+    // Check if the current page is 'photon_depth.html'
+    if (currentPage.endsWith('photon_depth.html')) {
+        // Run these functions only on the neutrino.html page
+        initialize_tau_reio_slider();
+    }
+    
 };
 
 // Function to update slider background
