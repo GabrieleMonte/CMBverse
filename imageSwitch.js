@@ -217,7 +217,7 @@ function initialize_Nnu2_slider() {
 }
 
 function initialize_tau_reio_slider() {
-    const initialtauValue = 51;
+    const initialtauValue = 11;
     document.getElementById('mySlidertau_reiopage').value = initialtauValue;
 
     document.getElementById('sliderValuetau_reiopage').innerText = tau_reio_array_page[initialtauValue - 1].toFixed(2);
