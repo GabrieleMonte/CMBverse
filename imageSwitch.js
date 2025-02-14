@@ -160,6 +160,8 @@ function callMyScript_tau_reio_page(value){
 function updateValue_tau_reio_degen(val){
     const tau_reio_degen_value = tau_reio_array_page[val-1];
     document.getElementById('sliderValuetau_reio_degenpage').innerText = tau_reio_degen_value.toFixed(4);
+    const tau_reio_degen_A_value = tau_reio_array_page[val-1];
+    document.getElementById('sliderValuetau_reio_degen_Apage').innerText = tau_reio_degen_A_value.toFixed(4);
     callMyScript_tau_reio_degen_page(val)
 }
 
