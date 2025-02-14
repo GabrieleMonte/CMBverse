@@ -152,9 +152,25 @@ function updateValue_tau_(val){
 function callMyScript_tau__page(value){
     console.log('tau_ slider value is: ' + value);
     var img = document.getElementById('imagetau_page');
-    img.src = 'class_figures/tau_nization_figures/Dl_tau__' + value + '.png';
+    img.src = 'class_figures/tau_reionization_figures/Dl_tau__' + value + '.png';
 
 }
+
+//function to update tau_degen value in Photon depth page
+function updateValue_tau_degen(val){
+    const tau_degen_value = tau_degen_array_page[val-1];
+    document.getElementById('sliderValuetau_degen_page').innerText = tau_degen_value.toFixed(4);
+    callMyScript_tau_degen_page(val)
+}
+
+// function to update tau_degen image in Photon depth page
+function callMyScript_tau_degen_page(value){
+    console.log('tau_degen slider value is: ' + value);
+    var img = document.getElementById('imagetau_degen_page');
+    img.src = 'class_figures/tau_reionization_figures/Dl_tau_degen_' + value + '.png';
+
+}
+
 
 // Function to update pie chart (omega_m, omega_b, Omega_L) and change image
 function updateCombinedValue() {
