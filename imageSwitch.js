@@ -145,7 +145,7 @@ function callMyScript_omega_b_DMpage(value){
 function updateValue_tau_reio(val){
     const tau_reio_value = tau_reio_array_page[val-1];
     document.getElementById('sliderValuetau_reiopage').innerText = tau_reio_value.toFixed(4);
-    callMyScript_tau__page(val)
+    callMyScript_tau_reio_page(val)
 }
 
 // function to update tau_ image in Photon depth page
@@ -159,14 +159,14 @@ function callMyScript_tau_reio_page(value){
 //function to update tau_degen value in Photon depth page
 function updateValue_tau_reio_degen(val){
     const tau_reio_degen_value = tau_reio_array_page[val-1];
-    document.getElementById('sliderValuetau_reio_degen_page').innerText = tau_reio_degen_value.toFixed(4);
+    document.getElementById('sliderValuetau_reio_degenpage').innerText = tau_reio_degen_value.toFixed(4);
     callMyScript_tau_reio_degen_page(val)
 }
 
 // function to update tau_degen image in Photon depth page
 function callMyScript_tau_reio_degen_page(value){
     console.log('tau_reio_degen slider value is: ' + value);
-    var img = document.getElementById('imagetau_reio_degen_page');
+    var img = document.getElementById('imagetau_reio_degenpage');
     img.src = 'class_figures/tau_reionization_figures/Dl_tau_reio_degen_' + value + '.png';
 
 }
