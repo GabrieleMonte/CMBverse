@@ -203,16 +203,22 @@ function updateImage(Omega_L_index, omega_m_index,omega_b_index) {
 
 // Function to initialize the sliders and their backgrounds
 function initialize_pie_chart_Sliders() {
+    
+    console.log("is this thing on");
+   
     const initialOmegaLValue = 10;
     const initialomegamValue = 10;
     const initialomegabValue = 10;
+
+
+
     document.getElementById('mySliderOmegaL').value = initialOmegaLValue;
     document.getElementById('mySlideromegam').value = initialomegamValue;
     document.getElementById('mySlideromegab').value = initialomegabValue;
 
     document.getElementById('sliderValueOmegaL').innerText = Omega_L_pie_array[initialOmegaLValue - 1].toFixed(2);
     document.getElementById('sliderValueomegam').innerText = omega_m_pie_array[initialomegamValue - 1].toFixed(4);
-    document.getElementById('sliderValueomegam').innerText = omega_b_pie_array[initialomegabValue - 1].toFixed(4);
+    document.getElementById('sliderValueomegab').innerText = omega_b_pie_array[initialomegabValue - 1].toFixed(4);
 
     updateSliderBackground(initialOmegaLValue, 'mySliderOmegaL');
     updateSliderBackground(initialomegamValue, 'mySlideromegam');
