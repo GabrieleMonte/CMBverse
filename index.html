@@ -40,16 +40,21 @@
     </nav>
     <div class="container">
         <h1 class="section-title  mt-5">Welcome to CMBverse</h1>
-        <p class="section-body">Explore the fascinating world of cosmological parameters and their impact on the Cosmic Microwave Background (CMB)! On this website, you can interact with the 6 different parameters of \( \Lambda\rm{CDM} \) 
-            and explore their effects on the CMB. \( \Lambda\rm{CDM} \) is the standard cosmological model that describes the large-scale structure and evolution of the universe, integrating the 
+        <p class="section-body">This website provides an interactive way to study how cosmological parameters affect the Cosmic Microwave Background (CMB). You can explore the six parameters of \( \Lambda\rm{CDM} \) 
+            and analyze their influence on the CMB power spectrum. \( \Lambda\rm{CDM} \) is the standard cosmological model that describes the large-scale structure and evolution of the universe, integrating the 
             cosmological constant \( \Lambda\) and cold dark matter (CDM) while assuming a flat universe that is isotropic and homogenous on large scales.</p>
-        <p class="section-body">Specifically,  \( \Lambda\rm{CDM} \) includes six key cosmological parameters. Two of these parameters provide information 
-            on the initial conditions of the universe: the scalar amplitude (\(10^{9}A_{s}\)) and the scalar spectral index (\(n_{s}\)). Three of these parameters describe the physical content of the universe:  the physical baryon 
-            density (\(100\omega_{b}\)), the physical matter density (\(100\omega_{m}\)), and the dark energy density (\(\Omega_{\Lambda}\)). Finally, the last parameter, optical depth (\(\tau\)), informs us on the opacity of the 
-            universe after recombination, providing information on a later period called reionization. </p>
-        <p class="section-body"> With these 6 parameters, we can numerically solve for the evolution of cosmological perturbations, and hence determine the corresponding CMB power spectrum. By comparing this output with observational data, 
-            we can find the best fit for the six parameters, whose values are provided below. This observational data is provided by the Planck Satellite, Atacama Cosmology Telescope, and South Pole Telescope.</p>
+        <p class="section-body">Specifically,  \( \Lambda\rm{CDM} \) is defined by six cosmological parameters. Two of these parameters characterize the initial conditions of the universe: the scalar amplitude (\(10^{9}A_{s}\)) and the scalar spectral index (\(n_{s}\)). 
+            Three describe the physical content of the universe: the physical baryon density (\(100\omega_{b}\)), the physical matter density (\(100\omega_{m}\)), and the dark energy density (\(\Omega_{\Lambda}\)). 
+            The final parameter, optical depth (\(\tau\)), quantifies the universe’s opacity after recombination, providing information on a later period called reionization. </p>
+        <p class="section-body">  Given these six parameters, we can numerically compute the evolution of cosmological perturbations and derive the corresponding CMB power spectrum. Below, we provide a table with the best-fit values of these parameters, along with their \(1\sigma\) uncertainties, using Planck 2018 data.</p>
+        <p class="section-body">To facilitate visualization, throughout this website, we display the CMB power spectra in terms of</p>
+        \[
+        D^{XY}_\ell = \frac{\ell (\ell+1)}{2\pi} C^{XY}_\ell
+        \]
 
+        <p class="section-body">where \( C^{XY}_{\ell} \) are the angular power spectra, with \( X, Y \in \{T, E, B, \phi\} \) representing the temperature (\(T\)), polarization (\(E, B\)), and lensing potential (\(\phi\)). Unless otherwise stated, all power spectra are shown in this form.</p>
+
+        <p class="section-body">Below, we also display the CMB power spectra, allowing the user to interact with all six parameters and explore how they influence the shape and amplitude of CMB anisotropies. We always compare the theoretical CMB spectra we compute, with the binned observed spectra from the Planck satellite, the Atacama Cosmology Telescope (ACT), and the South Pole Telescope (SPT). Other pages on this website examine in greater detail how specific parameters affect the power spectra and the degeneracies between them.</p>
         \[
         \begin{array}{|c|c|c|}
             \hline
