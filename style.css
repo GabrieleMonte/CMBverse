@@ -257,7 +257,14 @@ h2 {
     justify-content: center;
     margin: 20px 0;
 }
-
+.Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
+    max-width: 100%;
+    max-height: 80vh; /* Adjust height to always fit in view */
+    width: auto;
+    height: auto;
+    object-fit: contain; /* Maintain aspect ratio without clipping */
+    display: block;
+}
 /* Style the slider container to match the image size */
 .slider-container {
     display: flex;
