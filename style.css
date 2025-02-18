@@ -249,37 +249,46 @@ h2 {
     margin-top: 2rem; /* Adjust as needed */
     margin-bottom: 1.5rem; /* Adjust as needed */
 }
-/* Ensure the image container adjusts its size dynamically */
+/* Ensure the entire container (image + sliders) fits in the viewport */
 .Cosmo-container, .Dl-container, .kTT-container, .kEE-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    margin: 20px 0;
+    justify-content: space-between;
+    height: 100vh; /* Occupy full viewport height */
+    width: 100vw;  /* Occupy full viewport width */
+    box-sizing: border-box;
+    padding: 10px 0;
+    overflow: hidden; /* Prevent scrolling within the container */
 }
+
+/* Responsive images maintaining aspect ratio and fitting available space */
 .Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
-    max-width: 100%;
-    max-height: 80vh; /* Adjust height to always fit in view */
+    max-width: 90%;
+    max-height: 60vh; /* Ensures room for sliders below */
     width: auto;
     height: auto;
-    object-fit: contain; /* Maintain aspect ratio without clipping */
+    object-fit: contain; /* Maintain aspect ratio */
     display: block;
 }
-/* Style the slider container to match the image size */
-.slider-container {
+
+/* Style the slider container to match the image size and fit the page */
+.slider-container, .new-slider-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%; /* Match the width of the image container */
+    width: 100%;
+    height: 35vh; /* Fixed height to ensure total container fits in the page */
+    box-sizing: border-box;
 }
 
-/* Style the slider */
-.slider-container input[type="range"] {
-    width: 60%; /* Length relative to the container width */
-    height: 0.5em; /* Thickness of the slider */
+/* Style sliders for responsiveness */
+.slider-container input[type="range"], .new-slider-container input[type="range"] {
+    width: 70%;
+    height: 0.5em;
     margin: 10px 0;
-    background: linear-gradient(to right, #7B4397 0%, #7B4397 50%, #e0e0e0 50%, #e0e0e0 100%);;
+    background: linear-gradient(to right, #7B4397 0%, #7B4397 50%, #e0e0e0 50%, #e0e0e0 100%);
     border-radius: 0.25em;
     outline: none;
     -webkit-appearance: none;
@@ -287,80 +296,86 @@ h2 {
     cursor: pointer;
 }
 
-/* Style the slider thumb */
-.slider-container input[type="range"]::-webkit-slider-thumb {
+/* Slider thumb styling */
+.slider-container input[type="range"]::-webkit-slider-thumb, 
+.new-slider-container input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 1.5em;
     height: 1.5em;
-    background: #7B4397; /* Purple color from the palette */
+    background: #7B4397;
     border-radius: 50%;
     cursor: pointer;
 }
 
-.slider-container input[type="range"]::-moz-range-thumb {
-    width: 1.5em;
-    height: 1.5em;
-    background: #7B4397; /* Purple color from the palette */
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-/* Style the value display */
-.slider-value {
-    margin-top: 1em;
-    font-size: 1.5rem; /* Larger font size */
+/* Value display styling */
+.slider-value, .new-slider-value {
+    margin-top: 0.5em;
+    font-size: 1.5rem;
     font-weight: bold;
-    font-family: 'sans-serif', Arial; /* San-serif font */
-    color: #2C3E50; /* Dark Slate Blue Text Color */
+    font-family: 'sans-serif', Arial;
+    color: #2C3E50;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.slider-value span {
-    font-family: 'sans-serif', Arial; /* San-serif font */
-    font-weight: bold;
-    color: #7B4397; /* Purple color for the number */
-    margin-left: 0.5em;
+/* Adjusting font size for smaller screens */
+@media (max-width: 1024px) {
+    .Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
+        max-height: 55vh;
+    }
+    .slider-container, .new-slider-container {
+        height: 40vh;
+    }
 }
 
-/* Media queries for responsiveness */
 @media (max-width: 768px) {
-    .slider-container input[type="range"] {
-        width: 80%; /* Full width on smaller screens */
+    .Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
+        max-height: 50vh;
     }
-
-    .slider-value {
-        font-size: 1.2rem; /* Slightly smaller font size on smaller screens */
+    .slider-container input[type="range"], .new-slider-container input[type="range"] {
+        width: 80%;
+    }
+    .slider-value, .new-slider-value {
+        font-size: 1.2rem;
     }
 }
 
 @media (max-width: 480px) {
-    .slider-container input[type="range"] {
-        height: 0.4em; /* Slightly thinner slider on very small screens */
+    .Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
+        max-height: 45vh;
     }
-
-    .slider-value {
-        font-size: 1rem; /* Smaller font size on very small screens */
+    .slider-container, .new-slider-container {
+        height: 50vh;
+    }
+    .slider-container input[type="range"], .new-slider-container input[type="range"] {
+        width: 90%;
+        height: 0.4em;
+    }
+    .slider-value, .new-slider-value {
+        font-size: 1rem;
     }
 }
 
 /* Style for the new slider container */
+/* Updated style for the new slider container to fit with image on the same page */
 .new-slider-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-evenly; /* Even spacing between sliders */
     width: 100%; /* Match the width of the image container */
-    margin-top: 20px;
+    height: 35vh; /* Ensure container height adjusts with the image */
+    box-sizing: border-box;
+    padding: 10px 0;
 }
 
-/* Style the new sliders */
+/* Updated style for the new sliders */
 .new-slider-container input[type="range"] {
-    width: 60%; /* Length relative to the container width */
-    height: 1em; /* Increased thickness of the slider */
-    margin: 10px 0;
+    width: 65%; /* Length relative to the container width */
+    height: 0.8em; /* Adjusted thickness for balance */
+    margin: 5px 0;
     background: #e0e0e0; /* Gray background */
     border-radius: 0.25em;
     outline: none;
@@ -373,16 +388,16 @@ h2 {
 .new-slider-container input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 1.5em;
-    height: 1.5em;
+    width: 1.3em;
+    height: 1.3em;
     background: #7B4397; /* Purple color from the palette */
     border-radius: 50%;
     cursor: pointer;
 }
 
 .new-slider-container input[type="range"]::-moz-range-thumb {
-    width: 1.5em;
-    height: 1.5em;
+    width: 1.3em;
+    height: 1.3em;
     background: #7B4397; /* Purple color from the palette */
     border-radius: 50%;
     cursor: pointer;
@@ -390,10 +405,10 @@ h2 {
 
 /* Style the value display for the new sliders */
 .new-slider-value {
-    margin-top: 1em;
-    font-size: 1.5rem; /* Larger font size */
+    margin-top: 0.8em;
+    font-size: 1.4rem; /* Slightly reduced to fit smaller screens */
     font-weight: bold;
-    font-family: 'sans-serif', Arial; /* San-serif font */
+    font-family: 'sans-serif', Arial;
     color: #2C3E50; /* Dark Slate Blue Text Color */
     display: flex;
     align-items: center;
@@ -401,30 +416,47 @@ h2 {
 }
 
 .new-slider-value span {
-    font-family: 'sans-serif', Arial; /* San-serif font */
+    font-family: 'sans-serif', Arial;
     font-weight: bold;
     color: #7B4397; /* Purple color for the number */
     margin-left: 0.5em;
 }
 
 /* Media queries for responsiveness */
-@media (max-width: 768px) {
-    .new-slider-container input[type="range"] {
-        width: 80%; /* Full width on smaller screens */
+@media (max-width: 1024px) {
+    .new-slider-container {
+        height: 40vh; /* Allow more room on medium screens */
     }
-
+    .new-slider-container input[type="range"] {
+        width: 75%;
+    }
     .new-slider-value {
-        font-size: 1.2rem; /* Slightly smaller font size on smaller screens */
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .new-slider-container {
+        height: 45vh; /* More height allocated on smaller screens */
+    }
+    .new-slider-container input[type="range"] {
+        width: 80%;
+    }
+    .new-slider-value {
+        font-size: 1.1rem;
     }
 }
 
 @media (max-width: 480px) {
-    .new-slider-container input[type="range"] {
-        height: 0.8em; /* Slightly thinner slider on very small screens */
+    .new-slider-container {
+        height: 50vh; /* Adjust height for very small screens */
     }
-
+    .new-slider-container input[type="range"] {
+        width: 90%;
+        height: 0.6em; /* Thinner slider for smaller screens */
+    }
     .new-slider-value {
-        font-size: 1rem; /* Smaller font size on very small screens */
+        font-size: 1rem;
     }
 }
 /* About Us page container */
