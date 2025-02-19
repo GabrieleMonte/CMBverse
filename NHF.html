@@ -4,7 +4,7 @@
     <link rel ="icon" href="figures/cmbverse_logo2_min.ico" type="image/x-icon"/>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relevant Degeneracies</title>
+    <title>Neutrinos and Helium Fraction</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -39,21 +39,24 @@
     </nav>
 
     <div class="container">
-        <h1 class="section-title mt-5">Neutrino and Helium Fractions</h1>
+        <h1 class="section-title mt-5">Neutrinos and Helium Fraction</h1>
         <br>
-        <p class="section-body">The number of relativistic neutrinos species \(N_{\nu}\) and the Helium fraction \(Y_{\text{He}}\) have degenerate damping effects on the CMB power spectra. Increasing \(N_\nu\) increases the radiation energy density, slowing down the expansion of the universe and thus lengthening the radiation-dominated stage of the universe. This effectively increases the rate of scattering that occurs, enhancing the damping effect on the power spectra. Meanwhile, increasing the Helium fraction ultimately increases the amount of free electrons, leading to increased damping effects due to scattering. We can mathematically describe the relationship between \(N_\nu\) (via its effect on the expansion rate \(H\)) and the Helium fraction (via its effect on the free electron number \(n_e\)) by the equation:</p>
-        <p style="text-align: center; margin: 20px 0;">\( \theta_d=(H/n_e)^{1/2}\theta_s \)</p>
-        <p class="section-body"> For a fixed \(\theta_s\), there is a clear degeneracy on the damping angle \(\theta_d\).</p>
+        <p class="section-body">The effective number of relativistic (neutrino) species \(N_{\rm eff}\) and the Helium fraction \(Y_{p}\) exhibit a well-known degeneracy in their impact on the damping tail of the CMB power spectra. For a fixed angular size of the sound horizon, \(\theta_s\) - a quantity precisely measured from the position of the first temperature peak — increasing \(N_{\rm eff}\) leads to enhanced damping of the power spectra. This occurs because a higher \( N_{\rm eff}\) increases the radiation energy density and in turn the Hubble expansion rate \(H\). As a result, photons undergo more scattering, which amplifies the damping effect.
+            Conversely, increasing the primordial helium fraction, \(Y_{p}\), reduces the number density of free electrons \(n_e\). Since helium recombines earlier than hydrogen, a higher helium fraction means fewer free electrons remain to scatter photons, resulting in less damping.  Therefore, for fixed \(\theta_s\), \(N_{\rm eff}\) and \(Y_{p}\) are anti-correlated. This relationship can be expressed by the equation: </p>
+        \[
+        \theta_d=(H/n_e)^{1/2}\theta_s
+        \]
+        <p class="section-body"> Here, \(\theta_d\) represents the damping angular scale. For a fixed \(\theta_s\), it becomes clear how variations in \(N_{\rm eff}\) (through \(H\)) and \(Y_{p}\) (through \(n_e\)) influence \(\theta_d\) in opposite directions. We show this explictly in the panels below.</p>
         <div class="Dl-container">
             <img id="NHFimage" src="class_figures/Neff_degen_figures/Dl_Neff_v11_YHes_v11.png">
             <div class="new-slider-container">
                 <input type="range" id="mySliderNeffNHF" min="1" max="21" value="11" oninput="updateCombinedNHFValue()">
                 <div class="new-slider-value">
-                    <span>\( N_{\nu} = \)</span><span id="sliderValueNeffNHF">2.99</span>
+                    <span>\( N_{\rm eff} = \)</span><span id="sliderValueNeffNHF">2.99</span>
                 </div>
                 <input type="range" id="mySliderYHeNHF" min="1" max="21" value="11" oninput="updateCombinedNHFValue()">
                 <div class="new-slider-value">
-                    <span>\( Y_\text{He} = \)</span><span id="sliderValueYHeNHF">0.24</span>
+                    <span>\( Y_{p} = \)</span><span id="sliderValueYHeNHF">0.24</span>
                 </div>
             </div>
         </div>
