@@ -265,6 +265,7 @@ h2 {
     object-fit: contain; /* Maintain aspect ratio without clipping */
     display: block;
 }
+
 /* Style the slider container to match the image size */
 .slider-container {
     display: flex;
