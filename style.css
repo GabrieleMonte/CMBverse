@@ -249,46 +249,37 @@ h2 {
     margin-top: 2rem; /* Adjust as needed */
     margin-bottom: 1.5rem; /* Adjust as needed */
 }
-/* Ensure the image container and sliders fit entirely in the viewport */
+/* Ensure the image container adjusts its size dynamically */
 .Cosmo-container, .Dl-container, .kTT-container, .kEE-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    height: 100vh; /* Full viewport height */
-    width: 100vw;  /* Full viewport width */
-    box-sizing: border-box;
-    overflow: hidden; /* Prevent scrolling */
-    padding: 10px 0;
+    justify-content: center;
+    margin: 20px 0;
 }
-
-/* Adjust image size dynamically while maintaining aspect ratio */
 .Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
-    max-width: 90%;
-    max-height: 65vh; /* Allocate space for sliders */
+    max-width: 100%;
+    max-height: 80vh; /* Adjust height to always fit in view */
     width: auto;
     height: auto;
-    object-fit: contain; /* Maintain aspect ratio */
+    object-fit: contain; /* Maintain aspect ratio without clipping */
     display: block;
 }
-
-/* Style the slider container to fit with image in the viewport */
-.slider-container, .new-slider-container {
+/* Style the slider container to match the image size */
+.slider-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 30vh; /* Fixed height for sliders */
-    box-sizing: border-box;
+    width: 100%; /* Match the width of the image container */
 }
 
-/* Responsive sliders */
-.slider-container input[type="range"], .new-slider-container input[type="range"] {
-    width: 65%;
-    height: 0.5em;
+/* Style the slider */
+.slider-container input[type="range"] {
+    width: 60%; /* Length relative to the container width */
+    height: 0.5em; /* Thickness of the slider */
     margin: 10px 0;
-    background: linear-gradient(to right, #7B4397 0%, #7B4397 50%, #e0e0e0 50%, #e0e0e0 100%);
+    background: linear-gradient(to right, #7B4397 0%, #7B4397 50%, #e0e0e0 50%, #e0e0e0 100%);;
     border-radius: 0.25em;
     outline: none;
     -webkit-appearance: none;
@@ -296,73 +287,144 @@ h2 {
     cursor: pointer;
 }
 
-/* Slider thumb styling */
-.slider-container input[type="range"]::-webkit-slider-thumb, 
-.new-slider-container input[type="range"]::-webkit-slider-thumb {
+/* Style the slider thumb */
+.slider-container input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 1.5em;
     height: 1.5em;
-    background: #7B4397;
+    background: #7B4397; /* Purple color from the palette */
     border-radius: 50%;
     cursor: pointer;
 }
 
-/* Value display for sliders */
-.slider-value, .new-slider-value {
-    margin-top: 0.5em;
-    font-size: 1.4rem;
+.slider-container input[type="range"]::-moz-range-thumb {
+    width: 1.5em;
+    height: 1.5em;
+    background: #7B4397; /* Purple color from the palette */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Style the value display */
+.slider-value {
+    margin-top: 1em;
+    font-size: 1.5rem; /* Larger font size */
     font-weight: bold;
-    font-family: 'sans-serif', Arial;
-    color: #2C3E50;
+    font-family: 'sans-serif', Arial; /* San-serif font */
+    color: #2C3E50; /* Dark Slate Blue Text Color */
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Restored styling for span inside slider value */
-.slider-value span, .new-slider-value span {
+.slider-value span {
     font-family: 'sans-serif', Arial; /* San-serif font */
     font-weight: bold;
     color: #7B4397; /* Purple color for the number */
     margin-left: 0.5em;
 }
 
-/* Media queries for different screen sizes */
-@media (max-width: 1024px) {
-    .Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
-        max-height: 55vh;
-    }
-    .slider-container, .new-slider-container {
-        height: 35vh;
-    }
-}
-
+/* Media queries for responsiveness */
 @media (max-width: 768px) {
-    .Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
-        max-height: 50vh;
+    .slider-container input[type="range"] {
+        width: 80%; /* Full width on smaller screens */
     }
-    .slider-container input[type="range"], .new-slider-container input[type="range"] {
-        width: 80%;
-    }
-    .slider-value, .new-slider-value {
-        font-size: 1.2rem;
+
+    .slider-value {
+        font-size: 1.2rem; /* Slightly smaller font size on smaller screens */
     }
 }
 
 @media (max-width: 480px) {
-    .Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
-        max-height: 45vh;
+    .slider-container input[type="range"] {
+        height: 0.4em; /* Slightly thinner slider on very small screens */
     }
-    .slider-container, .new-slider-container {
-        height: 40vh;
+
+    .slider-value {
+        font-size: 1rem; /* Smaller font size on very small screens */
     }
-    .slider-container input[type="range"], .new-slider-container input[type="range"] {
-        width: 90%;
-        height: 0.4em;
+}
+
+/* Style for the new slider container */
+.new-slider-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Match the width of the image container */
+    margin-top: 20px;
+}
+
+/* Style the new sliders */
+.new-slider-container input[type="range"] {
+    width: 60%; /* Length relative to the container width */
+    height: 1em; /* Increased thickness of the slider */
+    margin: 10px 0;
+    background: #e0e0e0; /* Gray background */
+    border-radius: 0.25em;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+/* Style the new slider thumb */
+.new-slider-container input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.5em;
+    height: 1.5em;
+    background: #7B4397; /* Purple color from the palette */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.new-slider-container input[type="range"]::-moz-range-thumb {
+    width: 1.5em;
+    height: 1.5em;
+    background: #7B4397; /* Purple color from the palette */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Style the value display for the new sliders */
+.new-slider-value {
+    margin-top: 1em;
+    font-size: 1.5rem; /* Larger font size */
+    font-weight: bold;
+    font-family: 'sans-serif', Arial; /* San-serif font */
+    color: #2C3E50; /* Dark Slate Blue Text Color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.new-slider-value span {
+    font-family: 'sans-serif', Arial; /* San-serif font */
+    font-weight: bold;
+    color: #7B4397; /* Purple color for the number */
+    margin-left: 0.5em;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .new-slider-container input[type="range"] {
+        width: 80%; /* Full width on smaller screens */
     }
-    .slider-value, .new-slider-value {
-        font-size: 1rem;
+
+    .new-slider-value {
+        font-size: 1.2rem; /* Slightly smaller font size on smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .new-slider-container input[type="range"] {
+        height: 0.8em; /* Slightly thinner slider on very small screens */
+    }
+
+    .new-slider-value {
+        font-size: 1rem; /* Smaller font size on very small screens */
     }
 }
 /* About Us page container */
