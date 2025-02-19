@@ -4,7 +4,7 @@
     <link rel ="icon" href="figures/cmbverse_logo2_min.ico" type="image/x-icon"/>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relevant Degeneracies</title>
+    <title>Optical Depth and Scalar Amplitude</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -14,35 +14,35 @@
     <header class="main-header"></header>
     <nav>
         <ul>
-            <li><a href="index.html">Home</a></li>
+            <li><a href="home">Home</a></li>
             <li>
                 <a href="#">Cosmological Parameters</a>
                 <ul>
-                    <li><a href="matter.html">Dark and Baryonic Matter</a></li>
-                    <li><a href="primordial_power_spectrum.html">Primordial Power Spectrum</a></li>
-                    <li><a href="dark_energy.html">Dark Energy</a></li>
-                    <li><a href="photon_depth.html">Photon Optical Depth</a></li>
-                    <li><a href="neutrinos.html">Neutrinos</a></li>
-                    <li><a href="curvature.html">Curvature</a></li>
+                    <li><a href="matter">Dark and Baryonic Matter</a></li>
+                    <li><a href="primordial_power_spectrum">Primordial Power Spectrum</a></li>
+                    <li><a href="dark_energy">Dark Energy</a></li>
+                    <li><a href="photon_depth">Photon Optical Depth</a></li>
+                    <li><a href="neutrinos">Neutrinos</a></li>
+                    <li><a href="curvature">Curvature</a></li>
                 </ul>
             </li>
             <li>
                 <a href="#">Relevant Degeneracies</a>
                 <ul>
-                    <li><a href="ODSA.html">Optical depth and Spectral Amplitude</a></li>
-                    <li><a href="NHF.html">Neutrinos and Helium Fractions</a></li>
+                    <li><a href="ODSA">Optical depth and Scalar Amplitude</a></li>
+                    <li><a href="NHF">Neutrinos and Helium Fraction</a></li>
                 </ul>
             </li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="credits.html">Credits</a></li>
+            <li><a href="about">About Us</a></li>
+            <li><a href="credits">Credits</a></li>
         </ul>
     </nav>
 
     <div class="container">
-        <h1 class="section-title mt-5">Optical Depth and Spectral Amplitude</h1>
+        <h1 class="section-title mt-5">Optical Depth and Scalar Amplitude</h1>
         <br>
-        <p class="section-body">Optical depth at reionization \(\tau\) and the spectral amplitude \(A_s\) act degenerately. As described in our Photon Optical Depth page, the effects of reionization uniformly reduce the power spectrum \(C^l\) by a factor of \(e^{-2\tau}\). However, \(C^l\) is also uniformly proportional to the scalar amplitude, \(A_s\); thus, observation only constrains the combined value of  \(A_se^{-2\tau}\). Utilizing the Plank 2018 data set, this value is calculated to be about \(1.88\times10^{-9}\).</p> 
-        <p class="section-body">This degeneracy can be broken by examining how an increase in \(\tau\) results in an increase in power at low multiples. This is due to the unique reionization effect associated with the optical depth which occurs at large angular scales (lower multipoles) representing the size of the horizon at reionization. For more information, visit the Photon Optical Depth page.</p>
+        <p class="section-body">The optical depth at reionization \(\tau\) and the scalar amplitude \(A_s\) exhibiy a well-known degeneracy. As discussed on the Photon Optical Depth page, reionization uniformly reduces the amplitude of the power spectra by a factor of \(e^{-2\tau}\). Simultaneously, the size of the oscillations in the CMB power spectra is directly proportional to amplitude of the primordial scalar perturbations, \(A_s\). Consequently, observations tighly constrain the combined quantity  \(A_s e^{-2\tau}\), rather than \(A_s\) and \(\tau\) individually. Using Plank 2018 data, this value is calculated to be \(\approx 1.88\times10^{-9}\).</p> 
+        <p class="section-body">This degeneracy can be broken by examining how an increase in \(\tau\) boosts the power at large angular scales (low multipoles), specifically in the E polarization spectrum. This rise in power occurs because additional scatterings during reionization generate polarized radiation, leaving a distinct signature at scales corresponding to the size of the horizon at reionization, the so-called EE polarization bump. For more details, see the Photon Optical Depth page.</p>
 
         <div class="Cosmo-container">
             <img id="imagetau_reio_degenpage" src="class_figures/tau_reionization_figures/Dl_tau_reio_degen_11.png">
