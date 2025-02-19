@@ -288,6 +288,15 @@ function initialize_tau_reio_degen_slider() {
     updateSliderBackground(initialtaudegenValue, 'mySlidertau_reio_degenpage');
 }
 
+function initialize_Neff_Yp_slider() {
+    const initializeNeffYpValue = 11;
+    document.getElementById('mySliderNeffNHF').value = initializeNeffYpValue;
+    document.getElementById('sliderValueNeffNHF').innerText = NeffNHF_array[initializeNeffYpValue-1].toFixed(3);
+    document.getElementById('sliderValueYHeNHF').innerText =  YHeNHF_array[initializeNeffYpValue-1].toFixed(3);
+    updateSliderBackground(initializeNeffYpValue, 'mySliderNeffNHF');
+}
+
+
 function initialize_Omega_L_slider() {
     const initialLValue = 22;
     document.getElementById('slideValue_Omega_L').value = initialLValue;
@@ -346,7 +355,7 @@ window.onload = function() {
     const currentPage = window.location.pathname;
 
     // Check if the current page is 'index.html' or '/'
-    if (currentPage.endsWith('index.html') || currentPage.endsWith('/')) {
+    if (currentPage.endsWith('index.html') || currentPage.endsWith('/') || currentPage.endsWith('home.html')) {
         // Run these functions only on the index.html page
         initialize_pie_chart_Sliders();
         initialize_pie_chart_Sliders_2();
@@ -369,6 +378,10 @@ window.onload = function() {
     if (currentPage.endsWith('ODSA.html')) {
         // Run these functions only on the neutrino.html page
         initialize_tau_reio_degen_slider();
+    }
+    if (currentPage.endsWith('NHF.html')) {
+        // Run these functions only on the neutrino.html page
+        initialize_Neff_Yp_slider();
     }
 
     // Check if the current page is 'dark_energy.html'
