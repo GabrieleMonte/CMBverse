@@ -16,6 +16,9 @@ const tau_reio_degen_array_page = [1.88832688, 1.90896948, 1.92983775, 1.9509341
 const omega_cdm_array_DMpage = [0., 0.0029, 0.0058, 0.0087, 0.0116, 0.0145, 0.0174, 0.0204, 0.0233, 0.0262, 0.0291, 0.032,  0.0349, 0.0378, 0.0407, 0.0436, 0.0465, 0.0494, 0.0523, 0.0553, 0.0582, 0.0611, 0.064,  0.0669, 0.0698, 0.0727, 0.0756, 0.0785, 0.0814, 0.0843, 0.0872, 0.0901, 0.0931, 0.096,  0.0989, 0.1018, 0.1047, 0.1076, 0.1105, 0.1134, 0.1163, 0.1192, 0.1221, 0.125,  0.128,  0.1309, 0.1338, 0.1367, 0.1396, 0.1425]
 const Omega_k_array = [-0.200, -0.186, -0.172, -0.159, -0.145, -0.131, -0.117, -0.103, -0.090, -0.076, -0.062, -0.048, -0.034, -0.021, -0.007, 0.000, 0.007, 0.021, 0.034, 0.048, 0.062, 0.076, 0.090, 0.103, 0.117, 0.131, 0.145, 0.159, 0.172, 0.186, 0.200];
 const Omega_L_array = [0.100, 0.128, 0.155, 0.183, 0.210, 0.238, 0.266, 0.293, 0.321, 0.348, 0.376, 0.403, 0.431, 0.459, 0.486, 0.514, 0.541, 0.569, 0.597, 0.624, 0.652, 0.679, 0.707, 0.734, 0.762, 0.790, 0.817, 0.845, 0.872, 0.900]
+const NeffNHF_array = [0.1, 0.389, 0.678, 0.967, 1.256, 1.545, 1.834, 2.123, 2.412, 2.701, 2.99, 3.279, 3.568, 3.857, 4.146, 4.435, 4.724, 5.013, 5.302, 5.591, 5.88]
+const YHeNHF_array = [0.015, 0.0384, 0.0618, 0.0852, 0.1086, 0.132, 0.1554, 0.1788, 0.2022, 0.2256, 0.249, 0.2724, 0.2958, 0.3192, 0.3426, 0.366, 0.3894, 0.4128, 0.4362, 0.4596, 0.483]
+
 // Function to update DL value
 function updateValuemncdm(val) {
     const m_nus_value = m_nus_array[val - 1];
@@ -224,6 +227,32 @@ function initialize_pie_chart_Sliders() {
     updateSliderBackground(initialomegamValue, 'mySlideromegam');
     updateSliderBackground(initialomegabValue, 'mySlideromegab');
 }
+
+// Function to update NHF degeneracy values and change image
+function updateCombinedNHFValue() {
+    const NeffNHF_index = document.getElementById('mySliderNeffNHF').value - 1;
+    const YHeNHF_index = document.getElementById('mySliderYHeNHF').value - 1;
+    const NeffNHF_value = NeffNHF_array[NeffNHF_index];
+    const YHeNHF_value = YHeNHF_array[YHeNHF_index];
+
+    document.getElementById('sliderValueNeffNHF').innerText = NeffNHF_value.toFixed(3);
+    document.getElementById('sliderValueYHeNHF').innerText = YHeNHF_value.toFixed(3);
+
+    updateSliderBackground(NeffNHF_index + 1, 'mySliderNeffNHF');
+    updateSliderBackground(YHeNHF_index + 1, 'mySliderYHeNHF');
+
+    updateNHFpageImage(NeffNHF_index + 1, YHeNHF_index + 1);
+}
+
+// Function to update NHF image based on NeffNHF and YHeNHF
+function updateNHFpageImage(NeffNHF_index, YHeNHF_index) {
+    const img = document.getElementById("NHFimage");
+    img.src = `class_figures//Neff_degen_figures/Dl_Neff_v${NeffNHF_index}_YHes_v${YHeNHF_index}.png`;
+}
+
+
+
+
 function initialize_Nnu1_slider() {
     const initialNnu1Value = 44;
     document.getElementById('mySliderNnu1').value = initialNnu1Value;
