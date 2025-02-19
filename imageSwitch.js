@@ -291,9 +291,11 @@ function initialize_tau_reio_degen_slider() {
 function initialize_Neff_Yp_slider() {
     const initializeNeffYpValue = 11;
     document.getElementById('mySliderNeffNHF').value = initializeNeffYpValue;
+    document.getElementById('mySliderYHeNHF').value = initializeNeffYpValue;
     document.getElementById('sliderValueNeffNHF').innerText = NeffNHF_array[initializeNeffYpValue-1].toFixed(3);
     document.getElementById('sliderValueYHeNHF').innerText =  YHeNHF_array[initializeNeffYpValue-1].toFixed(3);
     updateSliderBackground(initializeNeffYpValue, 'mySliderNeffNHF');
+    updateSliderBackground(initializeNeffYpValue, 'mySliderYHeNHF');
 }
 
 
