@@ -247,7 +247,7 @@ function updateCombinedNHFValue() {
 // Function to update NHF image based on NeffNHF and YHeNHF
 function updateNHFpageImage(NeffNHF_index, YHeNHF_index) {
     const img = document.getElementById("NHFimage");
-    img.src = `class_figures//Neff_degen_figures/Dl_Neff_v${NeffNHF_index}_YHes_v${YHeNHF_index}.png`;
+    img.src = `class_figures/Neff_degen_figures/Dl_Neff_v${NeffNHF_index}_YHes_v${YHeNHF_index}.png`;
 }
 
 
