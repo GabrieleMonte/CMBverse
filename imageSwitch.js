@@ -355,37 +355,37 @@ window.onload = function() {
     const currentPage = window.location.pathname;
 
     // Check if the current page is 'index.html' or '/'
-    if (currentPage.endsWith('index.html') || currentPage.endsWith('/') || currentPage.endsWith('home.html')) {
+    if (currentPage.endsWith('index.html') || currentPage.endsWith('/') || currentPage.endsWith('home.html') || currentPage.endsWith('home')) {
         // Run these functions only on the index.html page
         initialize_pie_chart_Sliders();
         initialize_pie_chart_Sliders_2();
     }
 
     // Check if the current page is 'neutrino.html'
-    if (currentPage.endsWith('neutrinos.html')) {
+    if (currentPage.endsWith('neutrinos.html') || currentPage.endsWith('neutrinos')) {
         // Run these functions only on the neutrino.html page
         initialize_Nnu1_slider();
         initialize_Nnu2_slider();
     }
 
     // Check if the current page is 'photon_depth.html'
-    if (currentPage.endsWith('photon_depth.html')) {
+    if (currentPage.endsWith('photon_depth.html')|| currentPage.endsWith('photon_depth')) {
         // Run these functions only on the neutrino.html page
         initialize_tau_reio_slider();
     }
 
      // Check if the current page is 'photon_depth.html'
-    if (currentPage.endsWith('ODSA.html')) {
+    if (currentPage.endsWith('ODSA.html')|| currentPage.endsWith('ODSA')) {
         // Run these functions only on the neutrino.html page
         initialize_tau_reio_degen_slider();
     }
-    if (currentPage.endsWith('NHF.html')) {
+    if (currentPage.endsWith('NHF.html') || currentPage.endsWith('NHF')) {
         // Run these functions only on the neutrino.html page
         initialize_Neff_Yp_slider();
     }
 
     // Check if the current page is 'dark_energy.html'
-    if (currentPage.endsWith('dark_energy.html')) {
+    if (currentPage.endsWith('dark_energy.html') || currentPage.endsWith('dark_energy')) {
     // Run these functions only on the dark_energy.html page
     initialize_Omega_L_slider();
     }
