@@ -107,6 +107,8 @@ header.main-header {
 nav {
     background-color: #4A90E2; /* Moderate Blue for Nav Background */
     padding: 0.5rem 1rem;
+    position: relative;
+    z-index: 1000; /* Add this high z-index value */
 }
 nav ul {
     list-style: none;
@@ -140,6 +142,8 @@ nav ul li ul {
     background-color: #4A90E2; /* Moderate Blue for Dropdown */
     padding: 0.5rem 0;
     border-radius: 5px;
+    z-index: 1000; /* Add this high z-index value */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Optional: adds shadow for better visibility */
 }
 nav ul li ul li {
     display: block;
