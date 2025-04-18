@@ -41,18 +41,16 @@
     <div class="container">
         <h1 class="section-title mt-5">Tensor to Scalar Ratio</h1>
         <br>
-        <p class="section-body">Several hundred million years after the Big Bang, large structures composed of hydrogen and dark matter cooled and collapsed under their own gravity, leading to the formation of the first stars. The ultraviolet photons emitted by these stars had enough energy to ionize the neutral cosmic gas spread throughout space, releasing free electrons. This period, known as the epoch of reionization, is caractherized by a non-negligible probability of Thompson scattering the newly released electron with the CMB photons streaming through the universe at this time. 
-            The amount of scattering depends on the optical depth at reionization, \(\tau\), which represents the opacity of free electrons to CMB radiation. We quantify this effect by considering a photon traveling in the direction \( \hat{\pmb{n}}\) with temperature \( T(\hat{\pmb{n}})=\bar{T}[1+\Theta(\hat{\pmb{n}})]\), where \(\bar{T}\) refers to the mean temperature of the CMB and \(\Theta(\hat{n})\) represents the temperature anisotropy in that direction. The probability of the photon passing through space unscattered is \(e^{-\tau}\), while the probability of the photon scattering is \( 1 - e^{-\tau} \). From this, the temperature observed follows:</p>
-        <p style="text-align: center; margin: 20px 0;">\( T(\hat{\pmb{n}})=\bar{T}[1+\Theta(\hat{\pmb{n}})e^{-\tau}] \)</p>
-        <p class="section-body">As a result, anisotropies in the temperature map are uniformly suppressed by a factor of \(e^{-\tau}\), corresponding to a reduction in the amplitude of the power spectra by a factor of \(e^{-2\tau}\).</p>
-        <p class="section-body">Increasing \(\tau\) also enhances the power of the EE polarization spectrum at low multipoles. This occurs because scattering events during reionization generate polarization transverse to the direction of photon propagation. This polarization effect is confined to angular scales smaller than the size of the horizon at the time of reionization. An enhancement of the optical depth increases the amount of scattering events during reionization, and thus more polarized radiation is produced, leading to a noticeable polarization signal (a bump) at large angular scales.</p>
+        <p class="section-body">The tensor-to-scalar ratio \(r\) represents the ratio of tensor perturbations to scalar perturbations in the CMB. Scalar perturbations are due to the density fluctuations in the early universe on the surface of last-scattering, and these polarized waves are labeled as E-modes. Tensor perturbations, on the other hand, are swirling perturbations that create a unique polarization geometry called B-modes. Thus, as we increase the tensor-to-scalar ratio, we expect to see the power amplitude of these B-modes to increase, deviating from the general power-law shape on our BB polarization spectrum.</p> 
+        <p class="section-body">The tensorial nature of these B-modes can only be sourced by gravitational perturbations, which would have permeated the observable universe at the time of last scattering. Since these primordial gravitational waves had wavelengths on the order of the size of the observable universe at that time (high angular scales, low multipoles), we expect the amplitude increase to manifest at these scales as well.</p> 
+        <p class="section-body">The existence of primordial gravity waves is a key signature of inflationary cosmology models; thus, the detection of B-mode polarization would be significant evidence for cosmic inflation.</p> 
 
         <div class="Cosmo-container">
-            <img id="imagetau_reiopage" src="class_figures/tau_reionization_figures/Dl_tau_reio_11.png">
+            <img id="imagetensor_scalarpage" src="class_figures/r_images/r_tot_BBonly_1.png">
             <div class="slider-container">
-                <input type="range" id="mySlidertau_reiopage" min="1" max="31" value="11" oninput="updateValue_tau_reio(this.value); updateSliderBackground(this.value, 'mySlidertau_reiopage');">
+                <input type="range" id="mySlidertensor_scalarpage" min="1" max="31" value="1" oninput="updateValue_tensor_scalar(this.value); updateSliderBackground(this.value, 'mySlidertensor_scalarpage');">
                 <div class="slider-value">
-                    <span>\( \tau_{\rm{reio}} = \)</span><span id="sliderValuetau_reiopage">0.0561</span>
+                    <span>\(r=\)</span><span id="sliderValuetensor_scalarpage">0.0</span>
                 </div>
             </div>
         </div>
