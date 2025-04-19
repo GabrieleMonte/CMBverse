@@ -18,6 +18,7 @@ const Omega_k_array = [-0.200, -0.186, -0.172, -0.159, -0.145, -0.131, -0.117, -
 const Omega_L_array = [0.100, 0.128, 0.155, 0.183, 0.210, 0.238, 0.266, 0.293, 0.321, 0.348, 0.376, 0.403, 0.431, 0.459, 0.486, 0.514, 0.541, 0.569, 0.597, 0.624, 0.652, 0.679, 0.707, 0.734, 0.762, 0.790, 0.817, 0.845, 0.872, 0.900]
 const NeffNHF_array = [0.1, 0.389, 0.678, 0.967, 1.256, 1.545, 1.834, 2.123, 2.412, 2.701, 2.99, 3.279, 3.568, 3.857, 4.146, 4.435, 4.724, 5.013, 5.302, 5.591, 5.88]
 const YHeNHF_array = [0.015, 0.0384, 0.0618, 0.0852, 0.1086, 0.132, 0.1554, 0.1788, 0.2022, 0.2256, 0.249, 0.2724, 0.2958, 0.3192, 0.3426, 0.366, 0.3894, 0.4128, 0.4362, 0.4596, 0.483]
+const r_array = [0.0, 0.00033, 0.00067, 0.001, 0.00133, 0.00167, 0.002, 0.00233, 0.00267, 0.003, 0.00333, 0.00367, 0.004, 0.00433, 0.00467, 0.005, 0.00533, 0.00567, 0.006, 0.00633, 0.00667, 0.007, 0.00733, 0.00767, 0.008, 0.00833, 0.00867, 0.009, 0.00933, 0.00967, 0.01]
 
 // Function to update DL value
 function updateValuemncdm(val) {
@@ -174,6 +175,21 @@ function callMyScript_tau_reio_degen_page(value){
     console.log('tau_reio_degen slider value is: ' + value);
     var img = document.getElementById('imagetau_reio_degenpage');
     img.src = 'class_figures/tau_reionization_figures/Dl_tau_reio_degen_' + value + '.png';
+
+}
+
+//function to update tensor_scalar value in tensor_scalar page
+function updateValue_tensor_scalar(val){
+    const tensor_scalar_value = r_array[val-1];
+    document.getElementById('sliderValuetensor_scalarpage').innerText = tensor_scalar_value.toFixed(5);
+    callMyScript_tensor_scalar_page(val)
+}
+
+// function to update tensor_scalar image in tensor_scalar page
+function callMyScript_tensor_scalar_page(value){
+    console.log('tensor_scalar slider value is: ' + value);
+    var img = document.getElementById('imagetensor_scalarpage');
+    img.src = 'class_figures/r_images/r_tot_BBonly_' + value + '.png';
 
 }
 
