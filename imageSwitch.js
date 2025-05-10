@@ -324,6 +324,16 @@ function initialize_Omega_L_slider() {
     updateSliderBackground(initialLValue, 'slideValue_Omega_L');
 }
 
+function initialize_tensor_scalar_slider() {
+    const initialrValue = 1;
+    document.getElementById('sliderValuetensor_scalarpage').value = initialrValue;
+
+    document.getElementById('sliderValuetensor_scalarpage').innerText = r_array[initialrValue - 1].toFixed(2);
+
+    updateSliderBackground(initialrValue, 'sliderValuetensor_scalarpage');
+}
+
+
 // Function to update pie chart (omega_m, omega_b, Omega_L) and change image
 function updateCombinedValue2() {
     const A_s_index = document.getElementById('mySliderPieAs').value - 1;
@@ -407,6 +417,13 @@ window.onload = function() {
     // Run these functions only on the dark_energy.html page
     initialize_Omega_L_slider();
     }
+
+    // Check if the current page is 'tensor_scalar_ratio.html'
+    if (currentPage.endsWith('tensor_scalar_ratio.html') || currentPage.endsWith('tensor_scalar_ratio')) {
+    // Run these functions only on the tensor_scalar_ratio.html page
+    initialize_tensor_scalar_slider();
+    }
+    
 };
 
 // Function to update slider background
