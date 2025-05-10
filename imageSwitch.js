@@ -325,7 +325,7 @@ function initialize_Omega_L_slider() {
 }
 
 function initialize_tensor_scalar_slider() {
-    const initialrValue = 5;
+    const initialrValue = 1;
     document.getElementById('sliderValuetensor_scalarpage').value = initialrValue;
 
     document.getElementById('sliderValuetensor_scalarpage').innerText = r_array[initialrValue - 1].toFixed(2);
