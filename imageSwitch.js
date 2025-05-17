@@ -181,7 +181,7 @@ function callMyScript_tau_reio_degen_page(value){
 //function to update tensor_scalar value in tensor_scalar page
 function updateValue_tensor_scalar(val){
     const tensor_scalar_value = r_array[val-1];
-    document.getElementById('sliderValuetensor_scalarpage').innerText = tensor_scalar_value.toFixed(3);
+    document.getElementById('sliderValuetensor_scalarpage').innerText = tensor_scalar_value.toFixed(2);
     callMyScript_tensor_scalar_page(val)
 }
 
