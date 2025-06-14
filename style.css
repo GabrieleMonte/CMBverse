@@ -263,7 +263,7 @@ h2 {
 }
 .Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
     max-width: 100%;
-    max-height: 65vh; /* Adjust height to always fit in view */
+    max-height: 80vh; /* Adjust height to always fit in view */
     width: auto;
     height: auto;
     object-fit: contain; /* Maintain aspect ratio without clipping */
