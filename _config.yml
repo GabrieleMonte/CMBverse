@@ -1,0 +1,3 @@
+exclude:
+  - class_figures/pie_chart_figures
+  - class_figures/prim_figures
