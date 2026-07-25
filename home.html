@@ -462,12 +462,7 @@
       row.append(save);
       host.append(row);
 
-      // energy-density pie (between sliders and derived readout)
-      const pie = document.createElement('div'); pie.className='emu-pie';
-      pie.innerHTML = '<h4>Energy densities</h4><div class="emu-pie-svg" id="emuPieSvg"></div>';
-      host.append(pie);
-
-      // mobile-only data toggles (below the pie). CSS hides this except on touch devices.
+      // mobile-only data toggles (above the pie on mobile). CSS hides this except on touch devices.
       const mtog = document.createElement('div'); mtog.className='emu-mobile-toggles';
       mtog.innerHTML = '<h4>Data shown</h4>';
       const mkTog = (key, label, color, kind) => {
@@ -494,6 +489,11 @@
         mkTog('spt','SPT-3g', COLOR.spt, 'dot'),
       );
       host.append(mtog);
+
+      // energy-density pie
+      const pie = document.createElement('div'); pie.className='emu-pie';
+      pie.innerHTML = '<h4>Energy densities</h4><div class="emu-pie-svg" id="emuPieSvg"></div>';
+      host.append(pie);
 
       // derived-parameter readout (2x2 grid)
       const der = document.createElement('div'); der.className='emu-derived';
