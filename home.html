@@ -31,7 +31,7 @@
         margin:24px 0 40px; flex-wrap:wrap;
       }
       .emu-plot-wrap{
-        position:relative; flex:1 1 460px; min-width:300px; max-width:660px;
+        position:relative; flex:1 1 460px; min-width:260px; max-width:660px;
       }
       /* portrait 3:4 aspect, like the python figures */
       .emu-plot-wrap canvas{ width:100%; height:auto; display:block; }
@@ -153,9 +153,58 @@
       .emu-pie .emu-pie-svg{ display:flex; justify-content:center; margin-bottom:-6px; }
       .emu-pie svg text{ font-family:serif; fill:#1a1a1a; }
 
-      @media (max-width:768px){
+      /* mobile toggle row (only shown at <=768px; kept below the pie) */
+      .emu-mobile-toggles{ display:none; }
+
+      /* ==== NARROW VIEWPORT (any device: desktop windowed narrow, or mobile) ====
+         Layout switch: sidebar drops below plot, and sliders reformat to 3x2
+         in lockstep, so there is no in-between "6x1 stacked" stage.
+         Also compacts the axis titles and x-label padding for tight widths.
+         Breakpoint is high enough (1100px) to beat flexbox's own wrap point
+         (~578px container width) so this query fires first. */
+      @media (max-width:1100px){
         .emu-widget{ flex-direction:column; }
         .emu-sliders{ flex-basis:auto; width:100%; }
+
+        /* sliders in 3 rows x 2 columns to reclaim vertical space */
+        #emuSliders{
+          display:grid; grid-template-columns:repeat(2, 1fr); gap:10px 14px;
+        }
+        /* items that should span the full row inside the grid */
+        #emuSliders .emu-btn-row,
+        #emuSliders .emu-pie,
+        #emuSliders .emu-derived,
+        #emuSliders .emu-mobile-toggles{ grid-column:1 / -1; }
+
+        /* smaller axis titles when the plot column is narrow */
+        .emu-ylabel{ font-size:0.72rem; }
+        .emu-xlabel{ font-size:0.8rem; }
+      }
+
+      /* ==== ACTUAL MOBILE ONLY (touch + no-hover, narrow) ====
+         On real phones/tablets the tiny checkboxes inside the on-plot legend
+         are hard to hit and make the legend too tall — swap them for a proper
+         "Data shown" row below the pie. A narrow *desktop* window keeps the
+         desktop legend since a mouse cursor can hit small checkboxes fine. */
+      @media (max-width:1100px) and (hover:none) and (pointer:coarse){
+        .emu-legend input[type="checkbox"]{ display:none; }
+        .emu-legend{ font-size:0.8rem; }
+        .emu-mobile-toggles{
+          display:block;
+          border-top:1px solid #d7d2e0; padding-top:10px; margin-top:2px;
+          font-family:'sans-serif',Arial;
+        }
+        .emu-mobile-toggles h4{
+          margin:0 0 6px; font-size:0.8rem; font-weight:bold; letter-spacing:.04em;
+          text-transform:uppercase; color:#6b7280;
+        }
+        .emu-mobile-toggles label{
+          display:inline-flex; align-items:center; gap:5px; margin-right:12px;
+          font-size:0.9rem; color:#2C3E50; cursor:pointer; user-select:none;
+        }
+        .emu-mobile-toggles input[type="checkbox"]{ width:14px; height:14px; cursor:pointer; }
+        .emu-mobile-toggles .emu-swatch{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+        .emu-mobile-toggles .emu-swatch-line{ width:14px; height:2px; display:inline-block; }
       }
     </style>
 
@@ -416,6 +465,34 @@
       pie.innerHTML = '<h4>Energy densities</h4><div class="emu-pie-svg" id="emuPieSvg"></div>';
       host.append(pie);
 
+      // mobile-only data toggles (below the pie). CSS hides this at >768px.
+      const mtog = document.createElement('div'); mtog.className='emu-mobile-toggles';
+      mtog.innerHTML = '<h4>Data shown</h4>';
+      const mkTog = (key, label, color, kind) => {
+        const l = document.createElement('label');
+        const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=VIS[key];
+        cb.dataset.key = key;
+        cb.addEventListener('change', () => {
+          VIS[key] = cb.checked;
+          // keep legend checkbox in sync (and vice versa via buildLegend's listener)
+          const lg = document.querySelector(`.emu-legend input[data-key="${key}"]`);
+          if (lg) lg.checked = cb.checked;
+          render();
+        });
+        const sw = document.createElement('span');
+        sw.className = kind==='line' ? 'emu-swatch emu-swatch-line' : 'emu-swatch';
+        sw.style.background = color;
+        const tx = document.createElement('span'); tx.textContent=label;
+        l.append(cb, sw, tx); return l;
+      };
+      mtog.append(
+        mkTog('lcdm','\u039BCDM', COLOR_LCDM, 'line'),
+        mkTog('planck','Planck 2018', COLOR.planck, 'dot'),
+        mkTog('act','ACT DR4', COLOR.act, 'dot'),
+        mkTog('spt','SPT-3g', COLOR.spt, 'dot'),
+      );
+      host.append(mtog);
+
       // derived-parameter readout (2x2 grid)
       const der = document.createElement('div'); der.className='emu-derived';
       der.innerHTML = '<h4>Derived parameters</h4><div class="emu-derived-grid">' +
@@ -560,14 +637,7 @@
       g.save();
       g.beginPath(); g.rect(X0,Y0,X1-X0,Y1-Y0); g.clip();
 
-      // observational data (only the visible datasets)
-      if (OBS && OBS[spec]){
-        if (VIS.planck) drawData(g, OBS[spec].planck, COLOR.planck, yPix, X0, X1, true);
-        if (VIS.act)    drawData(g, OBS[spec].act,    COLOR.act,    yPix, X0, X1, false);
-        if (VIS.spt)    drawData(g, OBS[spec].spt,    COLOR.spt,    yPix, X0, X1, false);
-      }
-
-      // LCDM reference (black)
+      // LCDM reference — drawn first (back)
       if (LCDM && VIS.lcdm){
         g.strokeStyle=COLOR_LCDM; g.lineWidth=STYLE.lcdmWidth*SS; g.globalAlpha=0.9;
         g.beginPath();
@@ -588,6 +658,13 @@
         i? g.lineTo(x,y) : g.moveTo(x,y);
       }
       g.stroke(); g.globalAlpha=1;
+
+      // observational data — drawn last (on top of curves)
+      if (OBS && OBS[spec]){
+        if (VIS.planck) drawData(g, OBS[spec].planck, COLOR.planck, yPix, X0, X1, true);
+        if (VIS.act)    drawData(g, OBS[spec].act,    COLOR.act,    yPix, X0, X1, false);
+        if (VIS.spt)    drawData(g, OBS[spec].spt,    COLOR.spt,    yPix, X0, X1, false);
+      }
 
       g.restore();
     }
@@ -632,13 +709,19 @@
       const rows = [
         ['lcdm',  '\u039BCDM',      COLOR_LCDM, 'line'],
         ['planck','Planck 2018',    COLOR.planck, 'dot'],
-        ['act',   'ACT DR6',        COLOR.act,    'dot'],
-        ['spt',   'SPT-3G D1',         COLOR.spt,    'dot'],
+        ['act',   'ACT DR4',        COLOR.act,    'dot'],
+        ['spt',   'SPT-3g',         COLOR.spt,    'dot'],
       ];
       for (const [key,label,color,mark] of rows){
         const row = document.createElement('label'); row.className='emu-leg-row';
         const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=VIS[key];
-        cb.addEventListener('change', () => { VIS[key]=cb.checked; render(); });
+        cb.dataset.key = key;
+        cb.addEventListener('change', () => {
+          VIS[key]=cb.checked;
+          const mt = document.querySelector(`.emu-mobile-toggles input[data-key="${key}"]`);
+          if (mt) mt.checked = cb.checked;
+          render();
+        });
         const sw = document.createElement('span');
         sw.className = mark==='line' ? 'emu-leg-line' : 'emu-leg-dot';
         sw.style.background = color;
@@ -664,7 +747,7 @@
     }
 
     // ---- energy-density pie (ratio method, always sums to 100%) -------------
-    const PIE_COLOR = { OmegaL:'#F4795B', cdm:'#B0C4DE', b:'#7FCB7F' };
+    const PIE_COLOR = { OmegaL:'#E6AF2E', cdm:'#B0C4DE', b:'#46B1C9' };
     const polar = (cx,cy,r,deg) => {
       const a = deg*Math.PI/180;
       return { x:+(cx + r*Math.cos(a)).toFixed(2), y:+(cy + r*Math.sin(a)).toFixed(2) };
@@ -711,7 +794,7 @@
 
     // ---- shared layout (used by on-screen render AND export) ----------------
     function layout(W, H){
-      const padL=64, padR=26, padT=10*SS, padB=34*SS, gap=4*SS;
+      const padL=64, padR=26, padT=10*SS, padB=(SS<0.75 ? 22 : 34)*SS, gap=4*SS;
       const plotW = W - padL - padR;
       const panelH = (H - padT - padB - 2*gap) / 3;
       const geoms = SPECS.map((spec,i) => ({
@@ -799,8 +882,8 @@
       const items = [];
       if (VIS.lcdm)   items.push(['line', COLOR_LCDM,  '\u039BCDM']);
       if (VIS.planck) items.push(['dot',  COLOR.planck,'Planck 2018']);
-      if (VIS.act)    items.push(['dot',  COLOR.act,   'ACT DR6']);
-      if (VIS.spt)    items.push(['dot',  COLOR.spt,   'SPT-3G D1']);
+      if (VIS.act)    items.push(['dot',  COLOR.act,   'ACT DR4']);
+      if (VIS.spt)    items.push(['dot',  COLOR.spt,   'SPT-3g']);
       const f = STYLE.legendFont*SS;
       g.save(); g.font=`${f}px ${FONT}`; g.textAlign='left'; g.textBaseline='middle';
       let y = ttGeom.Y0 + f + 5*SS;
@@ -934,8 +1017,8 @@
       const items=[];
       if (VIS.lcdm)   items.push(['line',COLOR_LCDM,'\u039BCDM']);
       if (VIS.planck) items.push(['dot',COLOR.planck,'Planck 2018']);
-      if (VIS.act)    items.push(['dot',COLOR.act,'ACT DR6']);
-      if (VIS.spt)    items.push(['dot',COLOR.spt,'SPT-3G D1']);
+      if (VIS.act)    items.push(['dot',COLOR.act,'ACT DR4']);
+      if (VIS.spt)    items.push(['dot',COLOR.spt,'SPT-3g']);
       const f=STYLE.legendFont*SS, tt=geoms[0];
       let ly=tt.Y0+f+5*SS; const lx=tt.X1-8.8*f;
       for (const [type,color,text] of items){
