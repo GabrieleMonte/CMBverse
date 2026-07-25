@@ -28,10 +28,10 @@
     <style>
       .emu-widget{
         display:flex; gap:18px; align-items:flex-start;
-        margin:24px 0 40px; flex-wrap:wrap;
+        margin:24px 0 40px;
       }
       .emu-plot-wrap{
-        position:relative; flex:1 1 460px; min-width:260px; max-width:660px;
+        position:relative; flex:1 1 460px; max-width:660px;
       }
       /* portrait 3:4 aspect, like the python figures */
       .emu-plot-wrap canvas{ width:100%; height:auto; display:block; }
@@ -153,17 +153,18 @@
       .emu-pie .emu-pie-svg{ display:flex; justify-content:center; margin-bottom:-6px; }
       .emu-pie svg text{ font-family:serif; fill:#1a1a1a; }
 
-      /* mobile toggle row (only shown at <=768px; kept below the pie) */
+      /* mobile toggle row (only shown on touch devices <=980px; kept below the pie) */
       .emu-mobile-toggles{ display:none; }
 
-      /* ==== NARROW VIEWPORT (any device: desktop windowed narrow, or mobile) ====
-         Layout switch: sidebar drops below plot, and sliders reformat to 3x2
-         in lockstep, so there is no in-between "6x1 stacked" stage.
-         Also compacts the axis titles and x-label padding for tight widths.
-         Breakpoint is high enough (1100px) to beat flexbox's own wrap point
-         (~578px container width) so this query fires first. */
-      @media (max-width:1100px){
+      /* ==== NARROW VIEWPORT (any device) ====
+         Single source of truth: below 980px viewport, sidebar drops below
+         and sliders reformat to 3x2. 980px = plot max-width (660) + gap (18)
+         + sidebar (300) — the width below which side-by-side gets cramped. */
+      @media (max-width:980px){
         .emu-widget{ flex-direction:column; }
+        /* In column flex, flex-basis becomes the main-axis (height). Reset it
+           so the plot-wrap sizes to the canvas, not a stale 460px height. */
+        .emu-plot-wrap{ flex-basis:auto; width:100%; }
         .emu-sliders{ flex-basis:auto; width:100%; }
 
         /* sliders in 3 rows x 2 columns to reclaim vertical space */
@@ -175,10 +176,6 @@
         #emuSliders .emu-pie,
         #emuSliders .emu-derived,
         #emuSliders .emu-mobile-toggles{ grid-column:1 / -1; }
-
-        /* smaller axis titles when the plot column is narrow */
-        .emu-ylabel{ font-size:0.72rem; }
-        .emu-xlabel{ font-size:0.8rem; }
       }
 
       /* ==== ACTUAL MOBILE ONLY (touch + no-hover, narrow) ====
@@ -186,7 +183,12 @@
          are hard to hit and make the legend too tall — swap them for a proper
          "Data shown" row below the pie. A narrow *desktop* window keeps the
          desktop legend since a mouse cursor can hit small checkboxes fine. */
-      @media (max-width:1100px) and (hover:none) and (pointer:coarse){
+      @media (max-width:980px) and (hover:none) and (pointer:coarse){
+        /* keep the widget contained within the viewport even if a sibling
+           element (e.g. an equation table) makes the parent wider */
+        .emu-widget{ max-width:100vw; overflow-x:hidden; }
+        .emu-plot-wrap{ max-width:100%; }
+
         .emu-legend input[type="checkbox"]{ display:none; }
         .emu-legend{ font-size:0.8rem; }
         .emu-mobile-toggles{
@@ -465,7 +467,7 @@
       pie.innerHTML = '<h4>Energy densities</h4><div class="emu-pie-svg" id="emuPieSvg"></div>';
       host.append(pie);
 
-      // mobile-only data toggles (below the pie). CSS hides this at >768px.
+      // mobile-only data toggles (below the pie). CSS hides this except on touch devices.
       const mtog = document.createElement('div'); mtog.className='emu-mobile-toggles';
       mtog.innerHTML = '<h4>Data shown</h4>';
       const mkTog = (key, label, color, kind) => {
@@ -794,7 +796,7 @@
 
     // ---- shared layout (used by on-screen render AND export) ----------------
     function layout(W, H){
-      const padL=64, padR=26, padT=10*SS, padB=(SS<0.75 ? 22 : 34)*SS, gap=4*SS;
+      const padL=64, padR=26, padT=10*SS, padB=34*SS, gap=4*SS;
       const plotW = W - padL - padR;
       const panelH = (H - padT - padB - 2*gap) / 3;
       const geoms = SPECS.map((spec,i) => ({

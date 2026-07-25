@@ -604,3 +604,11 @@ h2 {
 .citation-link:hover {
     color: #2C3E50; /* Dark slate blue on hover */
 }
+
+/* Make wide MathJax expressions (e.g. the parameter table) horizontally
+   scrollable on narrow screens instead of overflowing the viewport. */
+mjx-container {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
