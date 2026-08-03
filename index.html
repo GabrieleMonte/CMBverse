@@ -485,8 +485,8 @@
       mtog.append(
         mkTog('lcdm','\u039BCDM', COLOR_LCDM, 'line'),
         mkTog('planck','Planck 2018', COLOR.planck, 'dot'),
-        mkTog('act','ACT DR4', COLOR.act, 'dot'),
-        mkTog('spt','SPT-3g', COLOR.spt, 'dot'),
+        mkTog('act','ACT DR6', COLOR.act, 'dot'),
+        mkTog('spt','SPT-3g D1', COLOR.spt, 'dot'),
       );
       host.append(mtog);
 
@@ -662,16 +662,20 @@
       g.stroke(); g.globalAlpha=1;
 
       // observational data — drawn last (on top of curves)
+      // For log panels, pass the panel floor so error-bar endpoints that would
+      // go negative can be clamped to the axis floor (matplotlib behavior)
+      // instead of being flipped by yPix's abs() and drawn in the wrong place.
+      const logFloor = Y_LOG[spec] ? rLo : null;
       if (OBS && OBS[spec]){
-        if (VIS.planck) drawData(g, OBS[spec].planck, COLOR.planck, yPix, X0, X1, true);
-        if (VIS.act)    drawData(g, OBS[spec].act,    COLOR.act,    yPix, X0, X1, false);
-        if (VIS.spt)    drawData(g, OBS[spec].spt,    COLOR.spt,    yPix, X0, X1, false);
+        if (VIS.planck) drawData(g, OBS[spec].planck, COLOR.planck, yPix, X0, X1, true,  logFloor);
+        if (VIS.act)    drawData(g, OBS[spec].act,    COLOR.act,    yPix, X0, X1, false, logFloor);
+        if (VIS.spt)    drawData(g, OBS[spec].spt,    COLOR.spt,    yPix, X0, X1, false, logFloor);
       }
 
       g.restore();
     }
 
-    function drawData(g, arr, color, yPix, X0, X1, asym){
+    function drawData(g, arr, color, yPix, X0, X1, asym, logFloor){
       if (!arr) return;
       g.strokeStyle=color; g.fillStyle=color; g.globalAlpha=0.85; g.lineWidth=STYLE.errWidth*SS;
       const R = STYLE.markerR*SS;
@@ -682,7 +686,12 @@
         const y=yPix(v);
         const eLo = row[2];
         const eHi = asym ? row[3] : row[2];
-        const yTop=yPix(v+eHi), yBot=yPix(v-eLo);
+        // For log panels: clamp non-positive error-bar endpoints to the axis
+        // floor so they draw at the bottom edge instead of being sign-flipped
+        // by yPix's abs(). Linear panels (TE) don't need this.
+        const vLo = logFloor!==null && (v-eLo) <= logFloor ? logFloor : (v-eLo);
+        const vHi = logFloor!==null && (v+eHi) <= logFloor ? logFloor : (v+eHi);
+        const yTop=yPix(vHi), yBot=yPix(vLo);
         g.beginPath(); g.moveTo(x,yTop); g.lineTo(x,yBot); g.stroke();   // error bar
         g.beginPath(); g.arc(x,y,R,0,2*Math.PI); g.fill();               // marker
       }
@@ -711,8 +720,8 @@
       const rows = [
         ['lcdm',  '\u039BCDM',      COLOR_LCDM, 'line'],
         ['planck','Planck 2018',    COLOR.planck, 'dot'],
-        ['act',   'ACT DR4',        COLOR.act,    'dot'],
-        ['spt',   'SPT-3g',         COLOR.spt,    'dot'],
+        ['act',   'ACT DR6',        COLOR.act,    'dot'],
+        ['spt',   'SPT-3g D1',         COLOR.spt,    'dot'],
       ];
       for (const [key,label,color,mark] of rows){
         const row = document.createElement('label'); row.className='emu-leg-row';
@@ -884,8 +893,8 @@
       const items = [];
       if (VIS.lcdm)   items.push(['line', COLOR_LCDM,  '\u039BCDM']);
       if (VIS.planck) items.push(['dot',  COLOR.planck,'Planck 2018']);
-      if (VIS.act)    items.push(['dot',  COLOR.act,   'ACT DR4']);
-      if (VIS.spt)    items.push(['dot',  COLOR.spt,   'SPT-3g']);
+      if (VIS.act)    items.push(['dot',  COLOR.act,   'ACT DR6']);
+      if (VIS.spt)    items.push(['dot',  COLOR.spt,   'SPT-3g D1']);
       const f = STYLE.legendFont*SS;
       g.save(); g.font=`${f}px ${FONT}`; g.textAlign='left'; g.textBaseline='middle';
       let y = ttGeom.Y0 + f + 5*SS;
@@ -991,11 +1000,14 @@
         // clipped content
         P.push(`<clipPath id="clip${i}"><rect x="${X0}" y="${Y0}" width="${X1-X0}" height="${Y1-Y0}"/></clipPath>`);
         P.push(`<g clip-path="url(#clip${i})">`);
+        const svgLogFloor = Y_LOG[spec] ? rLo : null;
         const drawPts = (arr,color,asym) => { if(!arr)return;
           for (const row of arr){ const l=row[0]; if(l<XMIN||l>XMAX)continue;
             const x=xPix(l,X0,X1), v=row[1], y=yPix(v);
             const eLo=row[2], eHi=asym?row[3]:row[2];
-            P.push(`<line x1="${x}" y1="${yPix(v+eHi)}" x2="${x}" y2="${yPix(v-eLo)}" stroke="${color}" stroke-width="${STYLE.errWidth*SS}" opacity="0.85"/>`);
+            const vLo = svgLogFloor!==null && (v-eLo)<=svgLogFloor ? svgLogFloor : (v-eLo);
+            const vHi = svgLogFloor!==null && (v+eHi)<=svgLogFloor ? svgLogFloor : (v+eHi);
+            P.push(`<line x1="${x}" y1="${yPix(vHi)}" x2="${x}" y2="${yPix(vLo)}" stroke="${color}" stroke-width="${STYLE.errWidth*SS}" opacity="0.85"/>`);
             P.push(`<circle cx="${x}" cy="${y}" r="${STYLE.markerR*SS}" fill="${color}" opacity="0.85"/>`);
           } };
         if (OBS && OBS[spec]){
@@ -1019,8 +1031,8 @@
       const items=[];
       if (VIS.lcdm)   items.push(['line',COLOR_LCDM,'\u039BCDM']);
       if (VIS.planck) items.push(['dot',COLOR.planck,'Planck 2018']);
-      if (VIS.act)    items.push(['dot',COLOR.act,'ACT DR4']);
-      if (VIS.spt)    items.push(['dot',COLOR.spt,'SPT-3g']);
+      if (VIS.act)    items.push(['dot',COLOR.act,'ACT DR6']);
+      if (VIS.spt)    items.push(['dot',COLOR.spt,'SPT-3g D1']);
       const f=STYLE.legendFont*SS, tt=geoms[0];
       let ly=tt.Y0+f+5*SS; const lx=tt.X1-8.8*f;
       for (const [type,color,text] of items){
