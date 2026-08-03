@@ -11,7 +11,7 @@
 
     gtag('config', 'G-QR3NGF2YWB');
     </script>
-
+    
     <link rel ="icon" href="figures/cmbverse_logo2_min.ico" type="image/x-icon"/>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,12 +21,201 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
+    <!-- ============================================================
+         Emulator widget styles (scoped to .emu-*). Colors/typography
+         mirror the site's existing slider styling (#7B4397 purple).
+         ============================================================ -->
+    <style>
+      .emu-widget{
+        display:flex; gap:18px; align-items:flex-start;
+        margin:24px 0 40px;
+      }
+      .emu-plot-wrap{
+        position:relative; flex:1 1 460px; max-width:660px;
+      }
+      /* portrait 3:4 aspect, like the python figures */
+      .emu-plot-wrap canvas{ width:100%; height:auto; display:block; }
+      .emu-status{
+        position:absolute; top:6px; right:10px; font:11px/1.2 serif;
+        color:#9aa3b2;
+      }
+      .emu-status.err{ color:#c0392b; }
+
+      .emu-sliders{
+        flex:0 0 300px; display:flex; flex-direction:column; gap:11px;
+        padding-top:2px;
+      }
+      .emu-slider{ display:flex; flex-direction:column; align-items:stretch; }
+      .emu-slider input[type="range"]{
+        width:100%; height:0.38em; margin:3px 0;
+        border-radius:0.25em; outline:none;
+        -webkit-appearance:none; appearance:none; cursor:pointer;
+        /* fill-to-value gradient; updated in JS (matches .slider-container) */
+        background:linear-gradient(to right,#7B4397 0%,#7B4397 50%,#e0e0e0 50%,#e0e0e0 100%);
+      }
+      .emu-slider input[type="range"]::-webkit-slider-thumb{
+        -webkit-appearance:none; appearance:none; width:1.1em; height:1.1em;
+        background:#7B4397; border-radius:50%; cursor:pointer;
+      }
+      .emu-slider input[type="range"]::-moz-range-thumb{
+        width:1.1em; height:1.1em; background:#7B4397; border-radius:50%;
+        cursor:pointer; border:0;
+      }
+      .emu-slider-value{
+        font-family:'sans-serif',Arial; font-weight:bold; font-size:1.05rem;
+        color:#2C3E50; display:flex; align-items:center; justify-content:flex-start;
+      }
+      .emu-slider-value .emu-num{ color:#7B4397; margin-left:0.4em; }
+
+      .emu-reset{
+        font-family:'sans-serif',Arial; font-size:0.8rem; font-weight:bold; line-height:1.2;
+        color:#7B4397; background:transparent; border:1.5px solid #7B4397;
+        border-radius:0.4em; padding:7px 10px; cursor:pointer; white-space:nowrap;
+      }
+      .emu-reset:hover{ background:#7B4397; color:#fff; }
+
+      .emu-btn-row{ display:flex; gap:8px; align-items:center; flex-wrap:nowrap; margin-top:4px; }
+      .emu-save{ position:relative; display:inline-flex; }
+      .emu-save-main, .emu-save-caret{
+        font-family:'sans-serif',Arial; font-size:0.8rem; font-weight:bold; line-height:1.2;
+        color:#fff; background:#7B4397; border:1.5px solid #7B4397; cursor:pointer;
+        white-space:nowrap;
+      }
+      .emu-save-main{ border-radius:0.4em 0 0 0.4em; padding:7px 10px; }
+      .emu-save-caret{ border-radius:0 0.4em 0.4em 0; padding:7px 8px; border-left:1.5px solid #eebfe0; }
+      .emu-save-main:hover, .emu-save-caret:hover{ background:#6a3a83; }
+      .emu-save-menu{
+        display:none; position:absolute; top:calc(100% + 4px); right:0; z-index:5;
+        background:#fff; border:1px solid #d7d2e0; border-radius:0.4em;
+        box-shadow:0 4px 14px rgba(0,0,0,0.12); overflow:hidden; min-width:180px;
+      }
+      .emu-save-menu.open{ display:block; }
+      .emu-save-menu button{
+        display:block; width:100%; text-align:left; background:#fff; border:0;
+        font-family:'sans-serif',Arial; font-size:0.85rem; color:#2C3E50;
+        padding:9px 14px; cursor:pointer;
+      }
+      .emu-save-menu button:hover{ background:#f3eef8; color:#7B4397; }
+
+      /* real-LaTeX axis-title overlays positioned over the canvas */
+      .emu-axis-overlay{ position:absolute; inset:0; pointer-events:none; }
+      .emu-ylabel{
+        position:absolute; left:0; display:flex; align-items:center; justify-content:center;
+        font-size:0.95rem; color:#000;
+      }
+      .emu-ylabel > span{ transform:rotate(-90deg); white-space:nowrap; }
+      .emu-xlabel{
+        position:absolute; bottom:0; text-align:center; font-size:1.05rem; color:#000;
+      }
+
+      /* derived-parameter readout */
+      .emu-derived{
+        border-top:1px solid #d7d2e0; padding-top:6px; margin-top:0;
+        font-family:'sans-serif',Arial;
+      }
+      .emu-derived h4{
+        margin:0 0 6px; font-size:0.8rem; font-weight:bold; letter-spacing:.04em;
+        text-transform:uppercase; color:#6b7280;
+      }
+      .emu-derived-grid{
+        display:grid; grid-template-columns:1fr 1fr; column-gap:16px; row-gap:4px;
+      }
+      .emu-derived-grid .cell{
+        display:flex; justify-content:flex-start; align-items:baseline; gap:5px;
+        font-size:0.95rem; color:#2C3E50;
+      }
+      .emu-derived-grid .cell .eq{ color:#6b7280; }
+      .emu-derived-grid .cell b{ color:#7B4397; font-weight:bold; }
+
+      /* dataset legend + checkboxes, overlaid on the TT panel */
+      .emu-legend{
+        position:absolute; z-index:3; pointer-events:auto;
+        display:flex; flex-direction:column; gap:2px;
+        font-family:serif; font-size:0.9rem; color:#000;
+        padding:2px 4px;
+      }
+      .emu-legend .emu-leg-row{
+        display:flex; align-items:center; gap:5px; cursor:pointer; user-select:none; margin:0;
+      }
+      .emu-legend input[type="checkbox"]{ width:13px; height:13px; margin:0; cursor:pointer; }
+      .emu-legend .emu-leg-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+      .emu-legend .emu-leg-line{ width:16px; height:2px; display:inline-block; margin:0 0 0 2px; }
+
+      /* energy-density pie */
+      .emu-pie{
+        border-top:1px solid #d7d2e0; padding-top:12px; margin-top:2px;
+        font-family:'sans-serif',Arial;
+      }
+      .emu-pie h4{
+        margin:0 0 6px; font-size:0.8rem; font-weight:bold; letter-spacing:.04em;
+        text-transform:uppercase; color:#6b7280;
+      }
+      .emu-pie .emu-pie-svg{ display:flex; justify-content:center; margin-bottom:-6px; }
+      .emu-pie svg text{ font-family:serif; fill:#1a1a1a; }
+
+      /* mobile toggle row (only shown on touch devices <=980px; kept below the pie) */
+      .emu-mobile-toggles{ display:none; }
+
+      /* ==== NARROW VIEWPORT (any device) ====
+         Single source of truth: below 980px viewport, sidebar drops below
+         and sliders reformat to 3x2. 980px = plot max-width (660) + gap (18)
+         + sidebar (300) — the width below which side-by-side gets cramped. */
+      @media (max-width:980px){
+        .emu-widget{ flex-direction:column; }
+        /* In column flex, flex-basis becomes the main-axis (height). Reset it
+           so the plot-wrap sizes to the canvas, not a stale 460px height. */
+        .emu-plot-wrap{ flex-basis:auto; width:100%; }
+        .emu-sliders{ flex-basis:auto; width:100%; }
+
+        /* sliders in 3 rows x 2 columns to reclaim vertical space */
+        #emuSliders{
+          display:grid; grid-template-columns:repeat(2, 1fr); gap:10px 14px;
+        }
+        /* items that should span the full row inside the grid */
+        #emuSliders .emu-btn-row,
+        #emuSliders .emu-pie,
+        #emuSliders .emu-derived,
+        #emuSliders .emu-mobile-toggles{ grid-column:1 / -1; }
+      }
+
+      /* ==== ACTUAL MOBILE ONLY (touch + no-hover, narrow) ====
+         On real phones/tablets the tiny checkboxes inside the on-plot legend
+         are hard to hit and make the legend too tall — swap them for a proper
+         "Data shown" row below the pie. A narrow *desktop* window keeps the
+         desktop legend since a mouse cursor can hit small checkboxes fine. */
+      @media (max-width:980px) and (hover:none) and (pointer:coarse){
+        /* keep the widget contained within the viewport even if a sibling
+           element (e.g. an equation table) makes the parent wider */
+        .emu-widget{ max-width:100vw; overflow-x:hidden; }
+        .emu-plot-wrap{ max-width:100%; }
+
+        .emu-legend input[type="checkbox"]{ display:none; }
+        .emu-legend{ font-size:0.8rem; }
+        .emu-mobile-toggles{
+          display:block;
+          border-top:1px solid #d7d2e0; padding-top:10px; margin-top:2px;
+          font-family:'sans-serif',Arial;
+        }
+        .emu-mobile-toggles h4{
+          margin:0 0 6px; font-size:0.8rem; font-weight:bold; letter-spacing:.04em;
+          text-transform:uppercase; color:#6b7280;
+        }
+        .emu-mobile-toggles label{
+          display:inline-flex; align-items:center; gap:5px; margin-right:12px;
+          font-size:0.9rem; color:#2C3E50; cursor:pointer; user-select:none;
+        }
+        .emu-mobile-toggles input[type="checkbox"]{ width:14px; height:14px; cursor:pointer; }
+        .emu-mobile-toggles .emu-swatch{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+        .emu-mobile-toggles .emu-swatch-line{ width:14px; height:2px; display:inline-block; }
+      }
+    </style>
+
 </head>
 <body>
     <header class="main-header"></header>
     <nav>
         <ul>
-            <li><a href="home">Home</a></li>
+            <li><a href="index.html">Home</a></li>
             <li>
                 <a href="#">Cosmological Parameters</a>
                 <ul>
@@ -82,46 +271,811 @@
         \end{array}
         \]
 
-</p>
-        <div class="Dl-container">
-            <img id="Dlimage" src="class_figures/pie_chart_figures/Dl_pie_chart_OmegaL_10_omegam_10_omegab_10.png">
-            <div class="new-slider-container">
-                <input type="range" id="mySliderOmegaL" min="1" max="19" value="10" oninput="updateCombinedValue()">
-                <div class="new-slider-value">
-                    <span>\( \Omega_\Lambda = \)</span><span id="sliderValueOmegaL">0.689</span>
-                </div>
-                <input type="range" id="mySlideromegam" min="1" max="19" value="10" oninput="updateCombinedValue()">
-                <div class="new-slider-value">
-                    <span>\( \omega_m = \)</span><span id="sliderValueomegam">0.142</span>
-                </div>
-                <input type="range" id="mySlideromegab" min="1" max="19" value="10" oninput="updateCombinedValue()">
-                <div class="new-slider-value">
-                    <span>\( \omega_b = \)</span><span id="sliderValueomegab"> 0.0224</span>
-                </div>
-            </div>
+        <!-- ============================================================
+             INTERACTIVE EMULATOR  (replaces the two image+slider blocks)
+             ============================================================ -->
+        <div class="emu-widget">
+          <div class="emu-plot-wrap">
+            <canvas id="emuPlot"></canvas>
+            <div class="emu-axis-overlay" id="emuAxisOverlay"></div>
+            <div class="emu-status" id="emuStatus">loading model…</div>
+          </div>
+          <div class="emu-sliders" id="emuSliders"></div>
         </div>
-        <div class="Dl-container">
-            <img id="Dlimage2" src="class_figures/prim_figures/Dl_prim_tau_reio_5_As_9_ns_9.png">
-            <div class="new-slider-container">
-                <input type="range" id="mySliderPieAs" min="1" max="17" value="9" oninput="updateCombinedValue2()">
-                <div class="new-slider-value">
-                    <span>\( \ln (10^{10} A_s) = \)</span><span id="sliderValuePieAs">3.05</span>
-                </div>
-                <input type="range" id="mySliderPiens" min="1" max="17" value="9" oninput="updateCombinedValue2()">
-                <div class="new-slider-value">
-                    <span>\( n_s = \)</span><span id="sliderValuePiens">0.9665</span>
-                </div>
-                <input type="range" id="mySliderPietau" min="1" max="17" value="5" oninput="updateCombinedValue2()">
-                <div class="new-slider-value">
-                    <span>\( \tau_{\rm{reio}} = \)</span><span id="sliderValuePietau"> 0.0561</span>
-                </div>
-            </div>
-        </div>
-        <h1
 
     </div>
     <script src="imageSwitch.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script></body>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- TensorFlow.js runtime -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+
+    <!-- ============================================================
+         Emulator driver: inference + 3-panel CLASS-style renderer
+         ============================================================ -->
+    <script type="module">
+    import CMBEmulator, { META } from './emulator/cmb-emulator.js';
+
+    const MODEL_URL = './emulator/omega_lambda_divided/model.json';
+    const DATA_URL  = './emulator/data/cmb_data.json';
+    const LCDM_URL  = './emulator/data/lcdm.json';
+
+    // ---- parameter display config (MathJax labels + value formatting) --------
+    const LABELS = {
+      'omega_b':      '\\(\\omega_b\\)',
+      'omega_cdm':    '\\(\\omega_c\\)',
+      'Omega_Lambda': '\\(\\Omega_\\Lambda\\)',
+      'ln10^{10}A_s': '\\(\\ln(10^{10}A_s)\\)',
+      'n_s':          '\\(n_s\\)',
+      'tau_reio':     '\\(\\tau_{\\rm reio}\\)',
+    };
+    const fmt = (name, v) =>
+      name === 'omega_b'      ? v.toFixed(4) :   // unchanged
+      name === 'omega_cdm'    ? v.toFixed(3) :
+      name === 'tau_reio'     ? v.toFixed(3) :
+      name.includes('A_s')    ? v.toFixed(2) :
+                                v.toFixed(2);
+
+    // ---- plot constants (match the python figures) --------------------------
+    const SPECS = ['tt','ee','te'];                 // panel order: TT top, EE mid, TE bottom
+    const Y_LOG   = { tt:true,  ee:true,  te:false };
+    const Y_RANGE = { tt:[2e-2, 2e1], ee:[1e-5, 1e-1], te:[-0.25, 0.25] };
+    const Y_TICKS = {
+      tt:[1e-1, 1, 1e1],
+      ee:[1e-4, 1e-3, 1e-2],
+      te:[-0.2,-0.1,0,0.1,0.2],
+    };
+    const XMIN = 0, XMAX = 2500;
+    const XTICKS = [0,500,1000,1500,2000,2500];
+    const X_MINOR = 100;          // minor x-tick spacing (all panels)
+
+    // ---- dynamic y-range (expand-only, tight fit) ---------------------------
+    // Starts at the fixed default; grows to fit the model curve + margin, never
+    // shrinks below the default.
+    function dynRange(spec, curveVals){
+      const [dLo, dHi] = Y_RANGE[spec];
+      if (Y_LOG[spec]){
+        let mx=-Infinity;
+        for (const v of curveVals){ if (v>0 && v>mx) mx=v; }
+        const hi = Math.max(dHi, mx*1.15);
+        return [dLo, hi];        // floor fixed at default; only ceiling floats
+      } else {
+        let a=0; for (const v of curveVals) a=Math.max(a, Math.abs(v));
+        const hi = Math.max(dHi, a*1.10);
+        return [-hi, hi];        // symmetric about zero
+      }
+    }
+    // major ticks generated to fit whatever range is currently shown
+    function logTicks(lo, hi){
+      const t=[]; for (let e=Math.ceil(Math.log10(lo)); e<=Math.floor(Math.log10(hi)); e++) t.push(Math.pow(10,e));
+      return t;
+    }
+    function linStep(lo, hi){
+      const span = hi - lo;
+      const steps = [0.05,0.1,0.2,0.5,1,2];
+      return steps.find(s => span/s <= 8) || 2;
+    }
+    function linTicks(lo, hi){
+      const step = linStep(lo, hi);
+      const t=[]; const start=Math.ceil(lo/step)*step;
+      for (let v=start; v<=hi+1e-9; v+=step) t.push(Math.abs(v)<1e-9?0:+v.toFixed(4));
+      return t;
+    }
+
+    const COLOR_MODEL = '#7B4397';   // emulator (live) curve
+    const COLOR_LCDM  = '#000000';   // reference
+    const COLOR = { planck:'#000000', act:'#2ca02c', spt:'#d62728' };  // tab:green / tab:red
+    const FONT = 'serif';
+
+    // ---- visual weights (calibrated to the python figure) -------------------
+    // Sizes are given at a 600px-wide canvas and scale with width on resize.
+    const STYLE = {
+      markerR:      3.0,   // data-point radius (px @600)
+      errWidth:     1.1,   // error-bar line width
+      modelWidth:   2.6,   // emulator curve
+      lcdmWidth:    1.6,   // LCDM reference
+      tickFont:     14,    // axis tick numbers
+      legendFont:   13,    // legend text
+      frameWidth:   1.0,
+    };
+    let SS = 1;            // scale factor set each render from canvas width
+
+    // ---- which datasets are visible (toggled by checkboxes) -----------------
+    const VIS = { lcdm:true, planck:true, act:true, spt:true };
+
+    // ---- DOM ----------------------------------------------------------------
+    const $ = (id) => document.getElementById(id);
+    const statusEl = $('emuStatus');
+    const cv = $('emuPlot');
+    const ctx = cv.getContext('2d');
+
+    let emulator = null, OBS = null, LCDM = null;
+    const params = { ...META.defaults };
+
+    // ---- build sliders ------------------------------------------------------
+    function setFill(input){
+      const lo = +input.min, hi = +input.max, v = +input.value;
+      const pct = ((v - lo) / (hi - lo)) * 100;
+      input.style.background =
+        `linear-gradient(to right,#7B4397 0%,#7B4397 ${pct}%,#e0e0e0 ${pct}%,#e0e0e0 100%)`;
+    }
+    const numEls = {};
+    function buildSliders(){
+      const host = $('emuSliders');
+      for (const name of META.inputNames){
+        const [lo,hi] = META.ranges[name];
+        const wrap = document.createElement('div'); wrap.className='emu-slider';
+
+        const val = document.createElement('div'); val.className='emu-slider-value';
+        const lab = document.createElement('span'); lab.innerHTML = LABELS[name] + ' =';
+        const num = document.createElement('span'); num.className='emu-num';
+        num.textContent = fmt(name, params[name]);
+        val.append(lab, num);
+
+        const r = document.createElement('input');
+        r.type='range'; r.min=lo; r.max=hi; r.step=(hi-lo)/500; r.value=params[name];
+        setFill(r);
+        r.addEventListener('input', () => {
+          params[name] = parseFloat(r.value);
+          num.textContent = fmt(name, params[name]);
+          setFill(r);
+          render();
+        });
+
+        wrap.append(val, r);
+        host.append(wrap);
+        numEls[name] = { num, input:r };
+      }
+      // button row: Reset + Save split-button
+      const row = document.createElement('div'); row.className='emu-btn-row';
+      const btn = document.createElement('button');
+      btn.className='emu-reset'; btn.textContent='Reset to Planck \u039BCDM';
+      btn.addEventListener('click', () => {
+        Object.assign(params, META.defaults);
+        for (const name of META.inputNames){
+          numEls[name].input.value = params[name];
+          numEls[name].num.textContent = fmt(name, params[name]);
+          setFill(numEls[name].input);
+        }
+        render();
+      });
+      row.append(btn);
+
+      // Save split-button
+      const save = document.createElement('div'); save.className='emu-save';
+      const main = document.createElement('button'); main.className='emu-save-main'; main.textContent='Save plot';
+      main.addEventListener('click', () => savePNG(false));
+      const caret = document.createElement('button'); caret.className='emu-save-caret'; caret.innerHTML='\u25BE';
+      const menu = document.createElement('div'); menu.className='emu-save-menu';
+      const item = (label, fn) => { const b=document.createElement('button'); b.textContent=label;
+        b.addEventListener('click', () => { menu.classList.remove('open'); fn(); }); return b; };
+      menu.append(
+        item('Download PNG', () => savePNG(false)),
+        item('Download SVG (vector)', () => saveSVG()),
+        item('Open PNG in new tab', () => savePNG(true)),
+      );
+      caret.addEventListener('click', (e) => { e.stopPropagation(); menu.classList.toggle('open'); });
+      document.addEventListener('click', () => menu.classList.remove('open'));
+      save.append(main, caret, menu);
+      row.append(save);
+      host.append(row);
+
+      // mobile-only data toggles (above the pie on mobile). CSS hides this except on touch devices.
+      const mtog = document.createElement('div'); mtog.className='emu-mobile-toggles';
+      mtog.innerHTML = '<h4>Data shown</h4>';
+      const mkTog = (key, label, color, kind) => {
+        const l = document.createElement('label');
+        const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=VIS[key];
+        cb.dataset.key = key;
+        cb.addEventListener('change', () => {
+          VIS[key] = cb.checked;
+          // keep legend checkbox in sync (and vice versa via buildLegend's listener)
+          const lg = document.querySelector(`.emu-legend input[data-key="${key}"]`);
+          if (lg) lg.checked = cb.checked;
+          render();
+        });
+        const sw = document.createElement('span');
+        sw.className = kind==='line' ? 'emu-swatch emu-swatch-line' : 'emu-swatch';
+        sw.style.background = color;
+        const tx = document.createElement('span'); tx.textContent=label;
+        l.append(cb, sw, tx); return l;
+      };
+      mtog.append(
+        mkTog('lcdm','\u039BCDM', COLOR_LCDM, 'line'),
+        mkTog('planck','Planck 2018', COLOR.planck, 'dot'),
+        mkTog('act','ACT DR4', COLOR.act, 'dot'),
+        mkTog('spt','SPT-3g', COLOR.spt, 'dot'),
+      );
+      host.append(mtog);
+
+      // energy-density pie
+      const pie = document.createElement('div'); pie.className='emu-pie';
+      pie.innerHTML = '<h4>Energy densities</h4><div class="emu-pie-svg" id="emuPieSvg"></div>';
+      host.append(pie);
+
+      // derived-parameter readout (2x2 grid)
+      const der = document.createElement('div'); der.className='emu-derived';
+      der.innerHTML = '<h4>Derived parameters</h4><div class="emu-derived-grid">' +
+        '<div class="cell"><span>\\(\\sigma_8\\)</span><span class="eq">=</span><b id="emuD_sigma8">–</b></div>' +
+        '<div class="cell"><span>\\(100\\,\\theta_s\\)</span><span class="eq">=</span><b id="emuD_theta">–</b></div>' +
+        '<div class="cell"><span>\\(Y_{\\rm He}\\)</span><span class="eq">=</span><b id="emuD_yhe">–</b></div>' +
+        '<div class="cell"><span>\\(z_{\\rm reio}\\)</span><span class="eq">=</span><b id="emuD_zreio">–</b></div>' +
+        '</div>';
+      host.append(der);
+
+      if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([host]);
+    }
+
+    // ---- axis-title overlays (real LaTeX via MathJax) -----------------------
+    const Y_TITLE = {
+      tt:'\\(\\mathcal{D}_\\ell^{\\mathrm{TT}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
+      ee:'\\(\\mathcal{D}_\\ell^{\\mathrm{EE}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
+      te:'\\(\\mathcal{D}_\\ell^{\\mathrm{TE}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
+    };
+    const ylabelEls = {};
+    let xlabelEl = null;
+    function buildOverlays(){
+      const ov = $('emuAxisOverlay');
+      for (const spec of SPECS){
+        const d = document.createElement('div'); d.className='emu-ylabel';
+        const s = document.createElement('span'); s.innerHTML = Y_TITLE[spec];
+        d.append(s); ov.append(d); ylabelEls[spec] = d;
+      }
+      xlabelEl = document.createElement('div'); xlabelEl.className='emu-xlabel';
+      xlabelEl.innerHTML = '\\(\\ell\\)'; ov.append(xlabelEl);
+      if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([ov]);
+    }
+    // position overlays to match panel geometry (called from render)
+    function placeOverlays(geoms, W, H, padL){
+      for (const g of geoms){
+        const el = ylabelEls[g.spec];
+        el.style.top = g.Y0 + 'px';
+        el.style.height = (g.Y1 - g.Y0) + 'px';
+        el.style.width = '24px';        // far-left strip; tick numbers sit to its right
+      }
+      if (xlabelEl){
+        xlabelEl.style.left = padL + 'px';
+        xlabelEl.style.width = (W - padL - 12) + 'px';
+        xlabelEl.style.bottom = '2px';
+      }
+    }
+
+    // ---- canvas sizing (portrait, retina) -----------------------------------
+    function resize(){
+      const wrap = cv.parentElement;
+      const cssW = wrap.clientWidth;
+      const cssH = Math.round(cssW * 1.19);            // PLOT HEIGHT KNOB: aspect ratio (was 1.25; lower = shorter)
+      const dpr = window.devicePixelRatio || 1;
+      cv.style.height = cssH + 'px';
+      cv.width  = cssW * dpr;
+      cv.height = cssH * dpr;
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      return { W:cssW, H:cssH };
+    }
+    window.addEventListener('resize', () => { if (emulator) render(); });
+
+    // ---- coordinate helpers -------------------------------------------------
+    const xPix = (l, X0, X1) => X0 + (l - XMIN)/(XMAX - XMIN) * (X1 - X0);
+    function makeYPix(spec, Y0, Y1, range){
+      const [a,b] = range;
+      if (Y_LOG[spec]){
+        const la=Math.log10(a), lb=Math.log10(b);
+        return (v) => {
+          const vv = Math.max(a, Math.min(b, Math.abs(v)));
+          return Y1 - (Math.log10(vv)-la)/(lb-la)*(Y1-Y0);
+        };
+      }
+      return (v) => {
+        const vv = Math.max(a, Math.min(b, v));
+        return Y1 - (vv-a)/(b-a)*(Y1-Y0);
+      };
+    }
+
+    // ---- draw one panel -----------------------------------------------------
+    function drawPanel(g, spec, geom, isBottom, range, curve){
+      const { X0, X1, Y0, Y1 } = geom;
+      const yPix = makeYPix(spec, Y0, Y1, range);
+      const [rLo, rHi] = range;
+      const majorY = Y_LOG[spec] ? logTicks(rLo, rHi) : linTicks(rLo, rHi);
+
+      // frame
+      g.strokeStyle = '#000'; g.lineWidth = STYLE.frameWidth*SS;
+      g.strokeRect(X0, Y0, X1-X0, Y1-Y0);
+
+      const tickLen = 6*SS, minorLen = 3.2*SS;
+      g.fillStyle='#000'; g.strokeStyle='#000'; g.lineWidth=STYLE.frameWidth*SS;
+
+      // minor x ticks (all panels)
+      for (let xv=XMIN; xv<=XMAX; xv+=X_MINOR){
+        if (XTICKS.includes(xv)) continue;
+        const x=xPix(xv,X0,X1);
+        g.beginPath(); g.moveTo(x,Y1); g.lineTo(x,Y1-minorLen); g.stroke();
+        g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y0+minorLen); g.stroke();
+      }
+      // major x ticks + bottom labels
+      g.textAlign='center'; g.font = `${STYLE.tickFont*SS}px ${FONT}`;
+      for (const xt of XTICKS){
+        const x = xPix(xt, X0, X1);
+        g.beginPath(); g.moveTo(x,Y1); g.lineTo(x,Y1-tickLen); g.stroke();
+        g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y0+tickLen); g.stroke();
+        if (isBottom){ g.textBaseline='top'; g.fillText(String(xt), x, Y1+6*SS); }
+      }
+
+      // major y ticks + labels
+      g.textAlign='right'; g.textBaseline='middle';
+      for (const yt of majorY){
+        if (yt<rLo-1e-12 || yt>rHi+1e-12) continue;
+        const y = yPix(yt);
+        g.strokeStyle='#000'; g.beginPath(); g.moveTo(X0,y); g.lineTo(X0+tickLen,y); g.stroke();
+        g.fillStyle='#000';
+        g.fillText(fmtYTick(spec, yt), X0-6*SS, y);
+      }
+
+      // minor y ticks
+      g.strokeStyle='#000'; g.lineWidth=STYLE.frameWidth*SS;
+      if (Y_LOG[spec]){
+        for (let e=Math.floor(Math.log10(rLo)); e<=Math.ceil(Math.log10(rHi)); e++){
+          for (const s of [0.3,0.6,0.9]){
+            const v=s*Math.pow(10,e+1);
+            if (v<rLo||v>rHi) continue;
+            const y=yPix(v);
+            g.beginPath(); g.moveTo(X0,y); g.lineTo(X0+minorLen,y); g.stroke();
+          }
+        }
+      } else {
+        // TE linear minor ticks: 1/5 of the current major step, so they scale
+        // sensibly as the axis grows (e.g. majors 0.1->0.5 gives minors 0.02->0.1)
+        const minorStep = linStep(rLo, rHi) / 5;
+        for (let v=Math.ceil(rLo/minorStep)*minorStep; v<=rHi+1e-9; v+=minorStep){
+          if (majorY.some(mt=>Math.abs(mt-v)<1e-9)) continue;
+          const y=yPix(v);
+          g.beginPath(); g.moveTo(X0,y); g.lineTo(X0+minorLen,y); g.stroke();
+        }
+      }
+
+      // clip to panel for curves/points
+      g.save();
+      g.beginPath(); g.rect(X0,Y0,X1-X0,Y1-Y0); g.clip();
+
+      // LCDM reference — drawn first (back)
+      if (LCDM && VIS.lcdm){
+        g.strokeStyle=COLOR_LCDM; g.lineWidth=STYLE.lcdmWidth*SS; g.globalAlpha=0.9;
+        g.beginPath();
+        let started=false;
+        for (let i=0;i<LCDM.ell.length;i++){
+          const l=LCDM.ell[i]; if (l<XMIN||l>XMAX) continue;
+          const x=xPix(l,X0,X1), y=yPix(LCDM[spec][i]);
+          started ? g.lineTo(x,y) : (g.moveTo(x,y), started=true);
+        }
+        g.stroke(); g.globalAlpha=1;
+      }
+
+      // model (emulator) curve — purple (precomputed)
+      g.strokeStyle=COLOR_MODEL; g.lineWidth=STYLE.modelWidth*SS; g.lineJoin='round'; g.globalAlpha=0.95;
+      g.beginPath();
+      for (let i=0;i<curve.ell.length;i++){
+        const x=xPix(curve.ell[i],X0,X1), y=yPix(curve.value[i]);
+        i? g.lineTo(x,y) : g.moveTo(x,y);
+      }
+      g.stroke(); g.globalAlpha=1;
+
+      // observational data — drawn last (on top of curves)
+      if (OBS && OBS[spec]){
+        if (VIS.planck) drawData(g, OBS[spec].planck, COLOR.planck, yPix, X0, X1, true);
+        if (VIS.act)    drawData(g, OBS[spec].act,    COLOR.act,    yPix, X0, X1, false);
+        if (VIS.spt)    drawData(g, OBS[spec].spt,    COLOR.spt,    yPix, X0, X1, false);
+      }
+
+      g.restore();
+    }
+
+    function drawData(g, arr, color, yPix, X0, X1, asym){
+      if (!arr) return;
+      g.strokeStyle=color; g.fillStyle=color; g.globalAlpha=0.85; g.lineWidth=STYLE.errWidth*SS;
+      const R = STYLE.markerR*SS;
+      for (const row of arr){
+        const l=row[0]; if (l<XMIN||l>XMAX) continue;
+        const x=xPix(l,X0,X1);
+        const v=row[1];
+        const y=yPix(v);
+        const eLo = row[2];
+        const eHi = asym ? row[3] : row[2];
+        const yTop=yPix(v+eHi), yBot=yPix(v-eLo);
+        g.beginPath(); g.moveTo(x,yTop); g.lineTo(x,yBot); g.stroke();   // error bar
+        g.beginPath(); g.arc(x,y,R,0,2*Math.PI); g.fill();               // marker
+      }
+      g.globalAlpha=1;
+    }
+
+    function fmtYTick(spec, v){
+      if (!Y_LOG[spec]){
+        if (Math.abs(v) < 1e-9) return '0';
+        return (+v.toFixed(3)).toString();     // e.g. 0.02, 0.1, 0.25
+      }
+      const e = Math.round(Math.log10(v));
+      return e===0 ? '1' : `10${sup(e)}`;
+    }
+    function sup(e){
+      const map={'-':'\u207B','0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3',
+                 '4':'\u2074','5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079'};
+      return String(e).split('').map(c=>map[c]||c).join('');
+    }
+
+    // ---- HTML legend with dataset checkboxes (over the TT panel) ------------
+    function buildLegend(){
+      const wrap = cv.parentElement;
+      const box = document.createElement('div');
+      box.className = 'emu-legend'; box.id = 'emuLegend';
+      const rows = [
+        ['lcdm',  '\u039BCDM',      COLOR_LCDM, 'line'],
+        ['planck','Planck 2018',    COLOR.planck, 'dot'],
+        ['act',   'ACT DR4',        COLOR.act,    'dot'],
+        ['spt',   'SPT-3g',         COLOR.spt,    'dot'],
+      ];
+      for (const [key,label,color,mark] of rows){
+        const row = document.createElement('label'); row.className='emu-leg-row';
+        const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=VIS[key];
+        cb.dataset.key = key;
+        cb.addEventListener('change', () => {
+          VIS[key]=cb.checked;
+          const mt = document.querySelector(`.emu-mobile-toggles input[data-key="${key}"]`);
+          if (mt) mt.checked = cb.checked;
+          render();
+        });
+        const sw = document.createElement('span');
+        sw.className = mark==='line' ? 'emu-leg-line' : 'emu-leg-dot';
+        sw.style.background = color;
+        const tx = document.createElement('span'); tx.textContent=label;
+        row.append(cb, sw, tx); box.append(row);
+      }
+      wrap.append(box);
+    }
+    function placeLegend(ttGeom, W){
+      const box = $('emuLegend'); if (!box) return;
+      box.style.top = (ttGeom.Y0 + 6) + 'px';
+      box.style.right = ((W - ttGeom.X1) + 10) + 'px';   // inside TT panel's right edge
+    }
+
+    // ---- derived-parameter readout ------------------------------------------
+    function updateDerived(){
+      const d = emulator.predict(params).derived;
+      const set = (id, v, p=4) => { const el=$(id); if (el) el.textContent = (+v).toPrecision(p); };
+      set('emuD_sigma8', d.sigma8, 3);
+      set('emuD_theta',  d['100*theta_s'], 4);
+      set('emuD_yhe',    d.YHe, 3);
+      set('emuD_zreio',  d.z_reio, 3);
+    }
+
+    // ---- energy-density pie (ratio method, always sums to 100%) -------------
+    const PIE_COLOR = { OmegaL:'#E6AF2E', cdm:'#B0C4DE', b:'#46B1C9' };
+    const polar = (cx,cy,r,deg) => {
+      const a = deg*Math.PI/180;
+      return { x:+(cx + r*Math.cos(a)).toFixed(2), y:+(cy + r*Math.sin(a)).toFixed(2) };
+    };
+    function updatePie(){
+      const host = $('emuPieSvg'); if (!host) return;
+      // Omega_Lambda from slider; remaining split as omega_b : omega_cdm (h-independent)
+      const fL = Math.max(0, Math.min(1, params['Omega_Lambda']));
+      const rem = 1 - fL;
+      const ob = params['omega_b'], oc = params['omega_cdm'];
+      const sum = ob + oc || 1;
+      const fb = rem * ob/sum, fc = rem * oc/sum;
+
+      const wedges = [
+        { sub:'\u039B', color:PIE_COLOR.OmegaL, frac:fL },   // Omega_Lambda (top -> clockwise, right side)
+        { sub:'c',      color:PIE_COLOR.cdm,    frac:fc },   // Omega_c (cold dark matter)
+        { sub:'b',      color:PIE_COLOR.b,      frac:fb },   // Omega_b
+      ];
+
+      const cx=130, cy=112, R=80;                 // ~1.5x the previous radius
+      let start=-90, paths='', pcts='', names='';
+      for (const w of wedges){
+        const ang = w.frac*360, end = start+ang, large = ang>180?1:0;
+        if (w.frac >= 0.9995){
+          paths += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${w.color}"/>`;
+        } else if (w.frac > 0){
+          const p1=polar(cx,cy,R,start), p2=polar(cx,cy,R,end);
+          paths += `<path d="M${cx},${cy} L${p1.x},${p1.y} A${R},${R} 0 ${large} 1 ${p2.x},${p2.y} Z" `+
+                   `fill="${w.color}" stroke="#fff" stroke-width="1.5"/>`;
+        }
+        const mid = start + ang/2;
+        if (w.frac > 0.035){
+          const c = polar(cx,cy,R*0.58,mid);
+          pcts += `<text x="${c.x}" y="${c.y}" font-size="17" text-anchor="middle" dominant-baseline="middle">${(w.frac*100).toFixed(1)}</text>`;
+        }
+        const o = polar(cx,cy,R*1.24,mid);
+        const anchor = o.x < cx-3 ? 'end' : o.x > cx+3 ? 'start' : 'middle';
+        names += `<text x="${o.x}" y="${o.y}" font-size="17" text-anchor="${anchor}" dominant-baseline="middle">`+
+                 `\u03A9<tspan dy="5" font-size="12">${w.sub}</tspan></text>`;
+        start = end;
+      }
+      host.innerHTML = `<svg viewBox="0 0 260 232" width="100%" style="max-width:260px" overflow="visible">${paths}${pcts}${names}</svg>`;
+    }
+
+    // ---- shared layout (used by on-screen render AND export) ----------------
+    function layout(W, H){
+      const padL=64, padR=26, padT=10*SS, padB=34*SS, gap=4*SS;
+      const plotW = W - padL - padR;
+      const panelH = (H - padT - padB - 2*gap) / 3;
+      const geoms = SPECS.map((spec,i) => ({
+        spec, X0: padL, X1: padL + plotW,
+        Y0: padT + i*(panelH+gap),
+        Y1: padT + i*(panelH+gap) + panelH,
+      }));
+      return { padL, padR, padT, padB, gap, plotW, panelH, geoms };
+    }
+
+    // draw the full figure (all panels) to a context in logical W×H coords
+    function drawFigure(g, W, H){
+      const { geoms } = layout(W, H);
+      geoms.forEach((gm,i) => {
+        const c = emulator.curve(params, gm.spec, { quantity:'Dl', lmin:2, lmax:2490, uK2:true, scale:1e-3 });
+        const range = dynRange(gm.spec, c.value);
+        drawPanel(g, gm.spec, gm, i===SPECS.length-1, range, c);
+      });
+      return geoms;
+    }
+
+    // ---- export: PNG / SVG / open-in-tab ------------------------------------
+    const EXPORT_BG = '#ffffff';   // saved-figure background (change to lavender/'' if desired)
+    const PNG_SCALE = 3;
+
+    // Axis-title parts. Rendered piece-wise so the subscript ell is a TRUE
+    // subscript (Unicode has no subscript ell), with a superscript XY.
+    const TITLE_SPEC = { tt:'TT', ee:'EE', te:'TE' };
+    const UNIT_STR = ' [10\u00B3 \u03BCK\u00B2]';   // superscripts here already exist in Unicode
+
+    // Draw "D_l^{XY} [10^3 uK^2]" centered at the origin (caller sets rotation/translate).
+    // base = base font px; returns nothing.
+    function drawTitleParts(g, spec, base){
+      const sF = base*0.70;                       // script (sub/sup) font size
+      const subY = base*0.26, supY = -base*0.36;  // sub lowered, sup raised (more separation)
+      const kern = base*0.15;                     // gap after D so scripts clear its tail
+      g.textAlign='left'; g.textBaseline='alphabetic';
+      g.font = `italic ${base}px ${FONT}`;  const wD = g.measureText('\u{1D49F}').width;
+      g.font = `italic ${sF}px ${FONT}`;    const wL = g.measureText('\u2113').width;
+      g.font = `${sF}px ${FONT}`;           const wX = g.measureText(TITLE_SPEC[spec]).width;
+      g.font = `${base}px ${FONT}`;         const wU = g.measureText(UNIT_STR).width;
+      const scriptW = Math.max(wL, wX);
+      const total = wD + kern + scriptW + wU;
+      let x = -total/2;
+      g.font = `italic ${base}px ${FONT}`; g.fillText('\u{1D49F}', x, 0); x += wD + kern;
+      g.font = `italic ${sF}px ${FONT}`;   g.fillText('\u2113', x, subY);      // subscript ell
+      g.font = `${sF}px ${FONT}`;          g.fillText(TITLE_SPEC[spec], x, supY); // superscript XY (stacked)
+      x += scriptW;
+      g.font = `${base}px ${FONT}`;        g.fillText(UNIT_STR, x, 0);
+    }
+
+    // SVG version: same layout as canvas, but emit absolutely-positioned <text>
+    // elements (no baseline-shift — that renders inconsistently across viewers).
+    // Widths come from the on-screen ctx so they match the canvas exactly.
+    function svgTitle(spec, cx, cy, base){
+      const sF = base*0.70, subY = base*0.26, supY = -base*0.36, kern = base*0.15;
+      ctx.font = `italic ${base}px ${FONT}`;  const wD = ctx.measureText('\u{1D49F}').width;
+      ctx.font = `italic ${sF}px ${FONT}`;    const wL = ctx.measureText('\u2113').width;
+      ctx.font = `${sF}px ${FONT}`;           const wX = ctx.measureText(TITLE_SPEC[spec]).width;
+      ctx.font = `${base}px ${FONT}`;         const wU = ctx.measureText(UNIT_STR).width;
+      const scriptW = Math.max(wL, wX), total = wD + kern + scriptW + wU;
+      let x = -total/2;
+      let s = `<g transform="translate(${cx.toFixed(2)} ${cy.toFixed(2)}) rotate(-90)">`;
+      s += `<text x="${x.toFixed(2)}" y="0" font-size="${base.toFixed(2)}" font-style="italic">\u{1D49F}</text>`;
+      x += wD + kern;
+      s += `<text x="${x.toFixed(2)}" y="${subY.toFixed(2)}" font-size="${sF.toFixed(2)}" font-style="italic">\u2113</text>`;
+      s += `<text x="${x.toFixed(2)}" y="${supY.toFixed(2)}" font-size="${sF.toFixed(2)}">${TITLE_SPEC[spec]}</text>`;
+      x += scriptW;
+      s += `<text x="${x.toFixed(2)}" y="0" font-size="${base.toFixed(2)}">${svgEsc(UNIT_STR)}</text>`;
+      return s + '</g>';
+    }
+
+    function drawTitlesCanvas(g, geoms, padL, W, H){
+      g.save(); g.fillStyle='#000';
+      const base = 13.5*SS;
+      for (const gm of geoms){
+        g.save(); g.translate(15*SS, (gm.Y0+gm.Y1)/2); g.rotate(-Math.PI/2);
+        drawTitleParts(g, gm.spec, base); g.restore();
+      }
+      g.font = `italic ${16*SS}px ${FONT}`; g.textAlign='center'; g.textBaseline='alphabetic';
+      g.fillText('\u2113', padL + (geoms[0].X1 - padL)/2, H - 8*SS);
+      g.restore();
+    }
+    function drawLegendCanvas(g, ttGeom, W){
+      const items = [];
+      if (VIS.lcdm)   items.push(['line', COLOR_LCDM,  '\u039BCDM']);
+      if (VIS.planck) items.push(['dot',  COLOR.planck,'Planck 2018']);
+      if (VIS.act)    items.push(['dot',  COLOR.act,   'ACT DR4']);
+      if (VIS.spt)    items.push(['dot',  COLOR.spt,   'SPT-3g']);
+      const f = STYLE.legendFont*SS;
+      g.save(); g.font=`${f}px ${FONT}`; g.textAlign='left'; g.textBaseline='middle';
+      let y = ttGeom.Y0 + f + 5*SS;
+      const x = ttGeom.X1 - 8.8*f;
+      for (const [type,color,text] of items){
+        g.strokeStyle=color; g.fillStyle=color; g.lineWidth=STYLE.lcdmWidth*SS;
+        if (type==='line'){ g.beginPath(); g.moveTo(x,y); g.lineTo(x+1.4*f,y); g.stroke(); }
+        else { g.beginPath(); g.arc(x+0.7*f,y,STYLE.markerR*SS,0,2*Math.PI); g.fill(); }
+        g.fillStyle='#000'; g.fillText(text, x+1.8*f, y);
+        y += f*1.35;
+      }
+      g.restore();
+    }
+    // composite the whole figure (plot + titles + legend) to a context
+    function drawExport(g, W, H){
+      g.fillStyle = EXPORT_BG; g.fillRect(0,0,W,H);
+      const { padL, geoms } = layout(W, H);
+      drawFigure(g, W, H);
+      drawTitlesCanvas(g, geoms, padL, W, H);
+      drawLegendCanvas(g, geoms[0], W);
+    }
+
+    function exportSize(){
+      const W = cv.parentElement.clientWidth;
+      const H = Math.round(W * 1.19);   // must match the resize() aspect knob
+      return { W, H };
+    }
+    function tstamp(){
+      const d = new Date();
+      const p = n => String(n).padStart(2,'0');
+      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+    }
+    function downloadBlob(blob, name){
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 1500);
+    }
+
+    function savePNG(openInTab){
+      const { W, H } = exportSize();
+      const oc = document.createElement('canvas');
+      oc.width = W*PNG_SCALE; oc.height = H*PNG_SCALE;
+      const octx = oc.getContext('2d');
+      octx.scale(PNG_SCALE, PNG_SCALE);
+      drawExport(octx, W, H);
+      oc.toBlob((blob) => {
+        if (!blob) return;
+        if (openInTab){ window.open(URL.createObjectURL(blob), '_blank'); }
+        else { downloadBlob(blob, `cmbverse_${tstamp()}.png`); }
+      }, 'image/png');
+    }
+
+    // ---- SVG export (true vector) -------------------------------------------
+    function svgEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function buildSVG(W, H){
+      const { padL, geoms } = layout(W, H);
+      const P = [];
+      P.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="serif">`);
+      P.push(`<rect width="${W}" height="${H}" fill="${EXPORT_BG}"/>`);
+      const tf = STYLE.tickFont*SS;
+      geoms.forEach((gm,i) => {
+        const { X0, X1, Y0, Y1, spec } = gm;
+        const isBottom = i===geoms.length-1;
+        const c = emulator.curve(params, spec, { quantity:'Dl', lmin:2, lmax:2490, uK2:true, scale:1e-3 });
+        const range = dynRange(spec, c.value);
+        const [rLo,rHi] = range;
+        const yPix = makeYPix(spec, Y0, Y1, range);
+        const majorY = Y_LOG[spec] ? logTicks(rLo,rHi) : linTicks(rLo,rHi);
+        const tickLen=6*SS, minorLen=3.2*SS;
+
+        P.push(`<rect x="${X0}" y="${Y0}" width="${X1-X0}" height="${Y1-Y0}" fill="none" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
+        // x ticks
+        for (let xv=XMIN; xv<=XMAX; xv+=X_MINOR){
+          if (XTICKS.includes(xv)) continue;
+          const x=xPix(xv,X0,X1);
+          P.push(`<line x1="${x}" y1="${Y1}" x2="${x}" y2="${Y1-minorLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
+          P.push(`<line x1="${x}" y1="${Y0}" x2="${x}" y2="${Y0+minorLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
+        }
+        for (const xt of XTICKS){
+          const x=xPix(xt,X0,X1);
+          P.push(`<line x1="${x}" y1="${Y1}" x2="${x}" y2="${Y1-tickLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
+          P.push(`<line x1="${x}" y1="${Y0}" x2="${x}" y2="${Y0+tickLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
+          if (isBottom) P.push(`<text x="${x}" y="${Y1+6*SS+tf}" font-size="${tf}" text-anchor="middle">${xt}</text>`);
+        }
+        // y major ticks + labels
+        for (const yt of majorY){
+          if (yt<rLo-1e-12||yt>rHi+1e-12) continue;
+          const y=yPix(yt);
+          P.push(`<line x1="${X0}" y1="${y}" x2="${X0+tickLen}" y2="${y}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
+          P.push(`<text x="${X0-6*SS}" y="${y+tf*0.34}" font-size="${tf}" text-anchor="end">${svgEsc(fmtYTick(spec,yt))}</text>`);
+        }
+        // y minor ticks
+        if (Y_LOG[spec]){
+          for (let e=Math.floor(Math.log10(rLo)); e<=Math.ceil(Math.log10(rHi)); e++)
+            for (const s of [0.3,0.6,0.9]){ const v=s*Math.pow(10,e+1); if(v<rLo||v>rHi)continue;
+              const y=yPix(v); P.push(`<line x1="${X0}" y1="${y}" x2="${X0+minorLen}" y2="${y}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`); }
+        } else {
+          const ms=linStep(rLo,rHi)/5;
+          for (let v=Math.ceil(rLo/ms)*ms; v<=rHi+1e-9; v+=ms){ if(majorY.some(mt=>Math.abs(mt-v)<1e-9))continue;
+            const y=yPix(v); P.push(`<line x1="${X0}" y1="${y}" x2="${X0+minorLen}" y2="${y}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`); }
+        }
+        // clipped content
+        P.push(`<clipPath id="clip${i}"><rect x="${X0}" y="${Y0}" width="${X1-X0}" height="${Y1-Y0}"/></clipPath>`);
+        P.push(`<g clip-path="url(#clip${i})">`);
+        const drawPts = (arr,color,asym) => { if(!arr)return;
+          for (const row of arr){ const l=row[0]; if(l<XMIN||l>XMAX)continue;
+            const x=xPix(l,X0,X1), v=row[1], y=yPix(v);
+            const eLo=row[2], eHi=asym?row[3]:row[2];
+            P.push(`<line x1="${x}" y1="${yPix(v+eHi)}" x2="${x}" y2="${yPix(v-eLo)}" stroke="${color}" stroke-width="${STYLE.errWidth*SS}" opacity="0.85"/>`);
+            P.push(`<circle cx="${x}" cy="${y}" r="${STYLE.markerR*SS}" fill="${color}" opacity="0.85"/>`);
+          } };
+        if (OBS && OBS[spec]){
+          if (VIS.planck) drawPts(OBS[spec].planck, COLOR.planck, true);
+          if (VIS.act)    drawPts(OBS[spec].act,    COLOR.act,    false);
+          if (VIS.spt)    drawPts(OBS[spec].spt,    COLOR.spt,    false);
+        }
+        const poly = (xs,ys,pred) => { let pts=''; for(let k=0;k<xs.length;k++){ const l=xs[k]; if(pred&&(l<XMIN||l>XMAX))continue;
+            pts += `${xPix(l,X0,X1).toFixed(1)},${ys(k).toFixed(1)} `; } return pts.trim(); };
+        if (LCDM && VIS.lcdm)
+          P.push(`<polyline fill="none" stroke="${COLOR_LCDM}" stroke-width="${STYLE.lcdmWidth*SS}" opacity="0.9" points="${poly(LCDM.ell, k=>yPix(LCDM[spec][k]), true)}"/>`);
+        P.push(`<polyline fill="none" stroke="${COLOR_MODEL}" stroke-width="${STYLE.modelWidth*SS}" stroke-linejoin="round" opacity="0.95" points="${poly(c.ell, k=>yPix(c.value[k]), false)}"/>`);
+        P.push(`</g>`);
+        // rotated axis title with true subscript ell + superscript XY
+        const cx2=15*SS, cy2=(Y0+Y1)/2, bf=13.5*SS;
+        P.push(svgTitle(spec, cx2, cy2, bf));
+      });
+      // x-axis label
+      P.push(`<text x="${padL + (geoms[0].X1-padL)/2}" y="${H-8*SS}" font-size="${16*SS}" font-style="italic" text-anchor="middle">\u2113</text>`);
+      // legend
+      const items=[];
+      if (VIS.lcdm)   items.push(['line',COLOR_LCDM,'\u039BCDM']);
+      if (VIS.planck) items.push(['dot',COLOR.planck,'Planck 2018']);
+      if (VIS.act)    items.push(['dot',COLOR.act,'ACT DR4']);
+      if (VIS.spt)    items.push(['dot',COLOR.spt,'SPT-3g']);
+      const f=STYLE.legendFont*SS, tt=geoms[0];
+      let ly=tt.Y0+f+5*SS; const lx=tt.X1-8.8*f;
+      for (const [type,color,text] of items){
+        if (type==='line') P.push(`<line x1="${lx}" y1="${ly}" x2="${lx+1.4*f}" y2="${ly}" stroke="${color}" stroke-width="${STYLE.lcdmWidth*SS}"/>`);
+        else P.push(`<circle cx="${lx+0.7*f}" cy="${ly}" r="${STYLE.markerR*SS}" fill="${color}"/>`);
+        P.push(`<text x="${lx+1.8*f}" y="${ly+f*0.34}" font-size="${f}">${svgEsc(text)}</text>`);
+        ly += f*1.35;
+      }
+      P.push('</svg>');
+      return P.join('');
+    }
+    function saveSVG(){
+      const { W, H } = exportSize();
+      const blob = new Blob([buildSVG(W,H)], { type:'image/svg+xml' });
+      downloadBlob(blob, `cmbverse_${tstamp()}.svg`);
+    }
+
+    // ---- full render --------------------------------------------------------
+    function render(){
+      if (!emulator) return;
+      const { W, H } = resize();
+      ctx.clearRect(0,0,W,H);          // transparent: page lavender shows through
+
+      SS = Math.max(0.8, Math.min(1.6, W/600));   // scale visual weights with width
+
+      const { padL, geoms } = layout(W, H);
+      drawFigure(ctx, W, H);
+
+      placeOverlays(geoms, W, H, padL); // position the LaTeX axis titles
+      placeLegend(geoms[0], W);         // position the HTML legend over TT
+      updateDerived();                  // refresh derived readout
+      updatePie();                      // refresh energy-density pie
+      statusEl.textContent = '';
+    }
+
+    // ---- boot ---------------------------------------------------------------
+    (async () => {
+      buildSliders();
+      buildOverlays();
+      buildLegend();
+      try {
+        // data + lcdm load in parallel with the model
+        const [emu] = await Promise.all([
+          CMBEmulator.load(MODEL_URL, window.tf),
+          fetch(DATA_URL).then(r=>r.ok?r.json():null).then(d=>OBS=d).catch(()=>OBS=null),
+          fetch(LCDM_URL).then(r=>r.ok?r.json():null).then(d=>LCDM=d).catch(()=>LCDM=null),
+        ]);
+        emulator = emu;
+        render();
+      } catch(e){
+        statusEl.className='emu-status err';
+        statusEl.textContent = 'model load failed: ' + e.message;
+        console.error(e);
+      }
+    })();
+    </script>
+</body>
 </html>
