@@ -332,15 +332,20 @@
     const X_MINOR = 100;          // minor x-tick spacing (all panels)
 
     // ---- dynamic y-range (expand-only, tight fit) ---------------------------
-    // Starts at the fixed default; grows to fit the model curve + margin, never
-    // shrinks below the default.
+    // Starts at the fixed default; grows/shrinks to fit the model curve +
+    // margin, never past the default (log panels float both floor and
+    // ceiling; the linear panel is symmetric about zero already).
     function dynRange(spec, curveVals){
       const [dLo, dHi] = Y_RANGE[spec];
       if (Y_LOG[spec]){
-        let mx=-Infinity;
-        for (const v of curveVals){ if (v>0 && v>mx) mx=v; }
+        let mx=-Infinity, mn=Infinity;
+        for (const v of curveVals){
+          if (v>0 && v>mx) mx=v;
+          if (v>0 && v<mn) mn=v;
+        }
         const hi = Math.max(dHi, mx*1.15);
-        return [dLo, hi];        // floor fixed at default; only ceiling floats
+        const lo = Math.min(dLo, mn/1.15);
+        return [lo, hi];         // both floor and ceiling can float outward
       } else {
         let a=0; for (const v of curveVals) a=Math.max(a, Math.abs(v));
         const hi = Math.max(dHi, a*1.10);
