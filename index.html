@@ -298,7 +298,7 @@
     <script type="module">
     import CMBEmulator, { META } from './emulator/cmb-emulator.js';
 
-    const MODEL_URL = './emulator/omega_lambda_divided/model.json';
+    const MODEL_URL = './emulator/omega_lambda_sparse4100_stdlog/model.json';
     const DATA_URL  = './emulator/data/cmb_data.json';
     const LCDM_URL  = './emulator/data/lcdm.json';
 
@@ -321,14 +321,14 @@
     // ---- plot constants (match the python figures) --------------------------
     const SPECS = ['tt','ee','te'];                 // panel order: TT top, EE mid, TE bottom
     const Y_LOG   = { tt:true,  ee:true,  te:false };
-    const Y_RANGE = { tt:[2e-2, 2e1], ee:[1e-5, 1e-1], te:[-0.25, 0.25] };
+    const Y_RANGE = { tt:[2e-3, 2e1], ee:[1e-6, 1e-1], te:[-0.25, 0.25] };
     const Y_TICKS = {
       tt:[1e-1, 1, 1e1],
       ee:[1e-4, 1e-3, 1e-2],
       te:[-0.2,-0.1,0,0.1,0.2],
     };
-    const XMIN = 0, XMAX = 2500;
-    const XTICKS = [0,500,1000,1500,2000,2500];
+    const XMIN = 0, XMAX = 4000;
+    const XTICKS = [0,1000,2000,3000,4000];
     const X_MINOR = 100;          // minor x-tick spacing (all panels)
 
     // ---- dynamic y-range (expand-only, tight fit) ---------------------------
@@ -538,7 +538,7 @@
       if (xlabelEl){
         xlabelEl.style.left = padL + 'px';
         xlabelEl.style.width = (W - padL - 12) + 'px';
-        xlabelEl.style.bottom = '2px';
+        xlabelEl.style.bottom = '-12px';
       }
     }
 
@@ -820,7 +820,7 @@
     function drawFigure(g, W, H){
       const { geoms } = layout(W, H);
       geoms.forEach((gm,i) => {
-        const c = emulator.curve(params, gm.spec, { quantity:'Dl', lmin:2, lmax:2490, uK2:true, scale:1e-3 });
+        const c = emulator.curve(params, gm.spec, { quantity:'Dl', lmin:2, lmax:4030, uK2:true, scale:1e-3 });
         const range = dynRange(gm.spec, c.value);
         drawPanel(g, gm.spec, gm, i===SPECS.length-1, range, c);
       });
@@ -886,7 +886,7 @@
         drawTitleParts(g, gm.spec, base); g.restore();
       }
       g.font = `italic ${16*SS}px ${FONT}`; g.textAlign='center'; g.textBaseline='alphabetic';
-      g.fillText('\u2113', padL + (geoms[0].X1 - padL)/2, H - 8*SS);
+      g.fillText('\u2113', padL + (geoms[0].X1 - padL)/2, H - 2*SS);
       g.restore();
     }
     function drawLegendCanvas(g, ttGeom, W){
@@ -959,7 +959,7 @@
       geoms.forEach((gm,i) => {
         const { X0, X1, Y0, Y1, spec } = gm;
         const isBottom = i===geoms.length-1;
-        const c = emulator.curve(params, spec, { quantity:'Dl', lmin:2, lmax:2490, uK2:true, scale:1e-3 });
+        const c = emulator.curve(params, spec, { quantity:'Dl', lmin:2, lmax:4030, uK2:true, scale:1e-3 });
         const range = dynRange(spec, c.value);
         const [rLo,rHi] = range;
         const yPix = makeYPix(spec, Y0, Y1, range);
@@ -1026,7 +1026,7 @@
         P.push(svgTitle(spec, cx2, cy2, bf));
       });
       // x-axis label
-      P.push(`<text x="${padL + (geoms[0].X1-padL)/2}" y="${H-8*SS}" font-size="${16*SS}" font-style="italic" text-anchor="middle">\u2113</text>`);
+      P.push(`<text x="${padL + (geoms[0].X1-padL)/2}" y="${H-2*SS}" font-size="${16*SS}" font-style="italic" text-anchor="middle">\u2113</text>`);
       // legend
       const items=[];
       if (VIS.lcdm)   items.push(['line',COLOR_LCDM,'\u039BCDM']);

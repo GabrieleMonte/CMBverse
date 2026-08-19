@@ -4,15 +4,19 @@
  * Framework-agnostic browser inference for a CONNECT CMB emulator converted to
  * a TensorFlow.js graph model.
  *
- * Model: omega_lambda_divided
+ * Model: omega_lambda_sparse4100_stdlog
  *   - 6 inputs  : omega_b, omega_cdm, Omega_Lambda, ln10^{10}A_s, n_s, tau_reio
- *   - 300 raw outputs (Cl/A_s for spectra; derived params raw):
- *       0:98    TT      98:196  TE      196:294 EE
- *       294 z_reio, 295 Omega_Lambda, 296 YHe, 297 A_s, 298 sigma8, 299 100*theta_s
- *   - Input standardisation + output denormalisation are BAKED INTO the graph.
- *   - Spectra were trained on Cl / A_s, so they MUST be multiplied back by
- *       A_s = 1e-10 * exp(ln10^{10}A_s)
- *     to recover physical Cl. Derived parameters are NOT rescaled.
+ *   - 351 raw outputs (Dl for spectra; derived params, all physical/raw):
+ *       0:115    TT      115:230  TE      230:345 EE
+ *       345 z_reio, 346 Omega_Lambda, 347 YHe, 348 A_s, 349 sigma8, 350 100*theta_s
+ *   - Input standardisation AND output denormalisation are BAKED INTO the graph,
+ *     including the log-space transform used for TT/EE (the network was trained
+ *     on log-standardised TT/EE and standardised TE/derived; the exp() + clip
+ *     that undoes the log transform is part of the exported graph itself).
+ *   - Unlike the older `omega_lambda_divided` model, there is NO A_s
+ *     preprocessing here: the training data itself is raw D_ell = l(l+1)Cl/2pi
+ *     (see connect_public/source/calc_models_mpi.py), so the graph's raw
+ *     output is ALREADY physical. Do NOT multiply by A_s.
  *
  * Requires @tensorflow/tfjs (or tfjs-core + tfjs-converter + a backend) on the
  * page as the global `tf`, or pass a tf reference to CMBEmulator.load().
@@ -40,15 +44,16 @@ export const META = {
   },
 
   // Output slicing.
-  intervals: { tt: [0, 98], te: [98, 196], ee: [196, 294] },
-  derivedIndex: { z_reio: 294, Omega_Lambda: 295, YHe: 296, A_s: 297, sigma8: 298, '100*theta_s': 299 },
+  intervals: { tt: [0, 115], te: [115, 230], ee: [230, 345] },
+  derivedIndex: { z_reio: 345, Omega_Lambda: 346, YHe: 347, A_s: 348, sigma8: 349, '100*theta_s': 350 },
 
-  // The 98 emulated multipoles.
+  // The 115 emulated multipoles (l_max_scalars = 4030 for this model).
   ell: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,19,21,23,25,28,31,34,38,42,47,52,58,64,71,79,88,98,
-        109,122,136,152,170,190,212,237,265,296,331,370,410,450,490,530,570,610,650,690,730,770,810,
-        850,890,930,970,1010,1050,1090,1130,1170,1210,1250,1290,1330,1370,1410,1450,1490,1530,1570,
-        1610,1650,1690,1730,1770,1810,1850,1890,1930,1970,2010,2050,2090,2130,2170,2210,2250,2290,
-        2330,2370,2410,2450,2490],
+        109,122,136,152,170,190,212,237,265,296,331,370,409,448,487,526,565,604,643,682,721,760,799,
+        838,877,916,955,994,1033,1072,1111,1150,1189,1228,1267,1306,1345,1384,1423,1462,1501,1540,
+        1579,1618,1657,1696,1735,1774,1813,1852,1891,1930,1969,2008,2047,2086,2125,2164,2203,2242,
+        2281,2320,2359,2398,2437,2476,2530,2630,2730,2830,2930,3030,3130,3230,3330,3430,3530,3630,
+        3730,3830,3930,4030],
 
   // CMB monopole temperature in microkelvin, for optional Dl conversion to uK^2.
   T_CMB_uK: 2.7255e6,
@@ -121,34 +126,25 @@ export class CMBEmulator {
    * Run inference and post-process.
    * @param {object} params  { omega_b, omega_cdm, Omega_Lambda, 'ln10^{10}A_s', n_s, tau_reio }
    * @returns {object} {
-   *   ell:       number[98]            (emulated multipoles)
-   *   Cl:        { tt, te, ee }        physical Cl at the 98 ell points
-   *   Dl:        { tt, te, ee }        Dl = l(l+1)Cl/2pi at the 98 ell points (native units)
+   *   ell:       number[115]           (emulated multipoles)
+   *   Cl:        { tt, te, ee }        physical Cl at the 115 ell points
+   *   Dl:        { tt, te, ee }        Dl = l(l+1)Cl/2pi at the 115 ell points (native units)
    *   derived:   { z_reio, Omega_Lambda, YHe, A_s, sigma8, '100*theta_s' }
-   *   A_s:       number                value used for rescaling (from the slider)
    * }
    */
   predict(params) {
     const tf = this.tf;
     const raw = tf.tidy(() => {
       const x = tf.tensor2d([this._inputVector(params)], [1, 6], 'float32');
-      const y = this.model.predict(x);                       // [1,300]
-      return (Array.isArray(y) ? y[0] : y).dataSync();        // Float32Array(300)
+      const y = this.model.predict(x);                       // [1,351]
+      return (Array.isArray(y) ? y[0] : y).dataSync();        // Float32Array(351)
     });
 
-    // A_s comes from the slider value, not the network.
-    const A_s = 1e-10 * Math.exp(params['ln10^{10}A_s']);
-
-    // IMPORTANT: this CONNECT model was trained on D_ell = l(l+1)C_l/2pi
-    // (dimensionless), NOT bare C_l. So raw * A_s IS physical D_ell already.
-    // Do NOT multiply by the l(l+1)/2pi prefactor again. C_l is obtained by
-    // dividing it back out.
+    // No A_s rescaling here: this model has no A_s preprocessing, and the
+    // graph's output is already physical D_ell (the exp()/clip for the
+    // log-standardised TT/EE columns is baked into the exported graph).
     const ell = META.ell;
-    const sliceDl = ([a, b]) => {
-      const out = new Float64Array(b - a);
-      for (let i = a; i < b; i++) out[i - a] = raw[i] * A_s;   // D_ell/A_s -> physical D_ell
-      return out;
-    };
+    const sliceDl = ([a, b]) => raw.slice(a, b);
 
     const Dl = {
       tt: sliceDl(META.intervals.tt),
@@ -162,22 +158,22 @@ export class CMBEmulator {
     const derived = {};
     for (const [k, idx] of Object.entries(META.derivedIndex)) derived[k] = raw[idx];
 
-    return { ell, Cl, Dl, derived, A_s };
+    return { ell, Cl, Dl, derived };
   }
 
   /**
-   * Dense, plot-ready curve for one spectrum, spline-interpolated from the 98
+   * Dense, plot-ready curve for one spectrum, spline-interpolated from the 115
    * emulated points onto integer multipoles.
    * @param {object} params
    * @param {'tt'|'te'|'ee'} spec
    * @param {object} opts  { quantity:'Dl'|'Cl' (default 'Dl'),
-   *                         lmin:2, lmax:2490, uK2:false, scale:1 }
+   *                         lmin:2, lmax:4030, uK2:false, scale:1 }
    *   uK2   - multiply by T_CMB^2 to convert dimensionless -> uK^2
    *   scale - extra constant multiplier (e.g. 1e-3 to plot in 10^3 uK^2)
    * @returns {{ ell:number[], value:number[] }}
    */
   curve(params, spec, opts = {}) {
-    const { quantity = 'Dl', lmin = 2, lmax = 2490, uK2 = false, scale = 1 } = opts;
+    const { quantity = 'Dl', lmin = 2, lmax = 4030, uK2 = false, scale = 1 } = opts;
     const r = this.predict(params);
     const ys = (quantity === 'Cl' ? r.Cl[spec] : r.Dl[spec]);
 
