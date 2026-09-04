@@ -429,7 +429,7 @@
           params[name] = parseFloat(r.value);
           num.textContent = fmt(name, params[name]);
           setFill(r);
-          render();
+          scheduleRender();   // coalesce rapid slider events to one render per frame
         });
 
         wrap.append(val, r);
@@ -1059,6 +1059,18 @@
       const { W, H } = exportSize();
       const blob = new Blob([buildSVG(W,H)], { type:'image/svg+xml' });
       downloadBlob(blob, `cmbverse_${tstamp()}.svg`);
+    }
+
+    // ---- rAF-gated render: at most one render per animation frame -----------
+    // The slider fires 'input' faster than the display refreshes (and, on slow
+    // devices, faster than one render completes). Gating through requestAnimation-
+    // Frame coalesces a burst of events into a single render on the next paint,
+    // always using the latest slider values — no wasted frames, no backlog.
+    let _renderPending = false;
+    function scheduleRender(){
+      if (_renderPending) return;
+      _renderPending = true;
+      requestAnimationFrame(() => { _renderPending = false; render(); });
     }
 
     // ---- full render --------------------------------------------------------
