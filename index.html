@@ -753,8 +753,8 @@
     }
 
     // ---- derived-parameter readout ------------------------------------------
-    function updateDerived(){
-      const d = emulator.predict(params).derived;
+    function updateDerived(result){
+      const d = (result || emulator.predict(params)).derived;
       const set = (id, v, p=4) => { const el=$(id); if (el) el.textContent = (+v).toPrecision(p); };
       set('emuD_sigma8', d.sigma8, 3);
       set('emuD_theta',  d['100*theta_s'], 4);
@@ -821,11 +821,14 @@
       return { padL, padR, padT, padB, gap, plotW, panelH, geoms };
     }
 
-    // draw the full figure (all panels) to a context in logical W×H coords
-    function drawFigure(g, W, H){
+    // draw the full figure (all panels) to a context in logical W×H coords.
+    // `result` (optional) is a precomputed emulator.predict() output; if omitted
+    // we run one predict here. Either way this is ONE inference for all 3 panels.
+    function drawFigure(g, W, H, result){
+      const r = result || emulator.predict(params);
       const { geoms } = layout(W, H);
       geoms.forEach((gm,i) => {
-        const c = emulator.curve(params, gm.spec, { quantity:'Dl', lmin:2, lmax:4030, uK2:true, scale:1e-3 });
+        const c = emulator.curveFrom(r, gm.spec, { quantity:'Dl', lmin:2, lmax:4030, uK2:true, scale:1e-3 });
         const range = dynRange(gm.spec, c.value);
         drawPanel(g, gm.spec, gm, i===SPECS.length-1, range, c);
       });
@@ -1064,11 +1067,12 @@
       SS = Math.max(0.8, Math.min(1.6, W/600));   // scale visual weights with width
 
       const { padL, geoms } = layout(W, H);
-      drawFigure(ctx, W, H);
+      const result = emulator.predict(params);   // ONE inference per update (J1); reused below
+      drawFigure(ctx, W, H, result);
 
       placeOverlays(geoms, W, H, padL); // position the LaTeX axis titles
       placeLegend(geoms[0], W);         // position the HTML legend over TT
-      updateDerived();                  // refresh derived readout
+      updateDerived(result);            // refresh derived readout (reuses result)
       updatePie();                      // refresh energy-density pie
       statusEl.textContent = '';
     }

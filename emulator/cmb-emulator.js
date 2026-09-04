@@ -173,9 +173,19 @@ export class CMBEmulator {
    * @returns {{ ell:number[], value:number[] }}
    */
   curve(params, spec, opts = {}) {
+    return this.curveFrom(this.predict(params), spec, opts);
+  }
+
+  /**
+   * Like curve(), but reuses an already-computed predict() result instead of
+   * running inference again. This lets a caller do ONE predict per update and
+   * build all three panel curves (and read derived) from it, rather than one
+   * predict per spectrum. Same return shape as curve().
+   * @param {object} result  a value returned by predict()
+   */
+  curveFrom(result, spec, opts = {}) {
     const { quantity = 'Dl', lmin = 2, lmax = 4030, uK2 = false, scale = 1 } = opts;
-    const r = this.predict(params);
-    const ys = (quantity === 'Cl' ? r.Cl[spec] : r.Dl[spec]);
+    const ys = (quantity === 'Cl' ? result.Cl[spec] : result.Dl[spec]);
 
     // Spline in the plotted quantity (best peak fidelity for Dl).
     const f = makeSpline(META.ell, Array.from(ys));
