@@ -291,6 +291,9 @@
 
     <!-- TensorFlow.js runtime -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+    <!-- WASM backend (SIMD): faster than WebGL for this small MLP, and more uniform across
+         unknown student hardware. We select it at runtime with a WebGL/CPU fallback. -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
 
     <!-- ============================================================
          Emulator driver: inference + 3-panel CLASS-style renderer
@@ -1077,12 +1080,30 @@
       statusEl.textContent = '';
     }
 
+    // ---- backend selection: prefer WASM (+SIMD), fall back to WebGL then CPU ----
+    async function initBackend(){
+      const WASM_PATHS = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/';
+      try {
+        if (window.tf?.wasm?.setWasmPaths) tf.wasm.setWasmPaths(WASM_PATHS);
+        await tf.setBackend('wasm');
+        await tf.ready();
+        if (tf.getBackend() !== 'wasm') throw new Error('wasm backend did not activate');
+      } catch (e) {
+        console.warn('[emulator] WASM backend unavailable, falling back:', e);
+        for (const b of ['webgl', 'cpu']) {
+          try { await tf.setBackend(b); await tf.ready(); if (tf.getBackend() === b) break; } catch (e2) {}
+        }
+      }
+      console.info('[emulator] tfjs backend:', tf.getBackend());
+    }
+
     // ---- boot ---------------------------------------------------------------
     (async () => {
       buildSliders();
       buildOverlays();
       buildLegend();
       try {
+        await initBackend();   // choose backend before loading the model
         // data + lcdm load in parallel with the model
         const [emu] = await Promise.all([
           CMBEmulator.load(MODEL_URL, window.tf),
