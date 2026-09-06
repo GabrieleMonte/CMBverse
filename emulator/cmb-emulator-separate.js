@@ -46,7 +46,6 @@ export const META = {
         2281,2320,2359,2398,2437,2476,2530,2630,2730,2830,2930,3030,3130,3230,3330,3430,3530,3630,
         3730,3830,3930,4030],
   T_CMB_uK: 2.7255e6,
-  OMEGA_CDM_CLAMP: 0.005,   // deployment clamp applied underneath the slider
 };
 
 // ---- Natural cubic spline (identical to cmb-emulator.js) --------------------
@@ -83,13 +82,13 @@ export class CMBEmulatorSeparate {
     return new CMBEmulatorSeparate({ tt, te, ee }, tf);
   }
 
-  /** Build the [1,6] input vector: physical inputs, with omega_cdm -> log10 and
-   *  the deployment clamp applied (this is what the network was trained on). */
+  /** Build the [1,6] input vector: physical inputs, with omega_cdm -> log10
+   *  (the basis the network was trained on). Full-range, no clamp. */
   _inputVector(params) {
     return META.inputNames.map((name) => {
       let v = params[name];
       if (v === undefined || Number.isNaN(v)) throw new Error(`Missing/NaN param: ${name}`);
-      if (name === 'omega_cdm') v = Math.log10(Math.max(v, META.OMEGA_CDM_CLAMP));
+      if (name === 'omega_cdm') v = Math.log10(v);
       return v;
     });
   }
