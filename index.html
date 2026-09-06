@@ -299,9 +299,13 @@
          Emulator driver: inference + 3-panel CLASS-style renderer
          ============================================================ -->
     <script type="module">
-    import CMBEmulator, { META } from './emulator/cmb-emulator.js';
+    import CMBEmulator, { META } from './emulator/cmb-emulator-separate.js';
 
-    const MODEL_URL = './emulator/omega_lambda_sparse4100_stdlog/model.json';
+    const MODEL_URL = {
+      tt: './emulator/sep_tt_5000ep/model.json',
+      te: './emulator/sep_te_5000ep/model.json',
+      ee: './emulator/sep_ee_5000ep/model.json',
+    };
     const DATA_URL  = './emulator/data/cmb_data.json';
     const LCDM_URL  = './emulator/data/lcdm.json';
 
