@@ -12,10 +12,10 @@
  * render()/curveFrom() path is unchanged. Derived params come from the TT model.
  *
  * IMPORTANT — input basis: these models were trained with log10(omega_cdm) as
- * the network input (the other 5 inputs stay physical), with a deployment clamp
- * omega_cdm >= 0.005 applied underneath a full-range slider. That transform is
- * applied here in _inputVector(). (The older joint model on this site used a
- * LINEAR omega_cdm input and no clamp — do not copy that behavior here.)
+ * the network input (the other 5 inputs stay physical). That transform is applied
+ * in _inputVector(). The slider is FULL-RANGE with NO clamp/floor on omega_cdm.
+ * (The older joint model on this site used a LINEAR omega_cdm input; do not copy
+ * that basis here.)
  * ===========================================================================*/
 
 export const META = {
