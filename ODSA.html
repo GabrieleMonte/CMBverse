@@ -18,6 +18,7 @@
     <title>Optical Depth and Scalar Amplitude</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
+    <link rel="stylesheet" href="emulator/cmb-plot.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
@@ -56,24 +57,33 @@
         <p class="section-body">The optical depth at reionization \(\tau\) and the scalar amplitude \(A_s\) exhibiy a well-known degeneracy. As discussed on the Photon Optical Depth page, reionization uniformly reduces the amplitude of the power spectra by a factor of \(e^{-2\tau}\). Simultaneously, the size of the oscillations in the CMB power spectra is directly proportional to amplitude of the primordial scalar perturbations, \(A_s\). Consequently, observations tighly constrain the combined quantity  \(A_s e^{-2\tau}\), rather than \(A_s\) and \(\tau\) individually. Using Plank 2018 data, this value is calculated to be \(\approx 1.88\times10^{-9}\).</p> 
         <p class="section-body">This degeneracy can be broken by examining how an increase in \(\tau\) boosts the power at large angular scales (low multipoles), specifically in the E polarization spectrum. This rise in power occurs because additional scatterings during reionization generate polarized radiation, leaving a distinct signature at scales corresponding to the size of the horizon at reionization, the so-called EE polarization bump. For more details, see the Photon Optical Depth page.</p>
 
-        <div class="Cosmo-container">
-            <img id="imagetau_reio_degenpage" src="class_figures/tau_reionization_figures/Dl_tau_reio_degen_11.png">
-            <div class="slider-container">
-                <input type="range" id="mySlidertau_reio_degenpage" min="1" max="31" value="11" oninput="updateValue_tau_reio_degen(this.value); updateSliderBackground(this.value, 'mySlidertau_reio_degenpage');">
-                <div class="slider-value">
-                    <span>\( \tau_{\rm{reio}} = \)</span><span id="sliderValuetau_reio_degenpage">0.0561</span><span>, </span> <span>\( \ln(10^{10} A_s) = \)</span><span id="sliderValuetau_reio_degen_Apage">3.05</span>
-
-                </div>
-            </div>
-        </div>
+        <div id="emuRootODSA"></div>
         
     </div>
 
     
-<script src="imageSwitch.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script></body>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
+    <script type="module">
+    import { createCMBPlot } from './emulator/cmb-plot.js';
+    const MODELS = { tt:'./emulator/sep_tt_curv/model.json', te:'./emulator/sep_te_curv/model.json', ee:'./emulator/sep_ee_curv/model.json' };
+    const DATA = './emulator/data/cmb_data.json';
+    const LCDM = './emulator/data/lcdm.json';
+    // Optical Depth + Scalar Amplitude — vary tau_reio; A_s coupled via the degeneracy
+    // A_s*e^{-2tau}=const (ln10^{10}A_s = 3.044 + 2(tau-0.0544)). Log-linear l-axis.
+    const TAU_FID = 0.0544, LNAS_FID = 3.044;
+    createCMBPlot(document.getElementById('emuRootODSA'), {
+      modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
+      model: 'geo', xaxis: 'loglin', showPie: false,
+      sliders: ['tau_reio'],
+      ranges: { 'tau_reio': [0.0018, 0.2] },
+      derive: (p) => { p['ln10^{10}A_s'] = LNAS_FID + 2*(p['tau_reio'] - TAU_FID); },
+    });
+    </script></body>
 
 </body>
 </html>

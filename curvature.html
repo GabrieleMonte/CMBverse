@@ -18,6 +18,7 @@
     <title>Curvature</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
+    <link rel="stylesheet" href="emulator/cmb-plot.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
@@ -68,21 +69,28 @@
         </p>
         <p class="section-body">
             
-        <div class="Cosmo-container">
-            <img id="Omega_k_image" src="class_figures/Omega_k_figures/Dl_Omega_k_16.png">
-            <div class="slider-container">
-                <input type="range" id="mySliderOmega_k" min="1" max="31" value="16" oninput="updateValue_Omega_k(this.value); updateSliderBackground(this.value, 'mySliderOmega_k');">
-                <div class="slider-value">
-                    <span>\(\Omega_{k}\) = </span><span id="sliderValueOmega_k">0</span>
-                </div>
-            </div>
-        </div>
+        <div id="emuRootCurv"></div>
     </div>
 
-<script src="imageSwitch.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script></body>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
+    <script type="module">
+    import { createCMBPlot } from './emulator/cmb-plot.js';
+    const MODELS = { tt:'./emulator/sep_tt_curv/model.json', te:'./emulator/sep_te_curv/model.json', ee:'./emulator/sep_ee_curv/model.json' };
+    const DATA = './emulator/data/cmb_data.json';
+    const LCDM = './emulator/data/lcdm.json';
+    // Curvature — vary Omega_k (Omega_Lambda fixed); h derived by the model. Log-linear l-axis.
+    createCMBPlot(document.getElementById('emuRootCurv'), {
+      modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
+      model: 'geo', xaxis: 'loglin', showPie: false,
+      sliders: ['Omega_k'],
+      ranges: { 'Omega_k': [-0.25, 0.25] },
+    });
+    </script></body>
 
 </body>
 </html>

@@ -17,13 +17,15 @@
  *   showPie, showDerived, showSave, showLegend : booleans (default true)
  * }
  * ============================================================ */
-import CMBEmulator, { META } from './cmb-emulator-separate.js';
+import CMBEmulatorS3, { META as META_S3 } from './cmb-emulator-separate.js';
+import CMBEmulatorGeo, { META as META_GEO } from './cmb-emulator-geo.js';
 
 // ---- parameter display config (MathJax labels + value formatting) ----------
 const LABELS = {
   'omega_b':      '\\(\\omega_b\\)',
   'omega_cdm':    '\\(\\omega_c\\)',
   'Omega_Lambda': '\\(\\Omega_\\Lambda\\)',
+  'Omega_k':      '\\(\\Omega_k\\)',
   'ln10^{10}A_s': '\\(\\ln(10^{10}A_s)\\)',
   'n_s':          '\\(n_s\\)',
   'tau_reio':     '\\(\\tau_{\\rm reio}\\)',
@@ -103,7 +105,17 @@ function linTicks(lo, hi){
   for (let v=start; v<=hi+1e-9; v+=step) t.push(Math.abs(v)<1e-9?0:+v.toFixed(4));
   return t;
 }
-const xPix = (l, X0, X1) => X0 + (l - XMIN)/(XMAX - XMIN) * (X1 - X0);
+// x-axis mode: 'linear' (default) or 'loglin' (log for l<=30, linear above — the geo
+// scheme pages). XAXIS is set per-instance at the start of render()/buildSVG().
+let XAXIS = 'linear';
+const XTICKS_LL = [2,5,10,20,30,500,1000,2000,3000,4000];
+const LL_L0 = 30, LL_TB = Math.log10(30), LL_MIN = 2, LL_MAX = 4030;
+const LL_A  = 2*(LL_TB - Math.log10(LL_MIN))/(LL_MAX - LL_L0);   // linear region ~2x the log region
+const _fwdLL = (l) => { l = Math.max(LL_MIN, l); return l <= LL_L0 ? Math.log10(l) : LL_TB + (l - LL_L0)*LL_A; };
+const LL_F0 = _fwdLL(LL_MIN), LL_F1 = _fwdLL(LL_MAX);
+const xPix = (l, X0, X1) => XAXIS === 'loglin'
+  ? X0 + (_fwdLL(l) - LL_F0)/(LL_F1 - LL_F0) * (X1 - X0)
+  : X0 + (l - XMIN)/(XMAX - XMIN) * (X1 - X0);
 function makeYPix(spec, Y0, Y1, range){
   const [a,b] = range;
   if (Y_LOG[spec]){
@@ -152,6 +164,10 @@ function initBackend(){
 
 // ============================================================================
 export function createCMBPlot(root, config){
+  // Select the emulator backend + its metadata BEFORE building cfg (cfg reads META).
+  // 's3' = deployed 6-input flat model (default); 'geo' = 4-input curvature model.
+  const CMBEmulator = config.model === 'geo' ? CMBEmulatorGeo : CMBEmulatorS3;
+  const META = config.model === 'geo' ? META_GEO : META_S3;
   const cfg = {
     modelUrls: config.modelUrls,
     dataUrl:   config.dataUrl || null,
@@ -159,6 +175,8 @@ export function createCMBPlot(root, config){
     sliders:   config.sliders || META.inputNames.slice(),
     ranges:    config.ranges || {},
     derive:    config.derive || null,
+    model:     config.model || 's3',
+    xaxis:     config.xaxis || 'linear',
     constrainThetaS: config.constrainThetaS || false,
     showMatterPie: config.showMatterPie || false,
     showPie:       config.showPie       !== false,
@@ -358,14 +376,14 @@ export function createCMBPlot(root, config){
     const tickLen = 6*SS, minorLen = 3.2*SS;
     g.fillStyle='#000'; g.strokeStyle='#000'; g.lineWidth=STYLE.frameWidth*SS;
 
-    for (let xv=XMIN; xv<=XMAX; xv+=X_MINOR){
+    if (XAXIS !== 'loglin') for (let xv=XMIN; xv<=XMAX; xv+=X_MINOR){
       if (XTICKS.includes(xv)) continue;
       const x=xPix(xv,X0,X1);
       g.beginPath(); g.moveTo(x,Y1); g.lineTo(x,Y1-minorLen); g.stroke();
       g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y0+minorLen); g.stroke();
     }
     g.textAlign='center'; g.font = `${STYLE.tickFont*SS}px ${FONT}`;
-    for (const xt of XTICKS){
+    for (const xt of (XAXIS==='loglin'?XTICKS_LL:XTICKS)){
       const x = xPix(xt, X0, X1);
       g.beginPath(); g.moveTo(x,Y1); g.lineTo(x,Y1-tickLen); g.stroke();
       g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y0+tickLen); g.stroke();
@@ -481,7 +499,8 @@ export function createCMBPlot(root, config){
     set('theta',  d['100*theta_s'], 4);
     set('yhe',    d.YHe, 3);
     set('zreio',  d.z_reio, 3);
-    set('h',      100*hubbleH(params), 4);   // H0 in km/s/Mpc (hubbleH returns dimensionless h)
+    if (META.derivedNames.includes('H0')) set('h', d['H0'], 4);  // geo model outputs H0 directly
+    else set('h', 100*hubbleH(params), 4);                       // S3: flat closure, h derived
   }
 
   // ---- pie renderer (ratio method, always sums to 100%) -------------------
@@ -629,6 +648,7 @@ export function createCMBPlot(root, config){
     }, 'image/png');
   }
   function buildSVG(W, H){
+    XAXIS = cfg.xaxis;
     const { padL, geoms } = layout(W, H);
     const P = [];
     P.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="serif">`);
@@ -643,12 +663,12 @@ export function createCMBPlot(root, config){
       const majorY = Y_LOG[spec] ? logTicks(rLo,rHi) : linTicks(rLo,rHi);
       const tickLen=6*SS, minorLen=3.2*SS;
       P.push(`<rect x="${X0}" y="${Y0}" width="${X1-X0}" height="${Y1-Y0}" fill="none" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
-      for (let xv=XMIN; xv<=XMAX; xv+=X_MINOR){
+      if (XAXIS !== 'loglin') for (let xv=XMIN; xv<=XMAX; xv+=X_MINOR){
         if (XTICKS.includes(xv)) continue; const x=xPix(xv,X0,X1);
         P.push(`<line x1="${x}" y1="${Y1}" x2="${x}" y2="${Y1-minorLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
         P.push(`<line x1="${x}" y1="${Y0}" x2="${x}" y2="${Y0+minorLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
       }
-      for (const xt of XTICKS){
+      for (const xt of (XAXIS==='loglin'?XTICKS_LL:XTICKS)){
         const x=xPix(xt,X0,X1);
         P.push(`<line x1="${x}" y1="${Y1}" x2="${x}" y2="${Y1-tickLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
         P.push(`<line x1="${x}" y1="${Y0}" x2="${x}" y2="${Y0+tickLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
@@ -741,6 +761,7 @@ export function createCMBPlot(root, config){
   }
   function render(){
     if (!emulator) return;
+    XAXIS = cfg.xaxis;
     if (cfg.derive) cfg.derive(params);       // refresh dependent params first
     if (cfg.constrainThetaS) solveThetaS();   // then solve Omega_Lambda to hold theta_s
     const { W, H } = resize();
