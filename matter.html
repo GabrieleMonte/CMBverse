@@ -63,7 +63,7 @@
         <p class="section-body">Next, we examine the effects of varying the relative proportions of pressure-supported and pressureless forms of matter while fixing the time of radiation and matter equality. This approach removes the effects of a varying total matter energy density and isolates the influence of the baryonic-dark matter balance on acoustic oscillations in the CMB. We vary the amount of baryonic matter in the universe while inversely adjusting the dark matter concentration so that the total matter concentration maintains its fiducial value. Firstly, whereas dark matter effectively only increases the depth of potential wells as a whole, the coupled baryonic matter also drags down the oscillations. This baryon loading results in an influence on the equilibrium position of the acoustic waves in the photon-baryon plasma. Thus, a greater baryonic matter density would enhance the amplitude of odd peaks (representing contraction) relative to the even peaks (representing rarefaction). Additionally, there is an observed damping effect with more baryonic matter. This stems from a choice to fix the position of the first peak to reflect its well-measured angular scale, which is our best indication of the flatness of the universe. The total dark energy must then increase with the baryonic matter energy density to maintain this flatness, which results in an ehnancement of the cosmic expansion rate (measured by Hubble's constant, \(H\)). If we fix the angular scale of the sound horizon at the surface of last scattering \(\theta_s\), then the angular scale at which diffusion damping occurs should increase by the proportionality:</p>
         <p style="text-align: center; margin: 20px 0;">\( \theta_d  \propto H^{1/2} \theta_s \)</p>
         <p class="section-body">Thus, an increase in baryonic matter density results in damping at larger angular scales, corresponding to smaller multipoles.</p>
-        <p class="section-body">Here the slider varies \(\omega_c\) while \(\omega_b\) adjusts to keep the total matter density \(\omega_m\) fixed. We hold the acoustic scale \(\theta_s\) fixed at its well-measured fiducial value rather than fixing \(\Omega_\Lambda\): the dark-energy density \(\Omega_\Lambda\) (and hence \(H_0\)) adjusts as \(\omega_b\) changes, so the acoustic peaks stay put while the diffusion-damping scale shifts (\(\Omega_\Lambda\) and \(H_0\) shown in the derived parameters).</p>
+        <p class="section-body">Here the slider varies \(\omega_b\) while \(\omega_c\) adjusts to keep the total matter density \(\omega_m\) fixed. We hold the acoustic scale \(\theta_s\) fixed at its well-measured fiducial value rather than fixing \(\Omega_\Lambda\): the dark-energy density \(\Omega_\Lambda\) (and hence \(H_0\)) adjusts as \(\omega_b\) changes, so the acoustic peaks stay put while the diffusion-damping scale shifts (\(\Omega_\Lambda\) and \(H_0\) shown in the derived parameters).</p>
 
 
         <div id="emuRootAeq"></div>
@@ -98,20 +98,22 @@
       modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
       sliders: ['omega_cdm'],
       ranges: { 'omega_cdm': [1e-5, 0.25] },   // full emulator range
+      showMatterPie: true,
     });
 
-    // Graph 2 — vary omega_cdm, omega_b compensates to keep omega_m fixed. Instead of
-    // pinning Omega_Lambda, we hold the acoustic scale theta_s fixed at its fiducial value
-    // (constrainThetaS): the widget solves Omega_Lambda per update so the emulator's
-    // 100*theta_s stays constant. Omega_Lambda & H0 therefore VARY (visible in derived
-    // params) while the peaks stay put; diffusion damping shifts. Slider range is bounded
-    // by omega_b in [0.015, 0.03]: omega_cdm in [0.11237, 0.12737].
+    // Graph 2 — the slider now varies omega_b directly; omega_cdm compensates to keep
+    // omega_m fixed. Instead of pinning Omega_Lambda, we hold the acoustic scale theta_s
+    // fixed at its fiducial value (constrainThetaS): the widget solves Omega_Lambda per
+    // update so the emulator's 100*theta_s stays constant. Omega_Lambda & H0 therefore VARY
+    // (visible in derived params) while the peaks stay put; diffusion damping shifts.
+    // omega_b spans its trained range [0.015, 0.03] (=> omega_cdm in [0.11237, 0.12737]).
     createCMBPlot(document.getElementById('emuRootAeq'), {
       modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
-      sliders: ['omega_cdm'],
-      ranges: { 'omega_cdm': [OMEGA_M_FID - 0.03, OMEGA_M_FID - 0.015] },
-      derive: (p) => { p['omega_b'] = OMEGA_M_FID - p['omega_cdm']; },
+      sliders: ['omega_b'],
+      ranges: { 'omega_b': [0.015, 0.03] },
+      derive: (p) => { p['omega_cdm'] = OMEGA_M_FID - p['omega_b']; },
       constrainThetaS: true,
+      showMatterPie: true,
     });
     </script>
 </body>

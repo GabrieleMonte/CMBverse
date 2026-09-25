@@ -131,6 +131,9 @@
 }
 .emu-pie .emu-pie-svg{ display:flex; justify-content:center; margin-bottom:-6px; }
 .emu-pie svg text{ font-family:serif; fill:#1a1a1a; }
+/* container for one or two stacked pies (energy density, plus matter density on
+   the matter page). Stacks vertically in the sidebar; goes side-by-side when narrow. */
+.emu-pies{ display:flex; flex-direction:column; }
 
 /* mobile toggle row (only shown on touch devices <=980px; kept below the pie) */
 .emu-mobile-toggles{ display:none; }
@@ -152,9 +155,12 @@
   }
   /* items that should span the full row inside the grid */
   .emu-sliders .emu-btn-row,
-  .emu-sliders .emu-pie,
+  .emu-sliders .emu-pies,
   .emu-sliders .emu-derived,
   .emu-sliders .emu-mobile-toggles{ grid-column:1 / -1; }
+  /* below the graph, sit the two pies side by side instead of stacked */
+  .emu-sliders .emu-pies{ flex-direction:row; gap:16px; align-items:flex-start; justify-content:center; }
+  .emu-sliders .emu-pies .emu-pie{ flex:1 1 0; min-width:0; }
 }
 
 /* ==== ACTUAL MOBILE ONLY (touch + no-hover, narrow) ====

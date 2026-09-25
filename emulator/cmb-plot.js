@@ -160,6 +160,7 @@ export function createCMBPlot(root, config){
     ranges:    config.ranges || {},
     derive:    config.derive || null,
     constrainThetaS: config.constrainThetaS || false,
+    showMatterPie: config.showMatterPie || false,
     showPie:       config.showPie       !== false,
     showDerived:   config.showDerived   !== false,
     showSave:      config.showSave       !== false,
@@ -174,7 +175,7 @@ export function createCMBPlot(root, config){
   if (cfg.derive) cfg.derive(params);
   const VIS = { lcdm:true, planck:true, act:true, spt:true };
   const numEls = {}, ylabelEls = {}, derEls = {};
-  let xlabelEl = null, pieSvgEl = null, legendEl = null;
+  let xlabelEl = null, pieSvgEl = null, matterPieSvgEl = null, legendEl = null;
 
   // ---- build DOM inside root ----------------------------------------------
   root.innerHTML = '';
@@ -282,10 +283,18 @@ export function createCMBPlot(root, config){
     }
 
     if (cfg.showPie){
+      const pies = document.createElement('div'); pies.className='emu-pies';
       const pie = document.createElement('div'); pie.className='emu-pie';
       pie.innerHTML = '<h4>Energy densities</h4><div class="emu-pie-svg"></div>';
-      slidersHost.append(pie);
+      pies.append(pie);
       pieSvgEl = pie.querySelector('.emu-pie-svg');
+      if (cfg.showMatterPie){
+        const mpie = document.createElement('div'); mpie.className='emu-pie';
+        mpie.innerHTML = '<h4>Matter density</h4><div class="emu-pie-svg"></div>';
+        pies.append(mpie);
+        matterPieSvgEl = mpie.querySelector('.emu-pie-svg');
+      }
+      slidersHost.append(pies);
     }
 
     if (cfg.showDerived){
@@ -475,19 +484,9 @@ export function createCMBPlot(root, config){
     set('h',      100*hubbleH(params), 4);   // H0 in km/s/Mpc (hubbleH returns dimensionless h)
   }
 
-  // ---- energy-density pie (ratio method, always sums to 100%) -------------
-  function updatePie(){
-    if (!pieSvgEl) return;
-    const fL = Math.max(0, Math.min(1, params['Omega_Lambda']));
-    const rem = 1 - fL;
-    const ob = params['omega_b'], oc = params['omega_cdm'];
-    const sum = ob + oc || 1;
-    const fb = rem * ob/sum, fc = rem * oc/sum;
-    const wedges = [
-      { sub:'Λ', color:PIE_COLOR.OmegaL, frac:fL },
-      { sub:'c',      color:PIE_COLOR.cdm,    frac:fc },
-      { sub:'b',      color:PIE_COLOR.b,      frac:fb },
-    ];
+  // ---- pie renderer (ratio method, always sums to 100%) -------------------
+  function renderPieSVG(el, wedges, symbol){
+    if (!el) return;
     const cx=130, cy=112, R=80;
     let start=-90, paths='', pcts='', names='';
     for (const w of wedges){
@@ -502,10 +501,34 @@ export function createCMBPlot(root, config){
         pcts += `<text x="${c.x}" y="${c.y}" font-size="17" text-anchor="middle" dominant-baseline="middle">${(w.frac*100).toFixed(1)}</text>`; }
       const o = polar(cx,cy,R*1.24,mid);
       const anchor = o.x < cx-3 ? 'end' : o.x > cx+3 ? 'start' : 'middle';
-      names += `<text x="${o.x}" y="${o.y}" font-size="17" text-anchor="${anchor}" dominant-baseline="middle">Ω<tspan dy="5" font-size="12">${w.sub}</tspan></text>`;
+      names += `<text x="${o.x}" y="${o.y}" font-size="17" text-anchor="${anchor}" dominant-baseline="middle">${symbol}<tspan dy="5" font-size="12">${w.sub}</tspan></text>`;
       start = end;
     }
-    pieSvgEl.innerHTML = `<svg viewBox="0 0 260 232" width="100%" style="max-width:260px" overflow="visible">${paths}${pcts}${names}</svg>`;
+    el.innerHTML = `<svg viewBox="0 0 260 232" width="100%" style="max-width:260px" overflow="visible">${paths}${pcts}${names}</svg>`;
+  }
+
+  function updatePie(){
+    // Energy densities: Lambda + the (cdm, baryon) split of the remaining (1 - Omega_Lambda).
+    if (pieSvgEl){
+      const fL = Math.max(0, Math.min(1, params['Omega_Lambda']));
+      const rem = 1 - fL;
+      const ob = params['omega_b'], oc = params['omega_cdm'];
+      const sum = ob + oc || 1;
+      renderPieSVG(pieSvgEl, [
+        { sub:'Λ', color:PIE_COLOR.OmegaL, frac:fL },
+        { sub:'c', color:PIE_COLOR.cdm,    frac:rem * oc/sum },
+        { sub:'b', color:PIE_COLOR.b,      frac:rem * ob/sum },
+      ], 'Ω');
+    }
+    // Matter density: baryon vs cold dark matter as fractions of omega_m = omega_b + omega_cdm.
+    if (matterPieSvgEl){
+      const ob = params['omega_b'], oc = params['omega_cdm'];
+      const sum = ob + oc || 1;
+      renderPieSVG(matterPieSvgEl, [
+        { sub:'c', color:PIE_COLOR.cdm, frac:oc/sum },
+        { sub:'b', color:PIE_COLOR.b,   frac:ob/sum },
+      ], 'ω');
+    }
   }
 
   // ---- layout + figure ----------------------------------------------------
