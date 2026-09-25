@@ -159,6 +159,7 @@ export function createCMBPlot(root, config){
     sliders:   config.sliders || META.inputNames.slice(),
     ranges:    config.ranges || {},
     derive:    config.derive || null,
+    constrainThetaS: config.constrainThetaS || false,
     showPie:       config.showPie       !== false,
     showDerived:   config.showDerived   !== false,
     showSave:      config.showSave       !== false,
@@ -688,6 +689,27 @@ export function createCMBPlot(root, config){
   }
   function saveSVG(){ const { W, H } = exportSize(); downloadBlob(new Blob([buildSVG(W,H)], { type:'image/svg+xml' }), `cmbverse_${tstamp()}.svg`); }
 
+  // ---- theta_s constraint (Graph 2 "fix the acoustic scale" scheme) --------
+  // Solve Omega_Lambda so the emulator's 100*theta_s matches its fiducial value,
+  // instead of pinning Omega_Lambda. Bisection on Omega_Lambda in [0, 0.9];
+  // theta_s increases monotonically with Omega_Lambda (more Lambda -> larger H0
+  // -> smaller D_A -> larger theta_s). Uses the model's OWN theta_s so the plotted
+  // (emulated) peaks genuinely stay put. ~20 predicts/update; real-time on WASM.
+  let _thetaTarget = null;
+  function solveThetaS(){
+    if (!emulator) return;
+    if (_thetaTarget == null)
+      _thetaTarget = emulator.predict(Object.assign({}, META.defaults)).derived['100*theta_s'];
+    let lo = 0.0, hi = 0.9;
+    for (let i = 0; i < 20; i++){
+      const mid = 0.5 * (lo + hi);
+      params['Omega_Lambda'] = mid;
+      if (emulator.predict(params).derived['100*theta_s'] < _thetaTarget) lo = mid;
+      else hi = mid;
+    }
+    params['Omega_Lambda'] = 0.5 * (lo + hi);
+  }
+
   // ---- rAF-gated render ---------------------------------------------------
   let _renderPending = false;
   function scheduleRender(){
@@ -697,6 +719,7 @@ export function createCMBPlot(root, config){
   function render(){
     if (!emulator) return;
     if (cfg.derive) cfg.derive(params);       // refresh dependent params first
+    if (cfg.constrainThetaS) solveThetaS();   // then solve Omega_Lambda to hold theta_s
     const { W, H } = resize();
     ctx.clearRect(0,0,W,H);
     SS = Math.max(0.8, Math.min(1.6, W/600));
