@@ -392,8 +392,9 @@ window.onload = function() {
     // Check if the current page is 'neutrino.html'
     if (currentPage.endsWith('neutrinos.html') || currentPage.endsWith('neutrinos')) {
         // Run these functions only on the neutrino.html page
-        initialize_Nnu1_slider();
-        initialize_Nnu2_slider();
+        // Graphs 1 and 2 are now live emulator widgets; only initialise image sliders that still exist.
+        if (document.getElementById('mySliderNnu1')) initialize_Nnu1_slider();
+        if (document.getElementById('mySliderNnu2')) initialize_Nnu2_slider();
     }
 
     // Check if the current page is 'photon_depth.html'

@@ -18,6 +18,7 @@
     <title>Neutrinos</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
+    <link rel="stylesheet" href="emulator/cmb-plot.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
@@ -63,15 +64,7 @@
          The most significant effect of cosmic neutrinos arises from their contribution to the background energy density, which influences the Hubble expansion rate. If we fix the sound horizon at the surface of last scattering \(\theta_s\), then the angular scale at which diffusion damping occurs increases according to:</p>
         <p style="text-align: center; margin: 20px 0;">\( \theta_d  \propto H^{1/2} \theta_s \)</p>
         <p class="section-body">Thus, a larger value of (\(N_{\rm eff}\)) corresponds to a larger Hubble expansion rate and thus more damping at larger angular scales, corresponding to smaller multipoles. We show this effect explictly in the plot below, where we hold fixed both \(\theta_s\), \(a_{eq}\) and \(\omega_b\).</p>
-    <div class="Cosmo-container">
-        <img id="Nnu1image" src="class_figures/Neutrino_Nnu1_images/Dl_damping_Neff_v44.png">
-        <div class="slider-container">
-            <input type="range" id="mySliderNnu1" min="1" max="100" value="44" oninput="updateValueNnu1(this.value); updateSliderBackground(this.value, 'mySliderNnu1');">
-            <div class="slider-value">
-                <span>\(N_{\rm eff} = \)</span><span id="sliderValueNnu1">3.05</span>
-            </div>
-        </div>
-    </div>
+    <div id="emuRootNnu1"></div>
 
     <br>
     <p class="section-body">
@@ -84,15 +77,7 @@ to the baryons prior to recombination) and then gravitationally pull them slight
         \mathcal{K}^{XY}_\ell = \frac{\ell (\ell+1)}{2\pi} C^{XY}_\ell \exp\{a\,(\theta_d \ell)^\kappa\}
         \]
         <p class="section-body">where  \(\theta_d\approx 1.3\times 10^{-3}\) is the fiducial damping scale and \(a\approx 0.68\) and \(\kappa\approx 1.3\) are the fitting parameters to effectively remove the exponential diffusion damping.</p>
-    <div class="Cosmo-container">
-        <img id="Nnu2image" src="class_figures/Neutrino_Nnu2_images/kTT_phase_shift_Neff_v51_lens.png">
-        <div class="slider-container">
-            <input type="range" id="mySliderNnu2" min="1" max="100" value="51" oninput="updateValueNnu2(this.value); updateSliderBackground(this.value, 'mySliderNnu2');">
-            <div class="slider-value">
-                <span>\(N_{\rm eff} = \)</span><span id="sliderValueNnu2">3.05</span>
-            </div>
-        </div>
-    </div>
+    <div id="emuRootNnu2"></div>
 
         <h3 class="section-title mt-5">Neutrino Masses (\(M_{\nu}\))</h3>
     <br>
@@ -117,5 +102,49 @@ to the baryons prior to recombination) and then gravitationally pull them slight
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
+<script type="module">
+import { createCMBPlot } from './emulator/cmb-plot.js';
+import { loadNeutrinoLines } from './emulator/cmb-emulator-neutrino.js';
+const MODELS = { tt:'./emulator/sep_tt_neutrino/model.json', te:'./emulator/sep_te_neutrino/model.json', ee:'./emulator/sep_ee_neutrino/model.json' };
+const DATA = './emulator/data/cmb_data.json';
+const LCDM = './emulator/data/lcdm.json';
+// YHe(N_eff) for the two graphs: CLASS-computed tables (see emulator/data/README.md).
+const LINES = await loadNeutrinoLines('./emulator/data/neutrino_lines.json');
+
+// Graph 1 - damping from N_eff. theta_s, a_eq (omega_cdm inside the emulator) and omega_b fixed;
+// helium follows the standard-BBN prediction (PRIMAT 2025). Linear l-axis, data overlays.
+createCMBPlot(document.getElementById('emuRootNnu1'), {
+  modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
+  model: 'neutrino', xaxis: 'linear', showPie: false,
+  sliders: ['N_eff'],
+  derive: (p) => { p['YHe'] = LINES.g1(p['N_eff']); },
+});
+
+// Graph 2 - neutrino phase shift. As Graph 1, but helium is the value that holds the damping angle
+// theta_d at its fiducial value, and the spectra are undamped and scaled to the 4th peak:
+//   K_l = D_l * exp(a (theta_d l)^kappa),  normalized so its 4th peak (7th extremum in l 100-2500)
+//   matches the fiducial's. a, kappa, theta_d as in the original figure (pages_neutrino notebook).
+const THD = 0.0016144385060630974, A_UND = 0.68, KAPPA = { tt:1.3, ee:1.17, te:0.91 };
+const K_TITLE = (x) => `\\(\\mathcal{K}_\\ell^{\\mathrm{${x}}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)`;
+createCMBPlot(document.getElementById('emuRootNnu2'), {
+  modelUrls: MODELS,
+  model: 'neutrino', xaxis: 'linear', showPie: false, showDataToggles: false,
+  sliders: ['N_eff'],
+  derive: (p) => { p['YHe'] = LINES.g2(p['N_eff']); },
+  display: {
+    transform: (spec, ell, v) => v.map((d, i) => d * Math.exp(A_UND * Math.pow(ell[i] * THD, KAPPA[spec]))),
+    normalize: { extremum: 6, lmin: 100, lmax: 2500 },
+    reference: 'model',
+    yLog:   { tt:false, ee:false, te:false },
+    ySym:   { te:false },
+    yRange: { tt:[0, 8], ee:[0, 0.2], te:[-0.3, 0.2] },
+    yTitle: { tt:K_TITLE('TT'), ee:K_TITLE('EE'), te:K_TITLE('TE') },
+    letter: '\u{1D4A6}',
+    xRange: [0, 2500], xTicks: [0, 500, 1000, 1500, 2000, 2500], xMinor: 100,
+  },
+});
+</script>
 </body>
 </html>

@@ -13,7 +13,11 @@ moves parameter sliders, overlaid on binned Planck / ACT / SPT data.
 |---|---|
 | `index.html` | Home page — the full **six-parameter** live emulator explorer. |
 | `matter.html` | "Baryons and Dark Matter" page — **two live emulator graphs** driven by the `omega_cdm` slider (see the physics/design docs in `/Users/chase/cosmology/pages_matter`). |
-| `dark_energy.html`, `curvature.html`, `neutrinos.html`, `photon_depth.html`, `primordial_power_spectrum.html`, `tensor_scalar_ratio.html`, `ODSA.html`, `NHF.html` | Other parameter pages — **still image-based** (`imageSwitch.js` flips through precomputed PNGs in `class_figures/`). Not yet ported to the live emulator. |
+| `primordial_power_spectrum.html` | Live S3 emulator graphs (`ln10^{10}A_s`, `n_s`). |
+| `dark_energy.html`, `photon_depth.html`, `curvature.html`, `ODSA.html` | Live **geo** emulator graphs (`model:'geo'`, log-linear ℓ-axis). |
+| `neutrinos.html` | Graphs 1 & 2 live on the **neutrino** emulator (`model:'neutrino'`): Graph 1 varies N_eff with BBN helium; Graph 2 holds the damping angle fixed and shows the undamped, 4th-peak-normalized spectra. The **neutrino-mass** graph is still image-based (`imageSwitch.js`). |
+| `NHF.html` | Live **neutrino** emulator with two sliders (N_eff, YHe) over the model's full plane. |
+| `tensor_scalar_ratio.html` | Still image-based (`imageSwitch.js` flips precomputed PNGs in `class_figures/`). |
 | `about.html`, `credits.html` | Static info pages. |
 | `emulator/` | The emulator model, the shared plot widget, and the data overlays (below). |
 | `class_figures/` | Precomputed CLASS figure image sets used by the image-based pages. |
@@ -48,6 +52,32 @@ Two pages (`index.html`, `matter.html`) share one engine:
 - **Derived `H₀`** — `H₀` is **not** a model output. `cmb-plot.js` computes it from the flat
   closure `h² = (ω_b + ω_cdm + ω_rad+ν) / (1 − Ω_Λ − Ω_k)` (the small radiation+neutrino term is
   calibrated so the Planck fiducial returns `h = 0.6736`) and displays `H₀ = 100·h` in km/s/Mpc.
+
+---
+
+## Neutrino pages (`neutrinos.html` Graphs 1–2, `NHF.html`)
+
+- **Model** — `emulator/cmb-emulator-neutrino.js` loads `sep_{tt,te,ee}_neutrino` (TF.js, converted from
+  `~/cosmology/connect_public/trained_models`; verified against Python to ≤2×10⁻⁶). Sliders see
+  **`N_eff`, `YHe`**; the network input is `[N_ur, YHe, omega_cdm]` with `omega_cdm = f(N_eff)` computed
+  in the module (holds matter–radiation equality fixed; the model was trained only on that line).
+  `100*theta_s` is fixed at training, so **H₀ is a model output**. ℓ-grid = the S3 grid; linear axis.
+  Defaults = the shared fiducial (N_eff 3.044, YHe 0.245640). The readout shows the *input* YHe.
+- **Page lines** — `emulator/data/neutrino_lines.json` (see `emulator/data/README.md`), loaded with
+  `loadNeutrinoLines()` and applied through each widget's `derive` hook: Graph 1 `YHe = g1(N_eff)`
+  (standard BBN), Graph 2 `YHe = g2(N_eff)` (damping angle fixed). Both sliders span N_eff 0.1–6.9.
+- **Graph 2 display** uses `cmb-plot.js`'s `display` option (below): undamping
+  `K_ℓ = D_ℓ·exp(0.68 (θ_d ℓ)^κ)` with κ = 1.3 / 1.17 / 0.91 (TT/EE/TE), θ_d = 1.6144×10⁻³, each spectrum
+  scaled so its 4th peak (7th extremum in ℓ 100–2500) matches the fiducial's; reference curve from the
+  emulator at the fiducial; linear y, ℓ 0–2500, no data overlays.
+- Physics/design and every decision: `/Users/chase/cosmology/pages_model_neutrino/README.md` (§7, D7–D10).
+  Proposed prose fixes for both pages: `/Users/chase/cosmology/pages_model_neutrino/PAGE_TEXT_CHANGES.md`.
+
+### `createCMBPlot` options added for these pages
+- `model: 's3' | 'geo' | 'neutrino'` — backend lookup (`BACKENDS` in `cmb-plot.js`).
+- `display: { transform, normalize:{extremum,lmin,lmax}, reference:'model', yLog, yRange, ySym, yTitle,
+  letter, xRange, xTicks, xMinor }` — per-widget plot view; every field defaults to the standard D_ℓ figure.
+- A widget with no `dataUrl` hides the data legend rows and draws no overlays.
 
 ---
 

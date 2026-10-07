@@ -9,6 +9,8 @@
  *
  * config = {
  *   modelUrls : {tt, te, ee},           // required
+ *   model     : 's3' | 'geo' | 'neutrino',  // emulator backend (default 's3'; see BACKENDS)
+ *   xaxis     : 'linear' | 'loglin',    // multipole axis (default 'linear')
  *   dataUrl, lcdmUrl,                   // optional overlays
  *   sliders   : ['omega_cdm', ...],     // which inputs get sliders (default: all six)
  *   ranges    : { omega_cdm:[lo,hi] },  // per-slider range overrides
@@ -19,6 +21,14 @@
  * ============================================================ */
 import CMBEmulatorS3, { META as META_S3 } from './cmb-emulator-separate.js';
 import CMBEmulatorGeo, { META as META_GEO } from './cmb-emulator-geo.js';
+import CMBEmulatorNeutrino, { META as META_NEU } from './cmb-emulator-neutrino.js';
+
+// Emulator backends, selected per widget by config.model (default 's3').
+const BACKENDS = {
+  s3:       { Emulator: CMBEmulatorS3,       META: META_S3  },   // deployed 6-input flat model
+  geo:      { Emulator: CMBEmulatorGeo,      META: META_GEO },   // 4-input curvature model (scheme pages)
+  neutrino: { Emulator: CMBEmulatorNeutrino, META: META_NEU },   // (N_eff, YHe) plane, theta_s fixed (neutrino pages)
+};
 
 // ---- parameter display config (MathJax labels + value formatting) ----------
 const LABELS = {
@@ -29,11 +39,14 @@ const LABELS = {
   'ln10^{10}A_s': '\\(\\ln(10^{10}A_s)\\)',
   'n_s':          '\\(n_s\\)',
   'tau_reio':     '\\(\\tau_{\\rm reio}\\)',
+  'N_eff':        '\\(N_{\\rm eff}\\)',
+  'YHe':          '\\(Y_{p}\\)',
 };
 const fmt = (name, v) =>
   name === 'omega_b'      ? v.toFixed(4) :
   name === 'omega_cdm'    ? v.toFixed(3) :
   name === 'tau_reio'     ? v.toFixed(3) :
+  name === 'YHe'          ? v.toFixed(3) :
   name.includes('A_s')    ? v.toFixed(2) :
                             v.toFixed(2);
 
@@ -57,6 +70,16 @@ const Y_TITLE = {
   te:'\\(\\mathcal{D}_\\ell^{\\mathrm{TE}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
 };
 const TITLE_SPEC = { tt:'TT', ee:'EE', te:'TE' };
+const LETTER_D = '\u{1D49F}';   // script D, used in exported axis titles
+
+// Per-instance plot view: y-axis log/linear, ranges and titles, x range/ticks, title letter.
+// Defaults are the standard D_l figure above; config.display overrides per widget. Like XAXIS,
+// VIEW is a module global set at the start of every draw (applyView()), so instances never clash.
+const VIEW_DEFAULT = {
+  yLog: Y_LOG, yRange: Y_RANGE, ySym: { tt:false, ee:false, te:true },
+  xmin: XMIN, xmax: XMAX, xticks: XTICKS, xminor: X_MINOR, letter: LETTER_D, yTitle: Y_TITLE,
+};
+let VIEW = VIEW_DEFAULT;
 const UNIT_STR = ' [10³ μK²]';
 
 // visual weights (calibrated to the python figure), scaled by SS at render
@@ -81,15 +104,20 @@ function hubbleH(p){
 
 // ---- pure helpers ----------------------------------------------------------
 function dynRange(spec, curveVals){
-  const [dLo, dHi] = Y_RANGE[spec];
-  if (Y_LOG[spec]){
+  const [dLo, dHi] = VIEW.yRange[spec];
+  if (VIEW.yLog[spec]){
     let mx=-Infinity, mn=Infinity;
     for (const v of curveVals){ if (v>0 && v>mx) mx=v; if (v>0 && v<mn) mn=v; }
     return [Math.min(dLo, mn/1.15), Math.max(dHi, mx*1.15)];
-  } else {
+  } else if (VIEW.ySym[spec]){
     let a=0; for (const v of curveVals) a=Math.max(a, Math.abs(v));
     const hi = Math.max(dHi, a*1.10);
     return [-hi, hi];
+  } else {                       // linear, non-symmetric: expand the default range to fit the curve
+    let mx=-Infinity, mn=Infinity;
+    for (const v of curveVals){ if (v>mx) mx=v; if (v<mn) mn=v; }
+    const pad = 0.05*(mx - mn);
+    return [Math.min(dLo, mn - pad), Math.max(dHi, mx + pad)];
   }
 }
 function logTicks(lo, hi){
@@ -97,7 +125,7 @@ function logTicks(lo, hi){
   return t;
 }
 function linStep(lo, hi){
-  const span = hi - lo, steps = [0.05,0.1,0.2,0.5,1,2];
+  const span = hi - lo, steps = [0.01,0.02,0.05,0.1,0.2,0.5,1,2];
   return steps.find(s => span/s <= 8) || 2;
 }
 function linTicks(lo, hi){
@@ -115,17 +143,17 @@ const _fwdLL = (l) => { l = Math.max(LL_MIN, l); return l <= LL_L0 ? Math.log10(
 const LL_F0 = _fwdLL(LL_MIN), LL_F1 = _fwdLL(LL_MAX);
 const xPix = (l, X0, X1) => XAXIS === 'loglin'
   ? X0 + (_fwdLL(l) - LL_F0)/(LL_F1 - LL_F0) * (X1 - X0)
-  : X0 + (l - XMIN)/(XMAX - XMIN) * (X1 - X0);
+  : X0 + (l - VIEW.xmin)/(VIEW.xmax - VIEW.xmin) * (X1 - X0);
 function makeYPix(spec, Y0, Y1, range){
   const [a,b] = range;
-  if (Y_LOG[spec]){
+  if (VIEW.yLog[spec]){
     const la=Math.log10(a), lb=Math.log10(b);
     return (v) => { const vv = Math.max(a, Math.min(b, Math.abs(v))); return Y1 - (Math.log10(vv)-la)/(lb-la)*(Y1-Y0); };
   }
   return (v) => { const vv = Math.max(a, Math.min(b, v)); return Y1 - (vv-a)/(b-a)*(Y1-Y0); };
 }
 function fmtYTick(spec, v){
-  if (!Y_LOG[spec]){ if (Math.abs(v) < 1e-9) return '0'; return (+v.toFixed(3)).toString(); }
+  if (!VIEW.yLog[spec]){ if (Math.abs(v) < 1e-9) return '0'; return (+v.toFixed(3)).toString(); }
   const e = Math.round(Math.log10(v));
   return e===0 ? '1' : `10${sup(e)}`;
 }
@@ -165,9 +193,9 @@ function initBackend(){
 // ============================================================================
 export function createCMBPlot(root, config){
   // Select the emulator backend + its metadata BEFORE building cfg (cfg reads META).
-  // 's3' = deployed 6-input flat model (default); 'geo' = 4-input curvature model.
-  const CMBEmulator = config.model === 'geo' ? CMBEmulatorGeo : CMBEmulatorS3;
-  const META = config.model === 'geo' ? META_GEO : META_S3;
+  const backend = BACKENDS[config.model || 's3'];
+  if (!backend) throw new Error(`createCMBPlot: unknown model '${config.model}'`);
+  const CMBEmulator = backend.Emulator, META = backend.META;
   const cfg = {
     modelUrls: config.modelUrls,
     dataUrl:   config.dataUrl || null,
@@ -192,6 +220,73 @@ export function createCMBPlot(root, config){
   const params = Object.assign({}, META.defaults, config.fixed || {});
   if (cfg.derive) cfg.derive(params);
   const VIS = { lcdm:true, planck:true, act:true, spt:true };
+  if (!cfg.dataUrl){ VIS.planck = VIS.act = VIS.spt = false; }   // no data overlays on this widget
+
+  // ---- per-instance view (config.display) ----------------------------------
+  // display = {
+  //   transform : (spec, ell[], value[]) => value[],   // applied to every displayed curve (model + reference)
+  //   normalize : { extremum:n, lmin, lmax },           // scale each curve so its n-th extremum (0-based,
+  //                                                     //  in [lmin,lmax]) matches the reference's
+  //   reference : 'model',                              // reference curve = this emulator at the defaults
+  //                                                     //  (+ fixed, derive), not lcdmUrl
+  //   yLog, yRange, ySym, yTitle : per-spectrum overrides; letter : export title symbol
+  //   xRange:[lo,hi], xTicks:[...], xMinor
+  // }
+  const disp = config.display || {};
+  const view = {
+    yLog:   Object.assign({}, VIEW_DEFAULT.yLog,   disp.yLog),
+    yRange: Object.assign({}, VIEW_DEFAULT.yRange, disp.yRange),
+    ySym:   Object.assign({}, VIEW_DEFAULT.ySym,   disp.ySym),
+    yTitle: Object.assign({}, VIEW_DEFAULT.yTitle, disp.yTitle),
+    xmin:   disp.xRange ? disp.xRange[0] : VIEW_DEFAULT.xmin,
+    xmax:   disp.xRange ? disp.xRange[1] : VIEW_DEFAULT.xmax,
+    xticks: disp.xTicks || VIEW_DEFAULT.xticks,
+    xminor: disp.xMinor || VIEW_DEFAULT.xminor,
+    letter: disp.letter || VIEW_DEFAULT.letter,
+  };
+  function applyView(){ XAXIS = cfg.xaxis; VIEW = view; }
+  const REF_EXT = {};   // reference curve's normalization extremum, per spectrum
+
+  // n-th local extremum of a sampled curve within [lmin, lmax] (extrema closer than 15 in l are merged).
+  function extremumValue(c, n, lmin, lmax){
+    let count = 0, lastL = -Infinity;
+    for (let i = 1; i < c.ell.length - 1; i++){
+      const l = c.ell[i]; if (l < lmin || l > lmax) continue;
+      const d1 = c.value[i] - c.value[i-1], d2 = c.value[i+1] - c.value[i];
+      if (d1 * d2 < 0){
+        if (l - lastL < 15) continue;
+        if (count === n) return c.value[i];
+        count++; lastL = l;
+      }
+    }
+    return null;
+  }
+  // The curve actually drawn for one spectrum: D_l in 10^3 uK^2 on [2, xmax], then the optional
+  // display transform and normalization.
+  function displayCurve(result, spec, { normalize = true } = {}){
+    const c = emulator.curveFrom(result, spec, { quantity:'Dl', lmin:2, lmax:Math.min(4030, view.xmax), uK2:true, scale:1e-3 });
+    if (disp.transform) c.value = disp.transform(spec, c.ell, c.value);
+    const nm = disp.normalize;
+    if (normalize && nm && REF_EXT[spec] != null){
+      const e = extremumValue(c, nm.extremum, nm.lmin, nm.lmax);
+      if (e) { const k = REF_EXT[spec] / e; c.value = c.value.map(v => v * k); }
+    }
+    return c;
+  }
+  // Reference drawn as the black 'LCDM' curve when display.reference === 'model'.
+  function buildModelReference(){
+    applyView();
+    const fid = Object.assign({}, META.defaults, config.fixed || {});
+    if (cfg.derive) cfg.derive(fid);
+    const r = emulator.predict(fid);
+    const ref = {};
+    for (const spec of SPECS){
+      const c = displayCurve(r, spec, { normalize:false });
+      ref.ell = c.ell; ref[spec] = c.value;
+      if (disp.normalize) REF_EXT[spec] = extremumValue(c, disp.normalize.extremum, disp.normalize.lmin, disp.normalize.lmax);
+    }
+    LCDM = ref;
+  }
   const numEls = {}, ylabelEls = {}, derEls = {};
   let xlabelEl = null, pieSvgEl = null, matterPieSvgEl = null, legendEl = null;
 
@@ -336,7 +431,7 @@ export function createCMBPlot(root, config){
   function buildOverlays(){
     for (const spec of SPECS){
       const d = document.createElement('div'); d.className='emu-ylabel';
-      const s = document.createElement('span'); s.innerHTML = Y_TITLE[spec];
+      const s = document.createElement('span'); s.innerHTML = view.yTitle[spec];
       d.append(s); axisOverlay.append(d); ylabelEls[spec] = d;
     }
     xlabelEl = document.createElement('div'); xlabelEl.className='emu-xlabel';
@@ -368,7 +463,7 @@ export function createCMBPlot(root, config){
     const { X0, X1, Y0, Y1 } = geom;
     const yPix = makeYPix(spec, Y0, Y1, range);
     const [rLo, rHi] = range;
-    const majorY = Y_LOG[spec] ? logTicks(rLo, rHi) : linTicks(rLo, rHi);
+    const majorY = VIEW.yLog[spec] ? logTicks(rLo, rHi) : linTicks(rLo, rHi);
 
     g.strokeStyle = '#000'; g.lineWidth = STYLE.frameWidth*SS;
     g.strokeRect(X0, Y0, X1-X0, Y1-Y0);
@@ -376,14 +471,14 @@ export function createCMBPlot(root, config){
     const tickLen = 6*SS, minorLen = 3.2*SS;
     g.fillStyle='#000'; g.strokeStyle='#000'; g.lineWidth=STYLE.frameWidth*SS;
 
-    if (XAXIS !== 'loglin') for (let xv=XMIN; xv<=XMAX; xv+=X_MINOR){
-      if (XTICKS.includes(xv)) continue;
+    if (XAXIS !== 'loglin') for (let xv=VIEW.xmin; xv<=VIEW.xmax; xv+=VIEW.xminor){
+      if (VIEW.xticks.includes(xv)) continue;
       const x=xPix(xv,X0,X1);
       g.beginPath(); g.moveTo(x,Y1); g.lineTo(x,Y1-minorLen); g.stroke();
       g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y0+minorLen); g.stroke();
     }
     g.textAlign='center'; g.font = `${STYLE.tickFont*SS}px ${FONT}`;
-    for (const xt of (XAXIS==='loglin'?XTICKS_LL:XTICKS)){
+    for (const xt of (XAXIS==='loglin'?XTICKS_LL:VIEW.xticks)){
       const x = xPix(xt, X0, X1);
       g.beginPath(); g.moveTo(x,Y1); g.lineTo(x,Y1-tickLen); g.stroke();
       g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y0+tickLen); g.stroke();
@@ -399,7 +494,7 @@ export function createCMBPlot(root, config){
     }
 
     g.strokeStyle='#000'; g.lineWidth=STYLE.frameWidth*SS;
-    if (Y_LOG[spec]){
+    if (VIEW.yLog[spec]){
       for (let e=Math.floor(Math.log10(rLo)); e<=Math.ceil(Math.log10(rHi)); e++){
         for (const s of [0.3,0.6,0.9]){
           const v=s*Math.pow(10,e+1); if (v<rLo||v>rHi) continue;
@@ -421,7 +516,7 @@ export function createCMBPlot(root, config){
       g.strokeStyle=COLOR_LCDM; g.lineWidth=STYLE.lcdmWidth*SS; g.globalAlpha=0.9;
       g.beginPath(); let started=false;
       for (let i=0;i<LCDM.ell.length;i++){
-        const l=LCDM.ell[i]; if (l<XMIN||l>XMAX) continue;
+        const l=LCDM.ell[i]; if (l<VIEW.xmin||l>VIEW.xmax) continue;
         const x=xPix(l,X0,X1), y=yPix(LCDM[spec][i]);
         started ? g.lineTo(x,y) : (g.moveTo(x,y), started=true);
       }
@@ -433,7 +528,7 @@ export function createCMBPlot(root, config){
     for (let i=0;i<curve.ell.length;i++){ const x=xPix(curve.ell[i],X0,X1), y=yPix(curve.value[i]); i? g.lineTo(x,y) : g.moveTo(x,y); }
     g.stroke(); g.globalAlpha=1;
 
-    const logFloor = Y_LOG[spec] ? rLo : null;
+    const logFloor = VIEW.yLog[spec] ? rLo : null;
     if (OBS && OBS[spec]){
       if (VIS.planck) drawData(g, OBS[spec].planck, COLOR.planck, yPix, X0, X1, true,  logFloor);
       if (VIS.act)    drawData(g, OBS[spec].act,    COLOR.act,    yPix, X0, X1, false, logFloor);
@@ -447,7 +542,7 @@ export function createCMBPlot(root, config){
     g.strokeStyle=color; g.fillStyle=color; g.globalAlpha=0.85; g.lineWidth=STYLE.errWidth*SS;
     const R = STYLE.markerR*SS;
     for (const row of arr){
-      const l=row[0]; if (l<XMIN||l>XMAX) continue;
+      const l=row[0]; if (l<VIEW.xmin||l>VIEW.xmax) continue;
       const x=xPix(l,X0,X1); const v=row[1]; const y=yPix(v);
       const eLo = row[2]; const eHi = asym ? row[3] : row[2];
       const vLo = logFloor!==null && (v-eLo) <= logFloor ? logFloor : (v-eLo);
@@ -468,7 +563,7 @@ export function createCMBPlot(root, config){
       ['act',   'ACT DR6',        COLOR.act,    'dot'],
       ['spt',   'SPT-3g D1',      COLOR.spt,    'dot'],
     ];
-    for (const [key,label,color,mark] of rows){
+    for (const [key,label,color,mark] of rows.filter(r => r[0] === 'lcdm' || cfg.dataUrl)){
       const row = document.createElement('label'); row.className='emu-leg-row';
       const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=VIS[key]; cb.dataset.key=key;
       cb.addEventListener('change', () => {
@@ -565,7 +660,7 @@ export function createCMBPlot(root, config){
     const r = result || emulator.predict(params);
     const { geoms } = layout(W, H);
     geoms.forEach((gm,i) => {
-      const c = emulator.curveFrom(r, gm.spec, { quantity:'Dl', lmin:2, lmax:4030, uK2:true, scale:1e-3 });
+      const c = displayCurve(r, gm.spec);
       const range = dynRange(gm.spec, c.value);
       drawPanel(g, gm.spec, gm, i===SPECS.length-1, range, c);
     });
@@ -577,27 +672,27 @@ export function createCMBPlot(root, config){
   function drawTitleParts(g, spec, base){
     const sF = base*0.70, subY = base*0.26, supY = -base*0.36, kern = base*0.15;
     g.textAlign='left'; g.textBaseline='alphabetic';
-    g.font = `italic ${base}px ${FONT}`; const wD = g.measureText('\u{1D49F}').width;
+    g.font = `italic ${base}px ${FONT}`; const wD = g.measureText(VIEW.letter).width;
     g.font = `italic ${sF}px ${FONT}`;   const wL = g.measureText('ℓ').width;
     g.font = `${sF}px ${FONT}`;          const wX = g.measureText(TITLE_SPEC[spec]).width;
     g.font = `${base}px ${FONT}`;        const wU = g.measureText(UNIT_STR).width;
     const scriptW = Math.max(wL, wX), total = wD + kern + scriptW + wU;
     let x = -total/2;
-    g.font = `italic ${base}px ${FONT}`; g.fillText('\u{1D49F}', x, 0); x += wD + kern;
+    g.font = `italic ${base}px ${FONT}`; g.fillText(VIEW.letter, x, 0); x += wD + kern;
     g.font = `italic ${sF}px ${FONT}`;   g.fillText('ℓ', x, subY);
     g.font = `${sF}px ${FONT}`;          g.fillText(TITLE_SPEC[spec], x, supY); x += scriptW;
     g.font = `${base}px ${FONT}`;        g.fillText(UNIT_STR, x, 0);
   }
   function svgTitle(spec, cx, cy, base){
     const sF = base*0.70, subY = base*0.26, supY = -base*0.36, kern = base*0.15;
-    ctx.font = `italic ${base}px ${FONT}`;  const wD = ctx.measureText('\u{1D49F}').width;
+    ctx.font = `italic ${base}px ${FONT}`;  const wD = ctx.measureText(VIEW.letter).width;
     ctx.font = `italic ${sF}px ${FONT}`;    const wL = ctx.measureText('ℓ').width;
     ctx.font = `${sF}px ${FONT}`;           const wX = ctx.measureText(TITLE_SPEC[spec]).width;
     ctx.font = `${base}px ${FONT}`;         const wU = ctx.measureText(UNIT_STR).width;
     const scriptW = Math.max(wL, wX), total = wD + kern + scriptW + wU;
     let x = -total/2;
     let s = `<g transform="translate(${cx.toFixed(2)} ${cy.toFixed(2)}) rotate(-90)">`;
-    s += `<text x="${x.toFixed(2)}" y="0" font-size="${base.toFixed(2)}" font-style="italic">\u{1D49F}</text>`; x += wD + kern;
+    s += `<text x="${x.toFixed(2)}" y="0" font-size="${base.toFixed(2)}" font-style="italic">${VIEW.letter}</text>`; x += wD + kern;
     s += `<text x="${x.toFixed(2)}" y="${subY.toFixed(2)}" font-size="${sF.toFixed(2)}" font-style="italic">ℓ</text>`;
     s += `<text x="${x.toFixed(2)}" y="${supY.toFixed(2)}" font-size="${sF.toFixed(2)}">${TITLE_SPEC[spec]}</text>`; x += scriptW;
     s += `<text x="${x.toFixed(2)}" y="0" font-size="${base.toFixed(2)}">${svgEsc(UNIT_STR)}</text>`;
@@ -629,6 +724,7 @@ export function createCMBPlot(root, config){
     g.restore();
   }
   function drawExport(g, W, H){
+    applyView();
     g.fillStyle = EXPORT_BG; g.fillRect(0,0,W,H);
     const { padL, geoms } = layout(W, H);
     drawFigure(g, W, H);
@@ -648,7 +744,8 @@ export function createCMBPlot(root, config){
     }, 'image/png');
   }
   function buildSVG(W, H){
-    XAXIS = cfg.xaxis;
+    applyView();
+    const svgResult = emulator.predict(params);
     const { padL, geoms } = layout(W, H);
     const P = [];
     P.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="serif">`);
@@ -657,18 +754,18 @@ export function createCMBPlot(root, config){
     geoms.forEach((gm,i) => {
       const { X0, X1, Y0, Y1, spec } = gm;
       const isBottom = i===geoms.length-1;
-      const c = emulator.curve(params, spec, { quantity:'Dl', lmin:2, lmax:4030, uK2:true, scale:1e-3 });
+      const c = displayCurve(svgResult, spec);
       const range = dynRange(spec, c.value); const [rLo,rHi] = range;
       const yPix = makeYPix(spec, Y0, Y1, range);
-      const majorY = Y_LOG[spec] ? logTicks(rLo,rHi) : linTicks(rLo,rHi);
+      const majorY = VIEW.yLog[spec] ? logTicks(rLo,rHi) : linTicks(rLo,rHi);
       const tickLen=6*SS, minorLen=3.2*SS;
       P.push(`<rect x="${X0}" y="${Y0}" width="${X1-X0}" height="${Y1-Y0}" fill="none" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
-      if (XAXIS !== 'loglin') for (let xv=XMIN; xv<=XMAX; xv+=X_MINOR){
-        if (XTICKS.includes(xv)) continue; const x=xPix(xv,X0,X1);
+      if (XAXIS !== 'loglin') for (let xv=VIEW.xmin; xv<=VIEW.xmax; xv+=VIEW.xminor){
+        if (VIEW.xticks.includes(xv)) continue; const x=xPix(xv,X0,X1);
         P.push(`<line x1="${x}" y1="${Y1}" x2="${x}" y2="${Y1-minorLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
         P.push(`<line x1="${x}" y1="${Y0}" x2="${x}" y2="${Y0+minorLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
       }
-      for (const xt of (XAXIS==='loglin'?XTICKS_LL:XTICKS)){
+      for (const xt of (XAXIS==='loglin'?XTICKS_LL:VIEW.xticks)){
         const x=xPix(xt,X0,X1);
         P.push(`<line x1="${x}" y1="${Y1}" x2="${x}" y2="${Y1-tickLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
         P.push(`<line x1="${x}" y1="${Y0}" x2="${x}" y2="${Y0+tickLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
@@ -679,7 +776,7 @@ export function createCMBPlot(root, config){
         P.push(`<line x1="${X0}" y1="${y}" x2="${X0+tickLen}" y2="${y}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
         P.push(`<text x="${X0-6*SS}" y="${y+tf*0.34}" font-size="${tf}" text-anchor="end">${svgEsc(fmtYTick(spec,yt))}</text>`);
       }
-      if (Y_LOG[spec]){
+      if (VIEW.yLog[spec]){
         for (let e=Math.floor(Math.log10(rLo)); e<=Math.ceil(Math.log10(rHi)); e++)
           for (const s of [0.3,0.6,0.9]){ const v=s*Math.pow(10,e+1); if(v<rLo||v>rHi)continue;
             const y=yPix(v); P.push(`<line x1="${X0}" y1="${y}" x2="${X0+minorLen}" y2="${y}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`); }
@@ -690,9 +787,9 @@ export function createCMBPlot(root, config){
       }
       P.push(`<clipPath id="clip${i}"><rect x="${X0}" y="${Y0}" width="${X1-X0}" height="${Y1-Y0}"/></clipPath>`);
       P.push(`<g clip-path="url(#clip${i})">`);
-      const svgLogFloor = Y_LOG[spec] ? rLo : null;
+      const svgLogFloor = VIEW.yLog[spec] ? rLo : null;
       const drawPts = (arr,color,asym) => { if(!arr)return;
-        for (const row of arr){ const l=row[0]; if(l<XMIN||l>XMAX)continue;
+        for (const row of arr){ const l=row[0]; if(l<VIEW.xmin||l>VIEW.xmax)continue;
           const x=xPix(l,X0,X1), v=row[1], y=yPix(v); const eLo=row[2], eHi=asym?row[3]:row[2];
           const vLo = svgLogFloor!==null && (v-eLo)<=svgLogFloor ? svgLogFloor : (v-eLo);
           const vHi = svgLogFloor!==null && (v+eHi)<=svgLogFloor ? svgLogFloor : (v+eHi);
@@ -704,7 +801,7 @@ export function createCMBPlot(root, config){
         if (VIS.act)    drawPts(OBS[spec].act,    COLOR.act,    false);
         if (VIS.spt)    drawPts(OBS[spec].spt,    COLOR.spt,    false);
       }
-      const poly = (xs,ys,pred) => { let pts=''; for(let k=0;k<xs.length;k++){ const l=xs[k]; if(pred&&(l<XMIN||l>XMAX))continue;
+      const poly = (xs,ys,pred) => { let pts=''; for(let k=0;k<xs.length;k++){ const l=xs[k]; if(pred&&(l<VIEW.xmin||l>VIEW.xmax))continue;
           pts += `${xPix(l,X0,X1).toFixed(1)},${ys(k).toFixed(1)} `; } return pts.trim(); };
       if (LCDM && VIS.lcdm)
         P.push(`<polyline fill="none" stroke="${COLOR_LCDM}" stroke-width="${STYLE.lcdmWidth*SS}" opacity="0.9" points="${poly(LCDM.ell, k=>yPix(LCDM[spec][k]), true)}"/>`);
@@ -761,7 +858,7 @@ export function createCMBPlot(root, config){
   }
   function render(){
     if (!emulator) return;
-    XAXIS = cfg.xaxis;
+    applyView();
     if (cfg.derive) cfg.derive(params);       // refresh dependent params first
     if (cfg.constrainThetaS) solveThetaS();   // then solve Omega_Lambda to hold theta_s
     const { W, H } = resize();
@@ -789,6 +886,7 @@ export function createCMBPlot(root, config){
       tasks.push(cfg.lcdmUrl ? fetch(cfg.lcdmUrl).then(r=>r.ok?r.json():null).then(d=>LCDM=d).catch(()=>LCDM=null) : Promise.resolve());
       const [emu] = await Promise.all(tasks);
       emulator = emu;
+      if (disp.reference === 'model') buildModelReference();
       render();
     } catch(e){
       statusEl.className='emu-status err';

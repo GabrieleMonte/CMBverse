@@ -56,3 +56,19 @@ Both ACT products trace to Louis et al. 2025, JCAP 11 (2025) 062
   [pole.uchicago.edu/public/data/camphuis25](https://pole.uchicago.edu/public/data/camphuis25).
   Camphuis et al. 2025 ([arXiv:2506.20707](https://arxiv.org/abs/2506.20707)). Grid/binning
   match the official release; values visually confirmed against published figures.
+
+## `neutrino_lines.json` — YHe(N_eff) lines for the neutrino page graphs
+
+Not observational data: the two 1-D trajectories that `neutrinos.html` Graphs 1 and 2 follow through
+the neutrino emulator's (N_eff, YHe) plane, loaded by `loadNeutrinoLines()` in
+`emulator/cmb-emulator-neutrino.js` and interpolated **linearly** in N_eff (error < 1e-5 in YHe).
+Copied verbatim from `/Users/chase/cosmology/pages_model_neutrino/tables/neutrino_lines.json`
+(generator `make_page_lines.py`; full derivation and decisions in that arm's `README.md` §7, D7–D10).
+
+- **`G1`** — standard-BBN helium: YHe from CLASS v3.3.4 with the **PRIMAT 2025** table
+  (`sBBN_2025_primat.dat`, τ_n = 878.4 s), N_eff 0.10–6.90 (138 points).
+- **`G2`** — YHe solved with CLASS so the photon damping angle
+  θ_d = r_d(z_rec)/(2 r_a(z_rec)) stays at its fiducial value, N_eff 0.10–6.90 (70 points).
+- Both pass through the shared fiducial (N_eff 3.044, YHe 0.245640). Every point uses the model's scheme:
+  ω_b, A_s, n_s, τ fixed; 100·θ_s = 1.041783 (h solved); a_eq fixed via ω_cdm = f(N_eff).
+- `meta` records the CLASS settings, table, grids and validation bounds.
