@@ -70,7 +70,8 @@ const Y_TITLE = {
   te:'\\(\\mathcal{D}_\\ell^{\\mathrm{TE}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
 };
 const TITLE_SPEC = { tt:'TT', ee:'EE', te:'TE' };
-const LETTER_D = '\u{1D49F}';   // script D, used in exported axis titles
+const LETTER_D = '\u{1D49F}';
+const BAND_FILL = 'rgba(0,0,0,0.07)';  // zoom-window band on the main panels   // script D, used in exported axis titles
 
 // Per-instance plot view: y-axis log/linear, ranges and titles, x range/ticks, title letter.
 // Defaults are the standard D_l figure above; config.display overrides per widget. Like XAXIS,
@@ -105,6 +106,7 @@ function hubbleH(p){
 // ---- pure helpers ----------------------------------------------------------
 function dynRange(spec, curveVals){
   const [dLo, dHi] = VIEW.yRange[spec];
+  if (VIEW.yFixed) return [dLo, dHi];          // zoom panels: fixed range, no auto-expansion
   if (VIEW.yLog[spec]){
     let mx=-Infinity, mn=Infinity;
     for (const v of curveVals){ if (v>0 && v>mx) mx=v; if (v>0 && v<mn) mn=v; }
@@ -231,6 +233,11 @@ export function createCMBPlot(root, config){
   //                                                     //  (+ fixed, derive), not lcdmUrl
   //   yLog, yRange, ySym, yTitle : per-spectrum overrides; letter : export title symbol
   //   xRange:[lo,hi], xTicks:[...], xMinor
+  //   aspect    : canvas height / width (default 1.19)
+  //   zoom      : { range:[lo,hi], xTicks, xMinor, width:0.36, band:true }
+  //               adds a narrower zoom column beside the three panels (same spectra, l in range,
+  //               y-range fixed across the slider) and shades the range on the main panels.
+  //               Below ~610 px canvas width the zoom panels stack under the main ones instead.
   // }
   const disp = config.display || {};
   const view = {
@@ -245,6 +252,15 @@ export function createCMBPlot(root, config){
     letter: disp.letter || VIEW_DEFAULT.letter,
   };
   function applyView(){ XAXIS = cfg.xaxis; VIEW = view; }
+  const zoom = disp.zoom || null;
+  const ASPECT = disp.aspect || 1.19, ASPECT_STACKED = 2.6, STACK_BELOW_W = 610;
+  // the zoom column's own view: same spectra/scales, its l window, a y-range fixed by buildZoomRanges()
+  const zoomView = zoom ? Object.assign({}, view, {
+    xmin: zoom.range[0], xmax: zoom.range[1],
+    xticks: zoom.xTicks || [zoom.range[0], zoom.range[1]], xminor: zoom.xMinor || 50,
+    yRange: Object.assign({}, view.yRange), yFixed: true,
+  }) : null;
+  const isStacked = (W) => !!zoom && W < STACK_BELOW_W;
   const REF_EXT = {};   // reference curve's normalization extremum, per spectrum
 
   // n-th local extremum of a sampled curve within [lmin, lmax] (extrema closer than 15 in l are merged).
@@ -287,12 +303,37 @@ export function createCMBPlot(root, config){
     }
     LCDM = ref;
   }
-  const numEls = {}, ylabelEls = {}, derEls = {};
-  let xlabelEl = null, pieSvgEl = null, matterPieSvgEl = null, legendEl = null;
+  // Fixed zoom y-ranges: extent of every displayed curve inside the zoom window across each slider's
+  // range (21 samples, other params at defaults) plus the reference, padded 5%. Fixed so the zoom axes
+  // never jump while the slider moves.
+  function buildZoomRanges(){
+    applyView();
+    const lo = {}, hi = {};
+    for (const spec of SPECS){ lo[spec] = Infinity; hi[spec] = -Infinity; }
+    const take = (c, spec) => {
+      for (let i = 0; i < c.ell.length; i++){
+        const l = c.ell[i]; if (l < zoom.range[0] || l > zoom.range[1]) continue;
+        lo[spec] = Math.min(lo[spec], c.value[i]); hi[spec] = Math.max(hi[spec], c.value[i]);
+      }
+    };
+    if (LCDM) for (const spec of SPECS) take({ ell: LCDM.ell, value: LCDM[spec] }, spec);
+    for (const name of cfg.sliders){
+      const [a, b] = cfg.ranges[name] || META.ranges[name];
+      for (let k = 0; k <= 20; k++){
+        const p = Object.assign({}, META.defaults, config.fixed || {}); p[name] = a + (b - a)*k/20;
+        if (cfg.derive) cfg.derive(p);
+        const r = emulator.predict(p);
+        for (const spec of SPECS) take(displayCurve(r, spec), spec);
+      }
+    }
+    for (const spec of SPECS){ const pad = 0.05*(hi[spec] - lo[spec]); zoomView.yRange[spec] = [lo[spec] - pad, hi[spec] + pad]; }
+  }
+  const numEls = {}, ylabelEls = {}, zlabelEls = {}, derEls = {};
+  let xlabelEl = null, zxlabelEl = null, pieSvgEl = null, matterPieSvgEl = null, legendEl = null;
 
   // ---- build DOM inside root ----------------------------------------------
   root.innerHTML = '';
-  const widget = document.createElement('div'); widget.className='emu-widget';
+  const widget = document.createElement('div'); widget.className = zoom ? 'emu-widget emu-widget--zoom' : 'emu-widget';
   const wrap   = document.createElement('div'); wrap.className='emu-plot-wrap';
   const cv     = document.createElement('canvas');
   const axisOverlay = document.createElement('div'); axisOverlay.className='emu-axis-overlay';
@@ -436,20 +477,42 @@ export function createCMBPlot(root, config){
     }
     xlabelEl = document.createElement('div'); xlabelEl.className='emu-xlabel';
     xlabelEl.innerHTML = '\\(\\ell\\)'; axisOverlay.append(xlabelEl);
+    if (zoom){
+      for (const spec of SPECS){              // y-titles for the zoom panels (shown only when stacked)
+        const d = document.createElement('div'); d.className='emu-ylabel';
+        const s = document.createElement('span'); s.innerHTML = view.yTitle[spec];
+        d.append(s); axisOverlay.append(d); zlabelEls[spec] = d;
+      }
+      zxlabelEl = document.createElement('div'); zxlabelEl.className='emu-xlabel';
+      zxlabelEl.innerHTML = '\\(\\ell\\)'; axisOverlay.append(zxlabelEl);
+    }
     if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise([axisOverlay]);
   }
   function placeOverlays(geoms, W, H, padL){
+    const stacked = isStacked(W);
     for (const g of geoms){
-      const el = ylabelEls[g.spec];
+      if (g.col === 'zoom' && !stacked){ zlabelEls[g.spec].style.display = 'none'; continue; }
+      const el = g.col === 'zoom' ? zlabelEls[g.spec] : ylabelEls[g.spec];
+      el.style.display = '';
       el.style.top = g.Y0 + 'px'; el.style.height = (g.Y1 - g.Y0) + 'px'; el.style.width = '24px';
     }
-    if (xlabelEl){ xlabelEl.style.left = padL + 'px'; xlabelEl.style.width = (W - padL - 12) + 'px'; xlabelEl.style.bottom = '-12px'; }
+    const main = geoms.filter(g => g.col !== 'zoom'), zm = geoms.filter(g => g.col === 'zoom');
+    if (xlabelEl){
+      xlabelEl.style.left = padL + 'px';
+      xlabelEl.style.width = (zoom ? main[0].X1 - padL : W - padL - 12) + 'px';
+      if (stacked){ xlabelEl.style.bottom = 'auto'; xlabelEl.style.top = (main[main.length-1].Y1 + 18*SS) + 'px'; }
+      else { xlabelEl.style.top = 'auto'; xlabelEl.style.bottom = '-12px'; }
+    }
+    if (zxlabelEl){
+      zxlabelEl.style.left = zm[0].X0 + 'px'; zxlabelEl.style.width = (zm[0].X1 - zm[0].X0) + 'px';
+      zxlabelEl.style.bottom = '-12px';
+    }
   }
 
   // ---- canvas sizing (portrait, retina) -----------------------------------
   function resize(){
     const cssW = wrap.clientWidth;
-    const cssH = Math.round(cssW * 1.19);
+    const cssH = Math.round(cssW * (isStacked(cssW) ? ASPECT_STACKED : ASPECT));
     const dpr = window.devicePixelRatio || 1;
     cv.style.height = cssH + 'px';
     cv.width  = cssW * dpr; cv.height = cssH * dpr;
@@ -511,6 +574,10 @@ export function createCMBPlot(root, config){
 
     g.save();
     g.beginPath(); g.rect(X0,Y0,X1-X0,Y1-Y0); g.clip();
+    if (geom.band){                       // shade the zoom column's l window on the main panels
+      const bx0 = xPix(geom.band[0],X0,X1), bx1 = xPix(geom.band[1],X0,X1);
+      g.fillStyle = BAND_FILL; g.fillRect(bx0, Y0, bx1-bx0, Y1-Y0);
+    }
 
     if (LCDM && VIS.lcdm){
       g.strokeStyle=COLOR_LCDM; g.lineWidth=STYLE.lcdmWidth*SS; g.globalAlpha=0.9;
@@ -646,24 +713,53 @@ export function createCMBPlot(root, config){
   }
 
   // ---- layout + figure ----------------------------------------------------
+  // Panel boxes. Each carries the view it is drawn with (geom.view), its column ('main'/'zoom') and
+  // whether it is the bottom of its column (x tick labels). Main panels always come first.
   function layout(W, H){
     const padL=64, padR=26, padT=10*SS, padB=34*SS, gap=4*SS;
     const plotW = W - padL - padR;
+    if (!zoom){
+      const panelH = (H - padT - padB - 2*gap) / 3;
+      const geoms = SPECS.map((spec,i) => ({
+        spec, col:'main', view, isBottom: i===SPECS.length-1, X0: padL, X1: padL + plotW,
+        Y0: padT + i*(panelH+gap), Y1: padT + i*(panelH+gap) + panelH,
+      }));
+      return { padL, padR, padT, padB, gap, plotW, panelH, geoms };
+    }
+    const band = zoom.band ? zoom.range : null;
+    if (isStacked(W)){                     // narrow: zoom panels in a second block below the main one
+      const midGap = 46*SS;
+      const panelH = (H - padT - padB - midGap - 4*gap) / 6;
+      const row = (i, top) => [top + i*(panelH+gap), top + i*(panelH+gap) + panelH];
+      const zTop = padT + 3*panelH + 2*gap + midGap;
+      const geoms = [
+        ...SPECS.map((spec,i) => { const [Y0,Y1] = row(i, padT);
+          return { spec, col:'main', view, band, isBottom: i===2, X0: padL, X1: padL + plotW, Y0, Y1 }; }),
+        ...SPECS.map((spec,i) => { const [Y0,Y1] = row(i, zTop);
+          return { spec, col:'zoom', view: zoomView, isBottom: i===2, X0: padL, X1: padL + plotW, Y0, Y1 }; }),
+      ];
+      return { padL, padR, padT, padB, gap, plotW, panelH, geoms };
+    }
+    const colGap = 46*SS;                  // room for the zoom panels' y tick labels
+    const zoomW = (plotW - colGap) * (zoom.width || 0.36), mainW = plotW - colGap - zoomW;
     const panelH = (H - padT - padB - 2*gap) / 3;
-    const geoms = SPECS.map((spec,i) => ({
-      spec, X0: padL, X1: padL + plotW,
-      Y0: padT + i*(panelH+gap), Y1: padT + i*(panelH+gap) + panelH,
-    }));
+    const geoms = [];
+    for (const [col, X0, X1, v] of [['main', padL, padL + mainW, view], ['zoom', padL + mainW + colGap, padL + plotW, zoomView]])
+      SPECS.forEach((spec,i) => geoms.push({ spec, col, view: v, band: col === 'main' ? band : null,
+        isBottom: i===SPECS.length-1, X0, X1, Y0: padT + i*(panelH+gap), Y1: padT + i*(panelH+gap) + panelH }));
     return { padL, padR, padT, padB, gap, plotW, panelH, geoms };
   }
   function drawFigure(g, W, H, result){
     const r = result || emulator.predict(params);
     const { geoms } = layout(W, H);
-    geoms.forEach((gm,i) => {
-      const c = displayCurve(r, gm.spec);
-      const range = dynRange(gm.spec, c.value);
-      drawPanel(g, gm.spec, gm, i===SPECS.length-1, range, c);
-    });
+    const curves = {};
+    for (const spec of SPECS) curves[spec] = displayCurve(r, spec);
+    for (const gm of geoms){
+      VIEW = gm.view;                     // this panel's x window / y scale
+      const c = curves[gm.spec];
+      drawPanel(g, gm.spec, gm, gm.isBottom, dynRange(gm.spec, c.value), c);
+    }
+    VIEW = view;
     return geoms;
   }
 
@@ -701,10 +797,18 @@ export function createCMBPlot(root, config){
   function drawTitlesCanvas(g, geoms, padL, W, H){
     g.save(); g.fillStyle='#000';
     const base = 13.5*SS;
-    for (const gm of geoms){ g.save(); g.translate(15*SS, (gm.Y0+gm.Y1)/2); g.rotate(-Math.PI/2); drawTitleParts(g, gm.spec, base); g.restore(); }
+    for (const gm of geoms){
+      if (gm.col === 'zoom' && !isStacked(W)) continue;
+      g.save(); g.translate(15*SS, (gm.Y0+gm.Y1)/2); g.rotate(-Math.PI/2); drawTitleParts(g, gm.spec, base); g.restore();
+    }
     g.font = `italic ${16*SS}px ${FONT}`; g.textAlign='center'; g.textBaseline='alphabetic';
-    g.fillText('ℓ', padL + (geoms[0].X1 - padL)/2, H - 2*SS);
+    for (const [x, y] of xLabelSpots(geoms, W, H, padL)) g.fillText('ℓ', x, y);
     g.restore();
+  }
+  // where the l axis labels go in exports: centred under each column's bottom panel
+  function xLabelSpots(geoms, W, H, padL){
+    const bottoms = geoms.filter(g => g.isBottom);
+    return bottoms.map(b => [(b.X0 + b.X1)/2, (b.col === 'main' && isStacked(W)) ? b.Y1 + 30*SS : H - 2*SS]);
   }
   function drawLegendCanvas(g, ttGeom, W){
     const items = [];
@@ -731,7 +835,7 @@ export function createCMBPlot(root, config){
     drawTitlesCanvas(g, geoms, padL, W, H);
     drawLegendCanvas(g, geoms[0], W);
   }
-  function exportSize(){ const W = wrap.clientWidth; return { W, H: Math.round(W * 1.19) }; }
+  function exportSize(){ const W = wrap.clientWidth; return { W, H: Math.round(W * (isStacked(W) ? ASPECT_STACKED : ASPECT)) }; }
   function savePNG(openInTab){
     const { W, H } = exportSize();
     const oc = document.createElement('canvas'); oc.width = W*PNG_SCALE; oc.height = H*PNG_SCALE;
@@ -751,10 +855,13 @@ export function createCMBPlot(root, config){
     P.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="serif">`);
     P.push(`<rect width="${W}" height="${H}" fill="${EXPORT_BG}"/>`);
     const tf = STYLE.tickFont*SS;
+    const svgCurves = {};
+    for (const spec of SPECS) svgCurves[spec] = displayCurve(svgResult, spec);
     geoms.forEach((gm,i) => {
       const { X0, X1, Y0, Y1, spec } = gm;
-      const isBottom = i===geoms.length-1;
-      const c = displayCurve(svgResult, spec);
+      const isBottom = gm.isBottom;
+      VIEW = gm.view;
+      const c = svgCurves[spec];
       const range = dynRange(spec, c.value); const [rLo,rHi] = range;
       const yPix = makeYPix(spec, Y0, Y1, range);
       const majorY = VIEW.yLog[spec] ? logTicks(rLo,rHi) : linTicks(rLo,rHi);
@@ -787,6 +894,8 @@ export function createCMBPlot(root, config){
       }
       P.push(`<clipPath id="clip${i}"><rect x="${X0}" y="${Y0}" width="${X1-X0}" height="${Y1-Y0}"/></clipPath>`);
       P.push(`<g clip-path="url(#clip${i})">`);
+      if (gm.band){ const bx0 = xPix(gm.band[0],X0,X1), bx1 = xPix(gm.band[1],X0,X1);
+        P.push(`<rect x="${bx0.toFixed(1)}" y="${Y0}" width="${(bx1-bx0).toFixed(1)}" height="${Y1-Y0}" fill="${BAND_FILL}"/>`); }
       const svgLogFloor = VIEW.yLog[spec] ? rLo : null;
       const drawPts = (arr,color,asym) => { if(!arr)return;
         for (const row of arr){ const l=row[0]; if(l<VIEW.xmin||l>VIEW.xmax)continue;
@@ -808,9 +917,11 @@ export function createCMBPlot(root, config){
       P.push(`<polyline fill="none" stroke="${COLOR_MODEL}" stroke-width="${STYLE.modelWidth*SS}" stroke-linejoin="round" opacity="0.95" points="${poly(c.ell, k=>yPix(c.value[k]), false)}"/>`);
       P.push(`</g>`);
       const cx2=15*SS, cy2=(Y0+Y1)/2, bf=13.5*SS;
-      P.push(svgTitle(spec, cx2, cy2, bf));
+      if (gm.col !== 'zoom' || isStacked(W)) P.push(svgTitle(spec, cx2, cy2, bf));
     });
-    P.push(`<text x="${padL + (geoms[0].X1-padL)/2}" y="${H-2*SS}" font-size="${16*SS}" font-style="italic" text-anchor="middle">ℓ</text>`);
+    VIEW = view;
+    for (const [x, y] of xLabelSpots(geoms, W, H, padL))
+      P.push(`<text x="${x}" y="${y}" font-size="${16*SS}" font-style="italic" text-anchor="middle">ℓ</text>`);
     const items=[];
     if (VIS.lcdm)   items.push(['line',COLOR_LCDM,'ΛCDM']);
     if (VIS.planck) items.push(['dot',COLOR.planck,'Planck 2018']);
@@ -887,6 +998,7 @@ export function createCMBPlot(root, config){
       const [emu] = await Promise.all(tasks);
       emulator = emu;
       if (disp.reference === 'model') buildModelReference();
+      if (zoom) buildZoomRanges();
       render();
     } catch(e){
       statusEl.className='emu-status err';

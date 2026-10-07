@@ -120,6 +120,12 @@
 .emu-legend .emu-leg-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
 .emu-legend .emu-leg-line{ width:16px; height:2px; display:inline-block; margin:0 0 0 2px; }
 
+/* zoom-column layout (display.zoom; neutrinos.html Graph 2 only): a wider plot for the
+   main + zoom columns and a slimmer sidebar (slider, buttons, derived values; no pie).
+   800 + 18 + 220 = 1038px fits the 1110px page container. */
+.emu-widget--zoom .emu-plot-wrap{ flex:1 1 560px; max-width:800px; }
+.emu-widget--zoom .emu-sliders{ flex:0 0 220px; }
+
 /* energy-density pie */
 .emu-pie{
   border-top:1px solid #d7d2e0; padding-top:12px; margin-top:2px;

@@ -69,14 +69,19 @@ Two pages (`index.html`, `matter.html`) share one engine:
 - **Graph 2 display** uses `cmb-plot.js`'s `display` option (below): undamping
   `K_ℓ = D_ℓ·exp(0.68 (θ_d ℓ)^κ)` with κ = 1.3 / 1.17 / 0.91 (TT/EE/TE), θ_d = 1.6144×10⁻³, each spectrum
   scaled so its 4th peak (7th extremum in ℓ 100–2500) matches the fiducial's; reference curve from the
-  emulator at the fiducial; linear y, ℓ 0–2500, no data overlays.
+  emulator at the fiducial; linear y, ℓ 0–4000, no data overlays. A **zoom column** (ℓ 950–1250, as on the
+  original figure) sits beside each spectrum with a y-range fixed across the slider, and the window is
+  shaded on the main panels; below ~610 px canvas width the zoom panels stack under the main ones.
+  Save PNG/SVG exports all six panels.
 - Physics/design and every decision: `/Users/chase/cosmology/pages_model_neutrino/README.md` (§7, D7–D10).
   Proposed prose fixes for both pages: `/Users/chase/cosmology/pages_model_neutrino/PAGE_TEXT_CHANGES.md`.
 
 ### `createCMBPlot` options added for these pages
 - `model: 's3' | 'geo' | 'neutrino'` — backend lookup (`BACKENDS` in `cmb-plot.js`).
 - `display: { transform, normalize:{extremum,lmin,lmax}, reference:'model', yLog, yRange, ySym, yTitle,
-  letter, xRange, xTicks, xMinor }` — per-widget plot view; every field defaults to the standard D_ℓ figure.
+  letter, xRange, xTicks, xMinor, aspect, zoom:{range,xTicks,xMinor,width,band} }` — per-widget plot
+  view; every field defaults to the standard D_ℓ figure. `zoom` adds the zoom column (G2 only) and the
+  `.emu-widget--zoom` CSS hook (wider plot, 220 px sidebar).
 - A widget with no `dataUrl` hides the data legend rows and draws no overlays.
 
 ---
