@@ -15,6 +15,7 @@
  *   sliders   : ['omega_cdm', ...],     // which inputs get sliders (default: all six)
  *   ranges    : { omega_cdm:[lo,hi] },  // per-slider range overrides
  *   fixed     : { omega_b:0.02237 },    // params pinned to non-default values
+ *   start     : { M_nu:0.06 },          // initial + Reset values of slider params
  *   derive    : (params) => {...},      // recompute dependent params each update
  *   showPie, showDerived, showSave, showLegend : booleans (default true)
  * }
@@ -22,12 +23,14 @@
 import CMBEmulatorS3, { META as META_S3 } from './cmb-emulator-separate.js';
 import CMBEmulatorGeo, { META as META_GEO } from './cmb-emulator-geo.js';
 import CMBEmulatorNeutrino, { META as META_NEU } from './cmb-emulator-neutrino.js';
+import CMBEmulatorMnu, { META as META_MNU } from './cmb-emulator-mnu.js';
 
 // Emulator backends, selected per widget by config.model (default 's3').
 const BACKENDS = {
   s3:       { Emulator: CMBEmulatorS3,       META: META_S3  },   // deployed 6-input flat model
   geo:      { Emulator: CMBEmulatorGeo,      META: META_GEO },   // 4-input curvature model (scheme pages)
   neutrino: { Emulator: CMBEmulatorNeutrino, META: META_NEU },   // (N_eff, YHe) plane, theta_s fixed (neutrino pages)
+  mnu:      { Emulator: CMBEmulatorMnu,      META: META_MNU },   // neutrino mass: ratios C_l(M_nu)/C_l(0), TT/EE/phi-phi
 };
 
 // ---- parameter display config (MathJax labels + value formatting) ----------
@@ -41,12 +44,14 @@ const LABELS = {
   'tau_reio':     '\\(\\tau_{\\rm reio}\\)',
   'N_eff':        '\\(N_{\\rm eff}\\)',
   'YHe':          '\\(Y_{p}\\)',
+  'M_nu':         '\\(M_\\nu\\,[\\mathrm{eV}]\\)',
 };
 const fmt = (name, v) =>
   name === 'omega_b'      ? v.toFixed(4) :
   name === 'omega_cdm'    ? v.toFixed(3) :
   name === 'tau_reio'     ? v.toFixed(3) :
   name === 'YHe'          ? v.toFixed(3) :
+  name === 'M_nu'         ? v.toFixed(2) :
   name.includes('A_s')    ? v.toFixed(2) :
                             v.toFixed(2);
 
@@ -62,16 +67,17 @@ const COLOR_MODEL = '#7B4397';   // emulator (live) curve
 const COLOR_LCDM  = '#000000';   // reference
 const COLOR = { planck:'#000000', act:'#2ca02c', spt:'#d62728' };
 const FONT = 'serif';
-const PIE_COLOR = { OmegaL:'#E6AF2E', cdm:'#B0C4DE', b:'#46B1C9' };
+export const PIE_COLOR = { OmegaL:'#E6AF2E', cdm:'#B0C4DE', b:'#46B1C9', nu:'#D98C6C' };
 
 const Y_TITLE = {
   tt:'\\(\\mathcal{D}_\\ell^{\\mathrm{TT}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
   ee:'\\(\\mathcal{D}_\\ell^{\\mathrm{EE}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
   te:'\\(\\mathcal{D}_\\ell^{\\mathrm{TE}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
 };
-const TITLE_SPEC = { tt:'TT', ee:'EE', te:'TE' };
-const LETTER_D = '\u{1D49F}';
-const BAND_FILL = 'rgba(0,0,0,0.07)';  // zoom-window band on the main panels   // script D, used in exported axis titles
+const TITLE_SPEC = { tt:'TT', ee:'EE', te:'TE', pp:'φφ' };
+const LETTER_D = '\u{1D49F}';          // script D, used in exported axis titles
+const BAND_FILL = 'rgba(0,0,0,0.07)';  // zoom-window band on the main panels
+const ERRBAND_FILL = 'rgba(110,110,110,0.28)';   // data error envelope, filled (display.errorBand)
 
 // Per-instance plot view: y-axis log/linear, ranges and titles, x range/ticks, title letter.
 // Defaults are the standard D_l figure above; config.display overrides per widget. Like XAXIS,
@@ -145,7 +151,38 @@ const _fwdLL = (l) => { l = Math.max(LL_MIN, l); return l <= LL_L0 ? Math.log10(
 const LL_F0 = _fwdLL(LL_MIN), LL_F1 = _fwdLL(LL_MAX);
 const xPix = (l, X0, X1) => XAXIS === 'loglin'
   ? X0 + (_fwdLL(l) - LL_F0)/(LL_F1 - LL_F0) * (X1 - X0)
+  : XAXIS === 'log'
+  ? X0 + (Math.log10(Math.max(l, 1e-6)) - Math.log10(VIEW.xmin))/(Math.log10(VIEW.xmax) - Math.log10(VIEW.xmin)) * (X1 - X0)
   : X0 + (l - VIEW.xmin)/(VIEW.xmax - VIEW.xmin) * (X1 - X0);
+// x ticks for the current panel: majors (labelled) and minors, per axis mode. 'log' (pure log l,
+// display.xRange e.g. [50, 3000]) labels powers of ten as 10^n and puts minors at 2..9 x 10^n.
+function xMajorTicks(){ return XAXIS === 'loglin' ? XTICKS_LL : VIEW.xticks; }
+function xMinorTicks(){
+  if (XAXIS === 'loglin') return [];
+  const out = [];
+  if (XAXIS === 'log'){
+    for (let e = Math.floor(Math.log10(VIEW.xmin)); e <= Math.ceil(Math.log10(VIEW.xmax)); e++)
+      for (let k = 2; k <= 9; k++){ const v = k*Math.pow(10, e); if (v >= VIEW.xmin && v <= VIEW.xmax) out.push(v); }
+    return out.filter(v => !VIEW.xticks.includes(v));
+  }
+  for (let xv = VIEW.xmin; xv <= VIEW.xmax; xv += VIEW.xminor) if (!VIEW.xticks.includes(xv)) out.push(xv);
+  return out;
+}
+function xTickLabel(xt){
+  if (XAXIS === 'log'){ const e = Math.log10(xt); if (Math.abs(e - Math.round(e)) < 1e-9) return `10${sup(Math.round(e))}`; }
+  return String(xt);
+}
+// y ticks: explicit display.yTicks per spectrum, else the automatic log/linear ticks
+function yMajorTicks(spec, rLo, rHi){
+  if (VIEW.yTicks && VIEW.yTicks[spec]) return VIEW.yTicks[spec];
+  return VIEW.yLog[spec] ? logTicks(rLo, rHi) : linTicks(rLo, rHi);
+}
+// a y tick whose number is suppressed (display.yHideLabels); the tick mark is still drawn
+const yLabelHidden = (spec, v) => !!(VIEW.yHideLabels && VIEW.yHideLabels[spec] && VIEW.yHideLabels[spec].some(h => Math.abs(h - v) < 1e-9));
+function yMinorStep(spec, rLo, rHi){
+  const t = VIEW.yTicks && VIEW.yTicks[spec];
+  return t && t.length > 1 ? (t[1] - t[0]) / 3 : linStep(rLo, rHi) / 5;
+}
 function makeYPix(spec, Y0, Y1, range){
   const [a,b] = range;
   if (VIEW.yLog[spec]){
@@ -155,6 +192,7 @@ function makeYPix(spec, Y0, Y1, range){
   return (v) => { const vv = Math.max(a, Math.min(b, v)); return Y1 - (vv-a)/(b-a)*(Y1-Y0); };
 }
 function fmtYTick(spec, v){
+  if (!VIEW.yLog[spec] && VIEW.yTickDigits != null) return v.toFixed(VIEW.yTickDigits);
   if (!VIEW.yLog[spec]){ if (Math.abs(v) < 1e-9) return '0'; return (+v.toFixed(3)).toString(); }
   const e = Math.round(Math.log10(v));
   return e===0 ? '1' : `10${sup(e)}`;
@@ -219,10 +257,20 @@ export function createCMBPlot(root, config){
   // ---- per-instance state --------------------------------------------------
   let SS = 1;
   let emulator = null, OBS = null, LCDM = null;
-  const params = Object.assign({}, META.defaults, config.fixed || {});
+  // config.start: initial (and Reset) values for slider params, e.g. { M_nu: 0.06 } (Planck's baseline)
+  const params = Object.assign({}, META.defaults, config.fixed || {}, config.start || {});
   if (cfg.derive) cfg.derive(params);
-  const VIS = { lcdm:true, planck:true, act:true, spt:true };
-  if (!cfg.dataUrl){ VIS.planck = VIS.act = VIS.spt = false; }   // no data overlays on this widget
+  const disp = config.display || {};
+  const specs = disp.specs || META.specs || SPECS;     // panels, top to bottom
+  const VIS = { ref2:true, lcdm:true, planck:true, act:true, spt:true, errband:true };
+  // data points: drawn when a dataUrl is given, unless display.dataPoints === false (data loaded only for
+  // display.errorBand)
+  const showPoints = !!cfg.dataUrl && disp.dataPoints !== false;
+  if (!showPoints){ VIS.planck = VIS.act = VIS.spt = false; }
+  const refLabel = disp.referenceLabel || 'ΛCDM';
+  const errBand = disp.errorBand || null;               // { spec, source, label }
+  const extraRef = disp.extraReference || null;         // { label, params } second reference curve
+  let REF2 = null;
 
   // ---- per-instance view (config.display) ----------------------------------
   // display = {
@@ -233,13 +281,24 @@ export function createCMBPlot(root, config){
   //                                                     //  (+ fixed, derive), not lcdmUrl
   //   yLog, yRange, ySym, yTitle : per-spectrum overrides; letter : export title symbol
   //   xRange:[lo,hi], xTicks:[...], xMinor
+  //   specs     : ['tt','ee','pp'] panel spectra (default META.specs or TT/EE/TE)
+  //   reference : 'unity' draws a dotted line at 1 (ratio plots); referenceLabel names it in the legend
+  //   yFixed    : true keeps yRange exactly; yTicks:{spec:[...]}, yTickDigits for fixed tick labels
+  //   yHideLabels: {spec:[values]} y ticks drawn without a number (main panels only), e.g. a label that
+  //               would collide with the neighbouring panel's
+  //   dataPoints: false loads dataUrl without drawing points (for errorBand only)
+  //   errorBand : { spec, source:'planck', label } fills the envelope between (D+s+)/D and (D-s-)/D of
+  //               that dataset in light grey (legend: a shaded box)
+  //   extraReference: { label, params } a second black reference curve: this emulator at params (+ fixed,
+  //               derive), e.g. the LCDM baseline M_nu = 0.06 eV on the mass graph
+  //   exportTitle: { spec: [ {t, it, sub, sup}, ... ] } rich-text y titles for PNG/SVG export
+  //   pie       : { title, symbol, wedges:(result, params) => [{sub, color, frac}] } an extra pie
   //   aspect    : canvas height / width (default 1.19)
   //   zoom      : { range:[lo,hi], xTicks, xMinor, width:0.36, band:true }
   //               adds a narrower zoom column beside the three panels (same spectra, l in range,
   //               y-range fixed across the slider) and shades the range on the main panels.
   //               Below ~610 px canvas width the zoom panels stack under the main ones instead.
   // }
-  const disp = config.display || {};
   const view = {
     yLog:   Object.assign({}, VIEW_DEFAULT.yLog,   disp.yLog),
     yRange: Object.assign({}, VIEW_DEFAULT.yRange, disp.yRange),
@@ -250,6 +309,9 @@ export function createCMBPlot(root, config){
     xticks: disp.xTicks || VIEW_DEFAULT.xticks,
     xminor: disp.xMinor || VIEW_DEFAULT.xminor,
     letter: disp.letter || VIEW_DEFAULT.letter,
+    yFixed: !!disp.yFixed, yTicks: disp.yTicks || null, yTickDigits: disp.yTickDigits ?? null,
+    refDash: disp.reference === 'unity',
+    yHideLabels: disp.yHideLabels || null,
   };
   function applyView(){ XAXIS = cfg.xaxis; VIEW = view; }
   const zoom = disp.zoom || null;
@@ -258,7 +320,7 @@ export function createCMBPlot(root, config){
   const zoomView = zoom ? Object.assign({}, view, {
     xmin: zoom.range[0], xmax: zoom.range[1],
     xticks: zoom.xTicks || [zoom.range[0], zoom.range[1]], xminor: zoom.xMinor || 50,
-    yRange: Object.assign({}, view.yRange), yFixed: true,
+    yRange: Object.assign({}, view.yRange), yFixed: true, yHideLabels: null,
   }) : null;
   const isStacked = (W) => !!zoom && W < STACK_BELOW_W;
   const REF_EXT = {};   // reference curve's normalization extremum, per spectrum
@@ -289,6 +351,20 @@ export function createCMBPlot(root, config){
     }
     return c;
   }
+  // Reference = a flat line at 1 (ratio plots), drawn dotted.
+  function buildUnityReference(){
+    const ell = []; for (let l = 2; l <= 4030; l++) ell.push(l);
+    const ref = { ell }; for (const spec of specs) ref[spec] = ell.map(() => 1);
+    LCDM = ref;
+  }
+  function buildExtraReference(){
+    applyView();
+    const p = Object.assign({}, META.defaults, config.fixed || {}, extraRef.params);
+    if (cfg.derive) cfg.derive(p);
+    const r = emulator.predict(p), ref = {};
+    for (const spec of specs){ const c = displayCurve(r, spec, { normalize:false }); ref.ell = c.ell; ref[spec] = c.value; }
+    REF2 = ref;
+  }
   // Reference drawn as the black 'LCDM' curve when display.reference === 'model'.
   function buildModelReference(){
     applyView();
@@ -296,7 +372,7 @@ export function createCMBPlot(root, config){
     if (cfg.derive) cfg.derive(fid);
     const r = emulator.predict(fid);
     const ref = {};
-    for (const spec of SPECS){
+    for (const spec of specs){
       const c = displayCurve(r, spec, { normalize:false });
       ref.ell = c.ell; ref[spec] = c.value;
       if (disp.normalize) REF_EXT[spec] = extremumValue(c, disp.normalize.extremum, disp.normalize.lmin, disp.normalize.lmax);
@@ -309,26 +385,27 @@ export function createCMBPlot(root, config){
   function buildZoomRanges(){
     applyView();
     const lo = {}, hi = {};
-    for (const spec of SPECS){ lo[spec] = Infinity; hi[spec] = -Infinity; }
+    for (const spec of specs){ lo[spec] = Infinity; hi[spec] = -Infinity; }
     const take = (c, spec) => {
       for (let i = 0; i < c.ell.length; i++){
         const l = c.ell[i]; if (l < zoom.range[0] || l > zoom.range[1]) continue;
         lo[spec] = Math.min(lo[spec], c.value[i]); hi[spec] = Math.max(hi[spec], c.value[i]);
       }
     };
-    if (LCDM) for (const spec of SPECS) take({ ell: LCDM.ell, value: LCDM[spec] }, spec);
+    if (LCDM) for (const spec of specs) take({ ell: LCDM.ell, value: LCDM[spec] }, spec);
     for (const name of cfg.sliders){
       const [a, b] = cfg.ranges[name] || META.ranges[name];
       for (let k = 0; k <= 20; k++){
         const p = Object.assign({}, META.defaults, config.fixed || {}); p[name] = a + (b - a)*k/20;
         if (cfg.derive) cfg.derive(p);
         const r = emulator.predict(p);
-        for (const spec of SPECS) take(displayCurve(r, spec), spec);
+        for (const spec of specs) take(displayCurve(r, spec), spec);
       }
     }
-    for (const spec of SPECS){ const pad = 0.05*(hi[spec] - lo[spec]); zoomView.yRange[spec] = [lo[spec] - pad, hi[spec] + pad]; }
+    for (const spec of specs){ const pad = 0.05*(hi[spec] - lo[spec]); zoomView.yRange[spec] = [lo[spec] - pad, hi[spec] + pad]; }
   }
   const numEls = {}, ylabelEls = {}, zlabelEls = {}, derEls = {};
+  let extraPieSvgEl = null;
   let xlabelEl = null, zxlabelEl = null, pieSvgEl = null, matterPieSvgEl = null, legendEl = null;
 
   // ---- build DOM inside root ----------------------------------------------
@@ -377,7 +454,7 @@ export function createCMBPlot(root, config){
     const btn = document.createElement('button');
     btn.className='emu-reset'; btn.textContent='Reset to Planck ΛCDM';
     btn.addEventListener('click', () => {
-      Object.assign(params, META.defaults, config.fixed || {});
+      Object.assign(params, META.defaults, config.fixed || {}, config.start || {});
       if (cfg.derive) cfg.derive(params);
       for (const name of cfg.sliders){
         numEls[name].input.value = params[name];
@@ -428,7 +505,7 @@ export function createCMBPlot(root, config){
         l.append(cb, sw, tx); return l;
       };
       mtog.append(
-        mkTog('lcdm','ΛCDM', COLOR_LCDM, 'line'),
+        mkTog('lcdm', refLabel, COLOR_LCDM, 'line'),
         mkTog('planck','Planck 2018', COLOR.planck, 'dot'),
         mkTog('act','ACT DR6', COLOR.act, 'dot'),
         mkTog('spt','SPT-3g D1', COLOR.spt, 'dot'),
@@ -451,6 +528,14 @@ export function createCMBPlot(root, config){
       slidersHost.append(pies);
     }
 
+    if (disp.pie){                       // an extra pie computed from the model result (display.pie)
+      const pies = document.createElement('div'); pies.className='emu-pies';
+      const pie = document.createElement('div'); pie.className='emu-pie';
+      pie.innerHTML = `<h4>${svgEsc(disp.pie.title || '')}</h4><div class="emu-pie-svg"></div>`;
+      pies.append(pie); slidersHost.append(pies);
+      extraPieSvgEl = pie.querySelector('.emu-pie-svg');
+    }
+
     if (cfg.showDerived){
       const der = document.createElement('div'); der.className='emu-derived';
       const cell = (label, key) => `<div class="cell"><span>${label}</span><span class="eq">=</span><b data-der="${key}">–</b></div>`;
@@ -470,7 +555,7 @@ export function createCMBPlot(root, config){
 
   // ---- axis-title overlays (real LaTeX via MathJax) -----------------------
   function buildOverlays(){
-    for (const spec of SPECS){
+    for (const spec of specs){
       const d = document.createElement('div'); d.className='emu-ylabel';
       const s = document.createElement('span'); s.innerHTML = view.yTitle[spec];
       d.append(s); axisOverlay.append(d); ylabelEls[spec] = d;
@@ -478,7 +563,7 @@ export function createCMBPlot(root, config){
     xlabelEl = document.createElement('div'); xlabelEl.className='emu-xlabel';
     xlabelEl.innerHTML = '\\(\\ell\\)'; axisOverlay.append(xlabelEl);
     if (zoom){
-      for (const spec of SPECS){              // y-titles for the zoom panels (shown only when stacked)
+      for (const spec of specs){              // y-titles for the zoom panels (shown only when stacked)
         const d = document.createElement('div'); d.className='emu-ylabel';
         const s = document.createElement('span'); s.innerHTML = view.yTitle[spec];
         d.append(s); axisOverlay.append(d); zlabelEls[spec] = d;
@@ -526,7 +611,7 @@ export function createCMBPlot(root, config){
     const { X0, X1, Y0, Y1 } = geom;
     const yPix = makeYPix(spec, Y0, Y1, range);
     const [rLo, rHi] = range;
-    const majorY = VIEW.yLog[spec] ? logTicks(rLo, rHi) : linTicks(rLo, rHi);
+    const majorY = yMajorTicks(spec, rLo, rHi);
 
     g.strokeStyle = '#000'; g.lineWidth = STYLE.frameWidth*SS;
     g.strokeRect(X0, Y0, X1-X0, Y1-Y0);
@@ -534,18 +619,17 @@ export function createCMBPlot(root, config){
     const tickLen = 6*SS, minorLen = 3.2*SS;
     g.fillStyle='#000'; g.strokeStyle='#000'; g.lineWidth=STYLE.frameWidth*SS;
 
-    if (XAXIS !== 'loglin') for (let xv=VIEW.xmin; xv<=VIEW.xmax; xv+=VIEW.xminor){
-      if (VIEW.xticks.includes(xv)) continue;
+    for (const xv of xMinorTicks()){
       const x=xPix(xv,X0,X1);
       g.beginPath(); g.moveTo(x,Y1); g.lineTo(x,Y1-minorLen); g.stroke();
       g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y0+minorLen); g.stroke();
     }
     g.textAlign='center'; g.font = `${STYLE.tickFont*SS}px ${FONT}`;
-    for (const xt of (XAXIS==='loglin'?XTICKS_LL:VIEW.xticks)){
+    for (const xt of xMajorTicks()){
       const x = xPix(xt, X0, X1);
       g.beginPath(); g.moveTo(x,Y1); g.lineTo(x,Y1-tickLen); g.stroke();
       g.beginPath(); g.moveTo(x,Y0); g.lineTo(x,Y0+tickLen); g.stroke();
-      if (isBottom){ g.textBaseline='top'; g.fillText(String(xt), x, Y1+6*SS); }
+      if (isBottom){ g.textBaseline='top'; g.fillText(xTickLabel(xt), x, Y1+6*SS); }
     }
 
     g.textAlign='right'; g.textBaseline='middle';
@@ -553,7 +637,7 @@ export function createCMBPlot(root, config){
       if (yt<rLo-1e-12 || yt>rHi+1e-12) continue;
       const y = yPix(yt);
       g.strokeStyle='#000'; g.beginPath(); g.moveTo(X0,y); g.lineTo(X0+tickLen,y); g.stroke();
-      g.fillStyle='#000'; g.fillText(fmtYTick(spec, yt), X0-6*SS, y);
+      if (!yLabelHidden(spec, yt)){ g.fillStyle='#000'; g.fillText(fmtYTick(spec, yt), X0-6*SS, y); }
     }
 
     g.strokeStyle='#000'; g.lineWidth=STYLE.frameWidth*SS;
@@ -565,7 +649,7 @@ export function createCMBPlot(root, config){
         }
       }
     } else {
-      const minorStep = linStep(rLo, rHi) / 5;
+      const minorStep = yMinorStep(spec, rLo, rHi);
       for (let v=Math.ceil(rLo/minorStep)*minorStep; v<=rHi+1e-9; v+=minorStep){
         if (majorY.some(mt=>Math.abs(mt-v)<1e-9)) continue;
         const y=yPix(v); g.beginPath(); g.moveTo(X0,y); g.lineTo(X0+minorLen,y); g.stroke();
@@ -578,13 +662,30 @@ export function createCMBPlot(root, config){
       const bx0 = xPix(geom.band[0],X0,X1), bx1 = xPix(geom.band[1],X0,X1);
       g.fillStyle = BAND_FILL; g.fillRect(bx0, Y0, bx1-bx0, Y1-Y0);
     }
+    const env = errBandPolygon(spec);            // relative data errors, e.g. Planck (D +/- sigma)/D, filled
+    if (env){
+      g.fillStyle = ERRBAND_FILL; g.beginPath();
+      env.forEach(([l, v], k) => { const x=xPix(l,X0,X1), y=yPix(v); k ? g.lineTo(x,y) : g.moveTo(x,y); });
+      g.closePath(); g.fill();
+    }
 
     if (LCDM && VIS.lcdm){
       g.strokeStyle=COLOR_LCDM; g.lineWidth=STYLE.lcdmWidth*SS; g.globalAlpha=0.9;
+      if (VIEW.refDash) g.setLineDash([2*SS, 3*SS]);
       g.beginPath(); let started=false;
       for (let i=0;i<LCDM.ell.length;i++){
         const l=LCDM.ell[i]; if (l<VIEW.xmin||l>VIEW.xmax) continue;
         const x=xPix(l,X0,X1), y=yPix(LCDM[spec][i]);
+        started ? g.lineTo(x,y) : (g.moveTo(x,y), started=true);
+      }
+      g.stroke(); g.setLineDash([]); g.globalAlpha=1;
+    }
+    if (REF2 && VIS.ref2){                         // second reference curve (solid), e.g. LCDM at M_nu = 0.06 eV
+      g.strokeStyle=COLOR_LCDM; g.lineWidth=STYLE.lcdmWidth*SS; g.globalAlpha=0.9;
+      g.beginPath(); let started=false;
+      for (let i=0;i<REF2.ell.length;i++){
+        const l=REF2.ell[i]; if (l<VIEW.xmin||l>VIEW.xmax) continue;
+        const x=xPix(l,X0,X1), y=yPix(REF2[spec][i]);
         started ? g.lineTo(x,y) : (g.moveTo(x,y), started=true);
       }
       g.stroke(); g.globalAlpha=1;
@@ -604,6 +705,22 @@ export function createCMBPlot(root, config){
     g.restore();
   }
 
+  // Error envelope for display.errorBand: a closed polygon, upper edge (D+s+)/D left to right then the
+  // lower edge (D-s-)/D back, in l (null when not shown on this panel).
+  function errBandPolygon(spec){
+    const [up, lo] = errBandLines(spec);
+    return up && up.length ? up.concat(lo.slice().reverse()) : null;
+  }
+  function errBandLines(spec){
+    if (!errBand || !VIS.errband || spec !== errBand.spec || !OBS || !OBS[spec]) return [];
+    // keep one bin beyond each edge of the l window so the lines reach the panel edges (clipped there)
+    const all = (OBS[spec][errBand.source || 'planck'] || []).filter(r => r[1] > 0);
+    const i0 = Math.max(0, all.findIndex(r => r[0] >= VIEW.xmin) - 1);
+    let i1 = all.findIndex(r => r[0] > VIEW.xmax); i1 = i1 < 0 ? all.length : i1 + 1;
+    const rows = all.slice(i0, i1);
+    const asym = rows.length && rows[0].length > 3;
+    return [ rows.map(r => [r[0], (r[1] + (asym ? r[3] : r[2])) / r[1]]), rows.map(r => [r[0], (r[1] - r[2]) / r[1]]) ];
+  }
   function drawData(g, arr, color, yPix, X0, X1, asym, logFloor){
     if (!arr) return;
     g.strokeStyle=color; g.fillStyle=color; g.globalAlpha=0.85; g.lineWidth=STYLE.errWidth*SS;
@@ -620,17 +737,25 @@ export function createCMBPlot(root, config){
     g.globalAlpha=1;
   }
 
+  // ---- legend entries (HTML legend, PNG and SVG export share this list) --------
+  // [key, label, color, mark]; mark: 'line' | 'dotted' | 'dot' | 'fill' (shaded box)
+  function legendRows(){
+    return [
+      ...(extraRef ? [['ref2', extraRef.label || 'ΛCDM', COLOR_LCDM, 'line']] : []),
+      ['lcdm',  refLabel,    COLOR_LCDM, VIEW.refDash || view.refDash ? 'dotted' : 'line'],
+      ...(errBand ? [['errband', errBand.label || 'Planck 2018 ±1σ', ERRBAND_FILL, 'fill']] : []),
+      ...(showPoints ? [
+        ['planck','Planck 2018',    COLOR.planck, 'dot'],
+        ['act',   'ACT DR6',        COLOR.act,    'dot'],
+        ['spt',   'SPT-3g D1',      COLOR.spt,    'dot'],
+      ] : []),
+    ];
+  }
   // ---- HTML legend with dataset checkboxes (over the TT panel) ------------
   function buildLegend(){
     if (!cfg.showLegend) return;
     const box = document.createElement('div'); box.className='emu-legend';
-    const rows = [
-      ['lcdm',  'ΛCDM',      COLOR_LCDM, 'line'],
-      ['planck','Planck 2018',    COLOR.planck, 'dot'],
-      ['act',   'ACT DR6',        COLOR.act,    'dot'],
-      ['spt',   'SPT-3g D1',      COLOR.spt,    'dot'],
-    ];
-    for (const [key,label,color,mark] of rows.filter(r => r[0] === 'lcdm' || cfg.dataUrl)){
+    for (const [key,label,color,mark] of legendRows()){
       const row = document.createElement('label'); row.className='emu-leg-row';
       const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=VIS[key]; cb.dataset.key=key;
       cb.addEventListener('change', () => {
@@ -640,7 +765,9 @@ export function createCMBPlot(root, config){
         render();
       });
       const sw = document.createElement('span');
-      sw.className = mark==='line' ? 'emu-leg-line' : 'emu-leg-dot'; sw.style.background = color;
+      sw.className = mark==='dot' ? 'emu-leg-dot' : mark==='fill' ? 'emu-leg-box' : 'emu-leg-line';
+      if (mark==='dotted'){ sw.style.background = 'none'; sw.style.borderTop = `2px dotted ${color}`; sw.style.height = '0'; }
+      else sw.style.background = color;
       const tx = document.createElement('span'); tx.textContent=label;
       row.append(cb, sw, tx); box.append(row);
     }
@@ -720,8 +847,8 @@ export function createCMBPlot(root, config){
     const plotW = W - padL - padR;
     if (!zoom){
       const panelH = (H - padT - padB - 2*gap) / 3;
-      const geoms = SPECS.map((spec,i) => ({
-        spec, col:'main', view, isBottom: i===SPECS.length-1, X0: padL, X1: padL + plotW,
+      const geoms = specs.map((spec,i) => ({
+        spec, col:'main', view, isBottom: i===specs.length-1, X0: padL, X1: padL + plotW,
         Y0: padT + i*(panelH+gap), Y1: padT + i*(panelH+gap) + panelH,
       }));
       return { padL, padR, padT, padB, gap, plotW, panelH, geoms };
@@ -733,9 +860,9 @@ export function createCMBPlot(root, config){
       const row = (i, top) => [top + i*(panelH+gap), top + i*(panelH+gap) + panelH];
       const zTop = padT + 3*panelH + 2*gap + midGap;
       const geoms = [
-        ...SPECS.map((spec,i) => { const [Y0,Y1] = row(i, padT);
+        ...specs.map((spec,i) => { const [Y0,Y1] = row(i, padT);
           return { spec, col:'main', view, band, isBottom: i===2, X0: padL, X1: padL + plotW, Y0, Y1 }; }),
-        ...SPECS.map((spec,i) => { const [Y0,Y1] = row(i, zTop);
+        ...specs.map((spec,i) => { const [Y0,Y1] = row(i, zTop);
           return { spec, col:'zoom', view: zoomView, isBottom: i===2, X0: padL, X1: padL + plotW, Y0, Y1 }; }),
       ];
       return { padL, padR, padT, padB, gap, plotW, panelH, geoms };
@@ -745,15 +872,15 @@ export function createCMBPlot(root, config){
     const panelH = (H - padT - padB - 2*gap) / 3;
     const geoms = [];
     for (const [col, X0, X1, v] of [['main', padL, padL + mainW, view], ['zoom', padL + mainW + colGap, padL + plotW, zoomView]])
-      SPECS.forEach((spec,i) => geoms.push({ spec, col, view: v, band: col === 'main' ? band : null,
-        isBottom: i===SPECS.length-1, X0, X1, Y0: padT + i*(panelH+gap), Y1: padT + i*(panelH+gap) + panelH }));
+      specs.forEach((spec,i) => geoms.push({ spec, col, view: v, band: col === 'main' ? band : null,
+        isBottom: i===specs.length-1, X0, X1, Y0: padT + i*(panelH+gap), Y1: padT + i*(panelH+gap) + panelH }));
     return { padL, padR, padT, padB, gap, plotW, panelH, geoms };
   }
   function drawFigure(g, W, H, result){
     const r = result || emulator.predict(params);
     const { geoms } = layout(W, H);
     const curves = {};
-    for (const spec of SPECS) curves[spec] = displayCurve(r, spec);
+    for (const spec of specs) curves[spec] = displayCurve(r, spec);
     for (const gm of geoms){
       VIEW = gm.view;                     // this panel's x window / y scale
       const c = curves[gm.spec];
@@ -794,12 +921,47 @@ export function createCMBPlot(root, config){
     s += `<text x="${x.toFixed(2)}" y="0" font-size="${base.toFixed(2)}">${svgEsc(UNIT_STR)}</text>`;
     return s + '</g>';
   }
+  // display.exportTitle rich text: runs [{t, it, sub, sup}] laid out left to right, centred on the
+  // origin (callers rotate). sub/sup are stacked after their run, like the default D_l title.
+  function richRuns(gctx, runs, base){
+    const sF = base*0.70, out = []; let w = 0;
+    for (const r of runs){
+      gctx.font = `${r.it ? 'italic ' : ''}${base}px ${FONT}`; const wt = gctx.measureText(r.t || '').width;
+      gctx.font = `${sF}px ${FONT}`;
+      const ws = Math.max(r.sub ? gctx.measureText(r.sub).width : 0, r.sup ? gctx.measureText(r.sup).width : 0);
+      out.push({ r, x: w, wt }); w += wt + (ws ? ws + base*0.08 : 0);
+    }
+    return { out, total: w, sF, subY: base*0.26, supY: -base*0.36 };
+  }
+  function drawRichTitle(g, runs, base){
+    const L = richRuns(g, runs, base); g.textAlign='left'; g.textBaseline='alphabetic';
+    for (const { r, x, wt } of L.out){
+      const x0 = x - L.total/2;
+      g.font = `${r.it ? 'italic ' : ''}${base}px ${FONT}`; g.fillText(r.t || '', x0, 0);
+      g.font = `${L.sF}px ${FONT}`;
+      if (r.sub) g.fillText(r.sub, x0 + wt, L.subY);
+      if (r.sup) g.fillText(r.sup, x0 + wt, L.supY);
+    }
+  }
+  function svgRichTitle(runs, cx, cy, base){
+    const L = richRuns(ctx, runs, base);
+    let s = `<g transform="translate(${cx.toFixed(2)} ${cy.toFixed(2)}) rotate(-90)">`;
+    for (const { r, x, wt } of L.out){
+      const x0 = x - L.total/2;
+      s += `<text x="${x0.toFixed(2)}" y="0" font-size="${base.toFixed(2)}"${r.it ? ' font-style="italic"' : ''}>${svgEsc(r.t || '')}</text>`;
+      if (r.sub) s += `<text x="${(x0+wt).toFixed(2)}" y="${L.subY.toFixed(2)}" font-size="${L.sF.toFixed(2)}">${svgEsc(r.sub)}</text>`;
+      if (r.sup) s += `<text x="${(x0+wt).toFixed(2)}" y="${L.supY.toFixed(2)}" font-size="${L.sF.toFixed(2)}">${svgEsc(r.sup)}</text>`;
+    }
+    return s + '</g>';
+  }
   function drawTitlesCanvas(g, geoms, padL, W, H){
     g.save(); g.fillStyle='#000';
     const base = 13.5*SS;
     for (const gm of geoms){
       if (gm.col === 'zoom' && !isStacked(W)) continue;
-      g.save(); g.translate(15*SS, (gm.Y0+gm.Y1)/2); g.rotate(-Math.PI/2); drawTitleParts(g, gm.spec, base); g.restore();
+      g.save(); g.translate(15*SS, (gm.Y0+gm.Y1)/2); g.rotate(-Math.PI/2);
+      if (disp.exportTitle && disp.exportTitle[gm.spec]) drawRichTitle(g, disp.exportTitle[gm.spec], base); else drawTitleParts(g, gm.spec, base);
+      g.restore();
     }
     g.font = `italic ${16*SS}px ${FONT}`; g.textAlign='center'; g.textBaseline='alphabetic';
     for (const [x, y] of xLabelSpots(geoms, W, H, padL)) g.fillText('ℓ', x, y);
@@ -811,17 +973,14 @@ export function createCMBPlot(root, config){
     return bottoms.map(b => [(b.X0 + b.X1)/2, (b.col === 'main' && isStacked(W)) ? b.Y1 + 30*SS : H - 2*SS]);
   }
   function drawLegendCanvas(g, ttGeom, W){
-    const items = [];
-    if (VIS.lcdm)   items.push(['line', COLOR_LCDM,  'ΛCDM']);
-    if (VIS.planck) items.push(['dot',  COLOR.planck,'Planck 2018']);
-    if (VIS.act)    items.push(['dot',  COLOR.act,   'ACT DR6']);
-    if (VIS.spt)    items.push(['dot',  COLOR.spt,   'SPT-3g D1']);
+    const items = legendRows().filter(r => VIS[r[0]]).map(([, label, color, mark]) => [mark, color, label]);
     const f = STYLE.legendFont*SS;
     g.save(); g.font=`${f}px ${FONT}`; g.textAlign='left'; g.textBaseline='middle';
     let y = ttGeom.Y0 + f + 5*SS; const x = ttGeom.X1 - 8.8*f;
     for (const [type,color,text] of items){
       g.strokeStyle=color; g.fillStyle=color; g.lineWidth=STYLE.lcdmWidth*SS;
-      if (type==='line'){ g.beginPath(); g.moveTo(x,y); g.lineTo(x+1.4*f,y); g.stroke(); }
+      if (type==='fill'){ g.fillRect(x, y-0.4*f, 1.4*f, 0.8*f); }
+      else if (type!=='dot'){ if (type==='dotted') g.setLineDash([2*SS, 3*SS]); g.beginPath(); g.moveTo(x,y); g.lineTo(x+1.4*f,y); g.stroke(); g.setLineDash([]); }
       else { g.beginPath(); g.arc(x+0.7*f,y,STYLE.markerR*SS,0,2*Math.PI); g.fill(); }
       g.fillStyle='#000'; g.fillText(text, x+1.8*f, y); y += f*1.35;
     }
@@ -856,7 +1015,7 @@ export function createCMBPlot(root, config){
     P.push(`<rect width="${W}" height="${H}" fill="${EXPORT_BG}"/>`);
     const tf = STYLE.tickFont*SS;
     const svgCurves = {};
-    for (const spec of SPECS) svgCurves[spec] = displayCurve(svgResult, spec);
+    for (const spec of specs) svgCurves[spec] = displayCurve(svgResult, spec);
     geoms.forEach((gm,i) => {
       const { X0, X1, Y0, Y1, spec } = gm;
       const isBottom = gm.isBottom;
@@ -864,31 +1023,31 @@ export function createCMBPlot(root, config){
       const c = svgCurves[spec];
       const range = dynRange(spec, c.value); const [rLo,rHi] = range;
       const yPix = makeYPix(spec, Y0, Y1, range);
-      const majorY = VIEW.yLog[spec] ? logTicks(rLo,rHi) : linTicks(rLo,rHi);
+      const majorY = yMajorTicks(spec, rLo, rHi);
       const tickLen=6*SS, minorLen=3.2*SS;
       P.push(`<rect x="${X0}" y="${Y0}" width="${X1-X0}" height="${Y1-Y0}" fill="none" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
-      if (XAXIS !== 'loglin') for (let xv=VIEW.xmin; xv<=VIEW.xmax; xv+=VIEW.xminor){
-        if (VIEW.xticks.includes(xv)) continue; const x=xPix(xv,X0,X1);
+      for (const xv of xMinorTicks()){
+        const x=xPix(xv,X0,X1);
         P.push(`<line x1="${x}" y1="${Y1}" x2="${x}" y2="${Y1-minorLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
         P.push(`<line x1="${x}" y1="${Y0}" x2="${x}" y2="${Y0+minorLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
       }
-      for (const xt of (XAXIS==='loglin'?XTICKS_LL:VIEW.xticks)){
+      for (const xt of xMajorTicks()){
         const x=xPix(xt,X0,X1);
         P.push(`<line x1="${x}" y1="${Y1}" x2="${x}" y2="${Y1-tickLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
         P.push(`<line x1="${x}" y1="${Y0}" x2="${x}" y2="${Y0+tickLen}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
-        if (isBottom) P.push(`<text x="${x}" y="${Y1+6*SS+tf}" font-size="${tf}" text-anchor="middle">${xt}</text>`);
+        if (isBottom) P.push(`<text x="${x}" y="${Y1+6*SS+tf}" font-size="${tf}" text-anchor="middle">${svgEsc(xTickLabel(xt))}</text>`);
       }
       for (const yt of majorY){
         if (yt<rLo-1e-12||yt>rHi+1e-12) continue; const y=yPix(yt);
         P.push(`<line x1="${X0}" y1="${y}" x2="${X0+tickLen}" y2="${y}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`);
-        P.push(`<text x="${X0-6*SS}" y="${y+tf*0.34}" font-size="${tf}" text-anchor="end">${svgEsc(fmtYTick(spec,yt))}</text>`);
+        if (!yLabelHidden(spec, yt)) P.push(`<text x="${X0-6*SS}" y="${y+tf*0.34}" font-size="${tf}" text-anchor="end">${svgEsc(fmtYTick(spec,yt))}</text>`);
       }
       if (VIEW.yLog[spec]){
         for (let e=Math.floor(Math.log10(rLo)); e<=Math.ceil(Math.log10(rHi)); e++)
           for (const s of [0.3,0.6,0.9]){ const v=s*Math.pow(10,e+1); if(v<rLo||v>rHi)continue;
             const y=yPix(v); P.push(`<line x1="${X0}" y1="${y}" x2="${X0+minorLen}" y2="${y}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`); }
       } else {
-        const ms=linStep(rLo,rHi)/5;
+        const ms=yMinorStep(spec, rLo, rHi);
         for (let v=Math.ceil(rLo/ms)*ms; v<=rHi+1e-9; v+=ms){ if(majorY.some(mt=>Math.abs(mt-v)<1e-9))continue;
           const y=yPix(v); P.push(`<line x1="${X0}" y1="${y}" x2="${X0+minorLen}" y2="${y}" stroke="#000" stroke-width="${STYLE.frameWidth*SS}"/>`); }
       }
@@ -912,25 +1071,27 @@ export function createCMBPlot(root, config){
       }
       const poly = (xs,ys,pred) => { let pts=''; for(let k=0;k<xs.length;k++){ const l=xs[k]; if(pred&&(l<VIEW.xmin||l>VIEW.xmax))continue;
           pts += `${xPix(l,X0,X1).toFixed(1)},${ys(k).toFixed(1)} `; } return pts.trim(); };
+      const env = errBandPolygon(spec);
+      if (env) P.push(`<polygon fill="${ERRBAND_FILL}" stroke="none" points="${env.map(([l,v]) => `${xPix(l,X0,X1).toFixed(1)},${yPix(v).toFixed(1)}`).join(' ')}"/>`);
       if (LCDM && VIS.lcdm)
-        P.push(`<polyline fill="none" stroke="${COLOR_LCDM}" stroke-width="${STYLE.lcdmWidth*SS}" opacity="0.9" points="${poly(LCDM.ell, k=>yPix(LCDM[spec][k]), true)}"/>`);
+        P.push(`<polyline fill="none" stroke="${COLOR_LCDM}" stroke-width="${STYLE.lcdmWidth*SS}" opacity="0.9"${VIEW.refDash ? ` stroke-dasharray="${2*SS} ${3*SS}"` : ''} points="${poly(LCDM.ell, k=>yPix(LCDM[spec][k]), true)}"/>`);
+      if (REF2 && VIS.ref2)
+        P.push(`<polyline fill="none" stroke="${COLOR_LCDM}" stroke-width="${STYLE.lcdmWidth*SS}" opacity="0.9" points="${poly(REF2.ell, k=>yPix(REF2[spec][k]), true)}"/>`);
       P.push(`<polyline fill="none" stroke="${COLOR_MODEL}" stroke-width="${STYLE.modelWidth*SS}" stroke-linejoin="round" opacity="0.95" points="${poly(c.ell, k=>yPix(c.value[k]), false)}"/>`);
       P.push(`</g>`);
       const cx2=15*SS, cy2=(Y0+Y1)/2, bf=13.5*SS;
-      if (gm.col !== 'zoom' || isStacked(W)) P.push(svgTitle(spec, cx2, cy2, bf));
+      if (gm.col !== 'zoom' || isStacked(W))
+        P.push(disp.exportTitle && disp.exportTitle[spec] ? svgRichTitle(disp.exportTitle[spec], cx2, cy2, bf) : svgTitle(spec, cx2, cy2, bf));
     });
     VIEW = view;
     for (const [x, y] of xLabelSpots(geoms, W, H, padL))
       P.push(`<text x="${x}" y="${y}" font-size="${16*SS}" font-style="italic" text-anchor="middle">ℓ</text>`);
-    const items=[];
-    if (VIS.lcdm)   items.push(['line',COLOR_LCDM,'ΛCDM']);
-    if (VIS.planck) items.push(['dot',COLOR.planck,'Planck 2018']);
-    if (VIS.act)    items.push(['dot',COLOR.act,'ACT DR6']);
-    if (VIS.spt)    items.push(['dot',COLOR.spt,'SPT-3g D1']);
+    const items = legendRows().filter(r => VIS[r[0]]).map(([, label, color, mark]) => [mark, color, label]);
     const f=STYLE.legendFont*SS, tt=geoms[0];
     let ly=tt.Y0+f+5*SS; const lx=tt.X1-8.8*f;
     for (const [type,color,text] of items){
-      if (type==='line') P.push(`<line x1="${lx}" y1="${ly}" x2="${lx+1.4*f}" y2="${ly}" stroke="${color}" stroke-width="${STYLE.lcdmWidth*SS}"/>`);
+      if (type==='fill') P.push(`<rect x="${lx}" y="${ly-0.4*f}" width="${1.4*f}" height="${0.8*f}" fill="${color}"/>`);
+      else if (type!=='dot') P.push(`<line x1="${lx}" y1="${ly}" x2="${lx+1.4*f}" y2="${ly}" stroke="${color}" stroke-width="${STYLE.lcdmWidth*SS}"${type==='dotted' ? ` stroke-dasharray="${2*SS} ${3*SS}"` : ''}/>`);
       else P.push(`<circle cx="${lx+0.7*f}" cy="${ly}" r="${STYLE.markerR*SS}" fill="${color}"/>`);
       P.push(`<text x="${lx+1.8*f}" y="${ly+f*0.34}" font-size="${f}">${svgEsc(text)}</text>`);
       ly += f*1.35;
@@ -974,7 +1135,9 @@ export function createCMBPlot(root, config){
     if (cfg.constrainThetaS) solveThetaS();   // then solve Omega_Lambda to hold theta_s
     const { W, H } = resize();
     ctx.clearRect(0,0,W,H);
-    SS = Math.max(0.8, Math.min(1.6, W/600));
+    // text/line scale from the standard figure width (the 660px .emu-plot-wrap max): a widget made wider
+    // for extra columns (display.zoom) keeps the same type size and line weights as every other graph.
+    SS = Math.max(0.8, Math.min(1.6, Math.min(W, 660)/600));
     const { padL, geoms } = layout(W, H);
     const result = emulator.predict(params);  // ONE inference per update
     drawFigure(ctx, W, H, result);
@@ -982,6 +1145,7 @@ export function createCMBPlot(root, config){
     placeLegend(geoms[0], W);
     updateDerived(result);
     updatePie();
+    if (extraPieSvgEl) renderPieSVG(extraPieSvgEl, disp.pie.wedges(result, params), disp.pie.symbol || 'ω');
     statusEl.textContent = '';
   }
 
@@ -998,6 +1162,8 @@ export function createCMBPlot(root, config){
       const [emu] = await Promise.all(tasks);
       emulator = emu;
       if (disp.reference === 'model') buildModelReference();
+      if (disp.reference === 'unity') buildUnityReference();
+      if (extraRef) buildExtraReference();
       if (zoom) buildZoomRanges();
       render();
     } catch(e){

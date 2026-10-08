@@ -87,25 +87,16 @@ to the baryons prior to recombination) and then gravitationally pull them slight
      <p class="section-body">
         The panels below illustrate these effects by showing the residuals between the predictions of the standard \(\Lambda\)CDM model with massless and massive neutrinos. Notice the oscillatory features in the temperature spectra residuals at small scales and the overall suppression of the lensing spectrum. These signatures provide crucial information about neutrino masses and their cosmological effects. While this discussion focuses on these primary effects, it is worth noting that many details - such as the exact mass hierarchy - remain subjects of ongoing research.
     </p>
-    <div class="Cosmo-container">
-        <img id="mncdmImage" src="class_figures/Neutrino_m_ncdm_images/Dl_ns_v1.png">
-        <div class="new-slider-container">
-            <input type="range" id="mySlidermncdm" min="1" max="21" value="1" oninput="updateValuemncdm(this.value); updateSliderBackground(this.value, 'mySlidermncdm');">
-            <div class="new-slider-value">
-                <span>\(M_{\nu} = \)<span id="sliderValuemncdm">0</span>\(\, \text{eV}\)</span>
-            </div>
-        </div>
-    </div>
+    <div id="emuRootMnu"></div>
        
 </div>
-<script src="imageSwitch.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
 <script type="module">
-import { createCMBPlot } from './emulator/cmb-plot.js';
+import { createCMBPlot, PIE_COLOR } from './emulator/cmb-plot.js';
 import { loadNeutrinoLines } from './emulator/cmb-emulator-neutrino.js';
 const MODELS = { tt:'./emulator/sep_tt_neutrino/model.json', te:'./emulator/sep_te_neutrino/model.json', ee:'./emulator/sep_ee_neutrino/model.json' };
 const DATA = './emulator/data/cmb_data.json';
@@ -141,6 +132,7 @@ createCMBPlot(document.getElementById('emuRootNnu2'), {
     yLog:   { tt:false, ee:false, te:false },
     ySym:   { te:false },
     yRange: { tt:[0, 8], ee:[0, 0.2], te:[-0.3, 0.2] },
+    yHideLabels: { ee:[0.2], te:[0.2] },   // panel-top 0.2 labels collide with the panel above
     yTitle: { tt:K_TITLE('TT'), ee:K_TITLE('EE'), te:K_TITLE('TE') },
     letter: '\u{1D4A6}',
     xRange: [0, 4000], xTicks: [0, 1000, 2000, 3000, 4000], xMinor: 100,
@@ -148,6 +140,43 @@ createCMBPlot(document.getElementById('emuRootNnu2'), {
     // zoom column: l 950-1250 (as the original figure), y-range fixed across the slider; the same
     // window is shaded on the main panels
     zoom: { range: [950, 1250], xTicks: [1000, 1100, 1200], xMinor: 50, width: 0.36, band: true },
+  },
+});
+
+// Neutrino mass - ratio of each spectrum to the massless case, R = C_l(M_nu) / C_l(M_nu = 0), for TT, EE
+// and the lensing potential phi-phi (sep_*_mnu_reparam; R(0) = 1 exactly). Three degenerate massive
+// neutrinos; omega_b, omega_cdm and theta_s fixed (H0 from the model). Log l-axis 50-3000 and fixed
+// y-bands as the original figure, with Planck 2018 TT relative errors. The matter-density pie shows
+// massive neutrinos joining the matter today: omega_c and omega_b fixed, omega_nu = M_nu / 93.14 eV.
+// Opens at M_nu = 0.06 eV (Planck 2018 baseline, the solid LCDM curve); the dotted line is massless.
+const R_TITLE = (x) => `\\(C_\\ell^{\\rm ${x}} / C_{\\ell\\,(M_\\nu=0)}^{\\rm ${x}}\\)`;
+const R_EXPORT = (x) => [{ t:'C', it:true, sub:'ℓ', sup:x }, { t:' / ' }, { t:'C', it:true, sub:'ℓ (Mν=0)', sup:x }];
+createCMBPlot(document.getElementById('emuRootMnu'), {
+  modelUrls: { tt:'./emulator/sep_tt_mnu_reparam/model.json', ee:'./emulator/sep_ee_mnu_reparam/model.json', pp:'./emulator/sep_pp_mnu_reparam/model.json' },
+  dataUrl: DATA,
+  model: 'mnu', xaxis: 'log', showPie: false, showDataToggles: false,
+  sliders: ['M_nu'],
+  start: { M_nu: 0.06 },          // open (and Reset) at Planck 2018's baseline: one massive neutrino, 0.06 eV
+  display: {
+    specs: ['tt', 'ee', 'pp'],
+    reference: 'unity', referenceLabel: 'M\u03BD = 0',
+    extraReference: { label: '\u039BCDM', params: { M_nu: 0.06 } },   // Planck baseline, as on the other graphs
+    dataPoints: false, errorBand: { spec:'tt', source:'planck', label:'Planck 2018 ±1σ' },
+    yLog:   { tt:false, ee:false, pp:false },
+    yFixed: true,
+    yRange: { tt:[0.96, 1.04], ee:[0.96, 1.04], pp:[0.65, 1.03] },
+    yTicks: { tt:[0.97, 1.0, 1.03], ee:[0.97, 1.0, 1.03], pp:[0.70, 0.85, 1.0] }, yTickDigits: 2,
+    yTitle: { tt:R_TITLE('TT'), ee:R_TITLE('EE'), pp:R_TITLE('\\phi\\phi') },
+    exportTitle: { tt:R_EXPORT('TT'), ee:R_EXPORT('EE'), pp:R_EXPORT('φφ') },
+    xRange: [50, 3000], xTicks: [100, 1000],
+    pie: {
+      title: 'Matter density', symbol: 'ω',
+      wedges: (r) => {
+        const { omega_cdm: c, omega_b: b, omega_nu: n } = r.derived, m = c + b + n;
+        return [ { sub:'c', color:PIE_COLOR.cdm, frac:c/m }, { sub:'b', color:PIE_COLOR.b, frac:b/m }, { sub:'ν', color:PIE_COLOR.nu, frac:n/m } ]
+          .filter(w => w.frac > 0);      // no nu label at M_nu = 0
+      },
+    },
   },
 });
 </script>

@@ -47,6 +47,10 @@ Both ACT products trace to Louis et al. 2025, JCAP 11 (2025) 062
 
 ## Planck and SPT (in both files)
 
+(The neutrino-mass graph also uses the Planck TT block of `cmb_data.json` for its relative error band,
+(D ± σ)/D, with no data points drawn.)
+
+
 - **Planck 2018** — PR3 Plik binned CMB bandpowers (asymmetric errors). TT 47.7–2499.0
   (83 bins), TE/EE 47.7–1988.0 (66 bins). Grid consistent with the PR3 Plik binned product;
   values not independently re-verified.

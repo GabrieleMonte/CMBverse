@@ -15,7 +15,7 @@ moves parameter sliders, overlaid on binned Planck / ACT / SPT data.
 | `matter.html` | "Baryons and Dark Matter" page — **two live emulator graphs** driven by the `omega_cdm` slider (see the physics/design docs in `/Users/chase/cosmology/pages_matter`). |
 | `primordial_power_spectrum.html` | Live S3 emulator graphs (`ln10^{10}A_s`, `n_s`). |
 | `dark_energy.html`, `photon_depth.html`, `curvature.html`, `ODSA.html` | Live **geo** emulator graphs (`model:'geo'`, log-linear ℓ-axis). |
-| `neutrinos.html` | Graphs 1 & 2 live on the **neutrino** emulator (`model:'neutrino'`): Graph 1 varies N_eff with BBN helium; Graph 2 holds the damping angle fixed and shows the undamped, 4th-peak-normalized spectra. The **neutrino-mass** graph is still image-based (`imageSwitch.js`). |
+| `neutrinos.html` | Three live graphs. Graphs 1 & 2 on the **neutrino** emulator (`model:'neutrino'`): Graph 1 varies N_eff with BBN helium; Graph 2 holds the damping angle fixed and shows the undamped, 4th-peak-normalized spectra with a zoom column. The **neutrino-mass** graph on the **mnu** emulator (`model:'mnu'`): ratios to the massless case for TT/EE/φφ. |
 | `NHF.html` | Live **neutrino** emulator with two sliders (N_eff, YHe) over the model's full plane. |
 | `tensor_scalar_ratio.html` | Still image-based (`imageSwitch.js` flips precomputed PNGs in `class_figures/`). |
 | `about.html`, `credits.html` | Static info pages. |
@@ -76,6 +76,22 @@ Two pages (`index.html`, `matter.html`) share one engine:
 - Physics/design and every decision: `/Users/chase/cosmology/pages_model_neutrino/README.md` (§7, D7–D10).
   Proposed prose fixes for both pages: `/Users/chase/cosmology/pages_model_neutrino/PAGE_TEXT_CHANGES.md`.
 
+## Neutrino-mass graph (`neutrinos.html`, third graph)
+
+- **Model** — `emulator/cmb-emulator-mnu.js` loads `sep_{tt,ee,pp}_mnu_reparam` (TF.js from
+  `~/cosmology/connect_public/trained_models`; matches Python to ≤1.2×10⁻⁷). One slider **`M_nu`**
+  (0–1 eV, three degenerate massive neutrinos); network input `m_ncdm = M_ν/3`. Outputs are **ratios**
+  `R = C_ℓ(M_ν)/C_ℓ(M_ν=0)` for **TT, EE, φφ** (no TE), returned in the `Dl`/`Cl` fields so the widget can
+  draw them; the model's `R = 1 + m·g` form makes **R(0) = 1 exactly**. ℓ-grid = the geo grid (123 nodes).
+  H₀, σ8, Ω_m, … are model outputs; `derived` also carries ω_b, ω_cdm (fixed) and ω_ν = M_ν/93.14 eV.
+- **Display** (matches the original figure): log ℓ-axis 50–3000 with 10² / 10³ labels, fixed y-bands
+  (TT/EE 0.96–1.04, φφ 0.65–1.03), dotted line at R = 1, Planck 2018 TT relative errors (D ± σ)/D as a
+  light-grey filled envelope (legend: a shaded box), long ratio titles on screen and in exports. Opens (and resets) at **M_ν = 0.06 eV**, Planck
+  2018's baseline, drawn as the solid **ΛCDM** reference; the dotted line is massless (M_ν = 0).
+  Sidebar: a **matter-density pie** (ω_c, ω_b, ω_ν —
+  neutrinos joining the matter today) and the usual derived values.
+- Physics/design: `/Users/chase/cosmology/pages_model_massive_neutrino/README.md` (§4 deploy contract).
+
 ### `createCMBPlot` options added for these pages
 - `model: 's3' | 'geo' | 'neutrino'` — backend lookup (`BACKENDS` in `cmb-plot.js`).
 - `display: { transform, normalize:{extremum,lmin,lmax}, reference:'model', yLog, yRange, ySym, yTitle,
@@ -83,6 +99,15 @@ Two pages (`index.html`, `matter.html`) share one engine:
   view; every field defaults to the standard D_ℓ figure. `zoom` adds the zoom column (G2 only) and the
   `.emu-widget--zoom` CSS hook (wider plot, 220 px sidebar).
 - A widget with no `dataUrl` hides the data legend rows and draws no overlays.
+- `model: 'mnu'`; `xaxis: 'log'` (pure log ℓ, powers of ten labelled 10ⁿ, log minor ticks).
+- `display: { specs:['tt','ee','pp'], reference:'unity', referenceLabel, yFixed, yTicks, yTickDigits,
+  dataPoints:false, errorBand:{spec,source,label}, exportTitle:{spec:[{t,it,sub,sup}]},
+  pie:{title,symbol,wedges(result,params)} }` — panel spectra, a dotted unity reference, fixed y-axes and
+  ticks, a data error band without points, rich-text export titles, and an extra pie computed from the
+  model result. `PIE_COLOR` (now with `nu`) is exported for page configs.
+- `start: {param: value}` — initial and Reset values of slider params; `display.extraReference: {label,
+  params}` — a second (solid) reference curve from the emulator at `params`. One `legendRows()` list feeds the
+  HTML legend and both exports; line marks are `line`, `dotted` or `dot`.
 
 ---
 

@@ -119,6 +119,7 @@
 .emu-legend input[type="checkbox"]{ width:13px; height:13px; margin:0; cursor:pointer; }
 .emu-legend .emu-leg-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
 .emu-legend .emu-leg-line{ width:16px; height:2px; display:inline-block; margin:0 0 0 2px; }
+.emu-legend .emu-leg-box{ width:16px; height:10px; display:inline-block; margin:0 0 0 2px; }  /* shaded envelope */
 
 /* zoom-column layout (display.zoom; neutrinos.html Graph 2 only): a wider plot for the
    main + zoom columns and a slimmer sidebar (slider, buttons, derived values; no pie).
