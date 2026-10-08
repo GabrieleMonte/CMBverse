@@ -437,7 +437,10 @@ export function createCMBPlot(root, config){
       num.textContent = fmt(name, params[name]);
       val.append(lab, num);
       const r = document.createElement('input');
-      r.type='range'; r.min=lo; r.max=hi; r.step=(hi-lo)/500; r.value=params[name];
+      // 500 steps. Round the step to 12 significant digits: (hi-lo)/500 can come out a hair too large in
+      // binary (e.g. 6.8/500 = 0.013600000000000001), so 500 steps overshoot hi and the browser stops the
+      // thumb one step short of the maximum (N_eff ended at 6.8864 instead of 6.9).
+      r.type='range'; r.min=lo; r.max=hi; r.step=Number(((hi-lo)/500).toPrecision(12)); r.value=params[name];
       setFill(r);
       r.addEventListener('input', () => {
         params[name] = parseFloat(r.value);
