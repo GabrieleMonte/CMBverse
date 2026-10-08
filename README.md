@@ -1,9 +1,10 @@
 # CMBverse
 
-An interactive educational website showing how the six ΛCDM cosmological parameters shape the
-Cosmic Microwave Background (CMB) power spectra. It is a **static site** (HTML/CSS/JS) with a
-**TensorFlow.js CMB emulator** that predicts the TT/EE/TE spectra live in the browser as the user
-moves parameter sliders, overlaid on binned Planck / ACT / SPT data.
+An interactive educational website showing how cosmological parameters shape the Cosmic Microwave
+Background (CMB) power spectra — the six ΛCDM parameters on the home page, and one effect at a time on the
+parameter pages (matter, primordial spectrum, dark energy, optical depth, curvature, neutrino number,
+helium and mass). It is a **static site** (HTML/CSS/JS) with **TensorFlow.js CMB emulators** that predict
+the spectra live in the browser as the user moves sliders, overlaid on binned Planck / ACT / SPT data.
 
 ---
 
@@ -12,7 +13,7 @@ moves parameter sliders, overlaid on binned Planck / ACT / SPT data.
 | Path | What it is |
 |---|---|
 | `index.html` | Home page — the full **six-parameter** live emulator explorer. |
-| `matter.html` | "Baryons and Dark Matter" page — **two live emulator graphs** driven by the `omega_cdm` slider (see the physics/design docs in `/Users/chase/cosmology/pages_matter`). |
+| `matter.html` | "Baryons and Dark Matter" page — **two live S3 emulator graphs**: Graph 1 slides `omega_cdm` (ω_b, Ω_Λ fixed); Graph 2 slides `omega_b` with `omega_cdm` compensating (ω_m fixed) and θ_s held fixed (`constrainThetaS`). Physics/design: `/Users/chase/cosmology/pages_matter`. The dedicated matter model (`pages_model_matter`) is trained but **not yet deployed**. |
 | `primordial_power_spectrum.html` | Live S3 emulator graphs (`ln10^{10}A_s`, `n_s`). |
 | `dark_energy.html`, `photon_depth.html`, `curvature.html`, `ODSA.html` | Live **geo** emulator graphs (`model:'geo'`, log-linear ℓ-axis). |
 | `neutrinos.html` | Three live graphs. Graphs 1 & 2 on the **neutrino** emulator (`model:'neutrino'`): Graph 1 varies N_eff with BBN helium; Graph 2 holds the damping angle fixed and shows the undamped, 4th-peak-normalized spectra with a zoom column. The **neutrino-mass** graph on the **mnu** emulator (`model:'mnu'`): ratios to the massless case for TT/EE/φφ. |
@@ -27,31 +28,41 @@ moves parameter sliders, overlaid on binned Planck / ACT / SPT data.
 
 ## The interactive emulator widget
 
-Two pages (`index.html`, `matter.html`) share one engine:
+Every live graph is one instance of a shared widget driving one of four emulator backends.
 
-- **Model** — `emulator/cmb-emulator-separate.js` loads **three separate single-spectrum MLPs**
-  (`sep_tt_5000ep`, `sep_te_5000ep`, `sep_ee_5000ep`; the "S3" deployment). Public API:
-  `CMBEmulator.load(urls, tf)`, `.predict(params)`, `.curve/.curveFrom(...)`, and a `META`
-  (`inputNames`, `ranges`, `defaults`, `ell`, derived names).
+### Emulator backends (`emulator/cmb-emulator-*.js`)
+Each module loads three single-spectrum TF.js graph models (converted from
+`~/cosmology/connect_public/trained_models`) and exposes the same API: `Emulator.load(urls, tf)`,
+`.predict(params)` → `{ell, Cl, Dl, derived}`, `.curve/.curveFrom(...)`, and a `META` (`inputNames`,
+`ranges`, `defaults`, `ell`, `derivedNames`). `cmb-plot.js` picks one with `config.model`.
 
-  | | |
-  |---|---|
-  | **Inputs (6)** | `omega_b`, `omega_cdm`, `Omega_Lambda`, `ln10^{10}A_s`, `n_s`, `tau_reio` (note: **`Omega_Lambda`, not `h`** — the model is trained flat, so `Omega_k=0` and `h`/`H₀` are *derived*) |
-  | **Defaults (Planck 2018)** | `0.02237, 0.12, 0.685, 3.044, 0.9649, 0.0544` |
-  | **`omega_cdm` uses `log10`** internally (`_inputVector`); the slider is full-range (`[1e-5, 0.25]`). |
-  | **Derived outputs** | `z_reio`, `Omega_Lambda`, `YHe`, `A_s`, `sigma8`, `100*theta_s` |
-  | **ℓ-grid** | log-linear nodes to `l_max = 4030` |
+| `model` | Module / models | Inputs (sliders) | ℓ-grid / axis | Used by |
+|---|---|---|---|---|
+| `s3` (default) | `cmb-emulator-separate.js` / `sep_*_5000ep` | 6: `omega_b, omega_cdm, Omega_Lambda, ln10^{10}A_s, n_s, tau_reio` (`omega_cdm` fed as `log10`; full range, no clamp) | 115 nodes, linear axis | `index.html`, `matter.html`, `primordial_power_spectrum.html` |
+| `geo` | `cmb-emulator-geo.js` / `sep_*_curv` | 4: `Omega_Lambda, Omega_k, tau_reio, ln10^{10}A_s` (ω_b, ω_cdm, n_s fixed) | 123 nodes (every ℓ ≤ 30), log-linear axis | `dark_energy`, `photon_depth`, `curvature`, `ODSA` |
+| `neutrino` | `cmb-emulator-neutrino.js` / `sep_*_neutrino` | 2: `N_eff, YHe` (ω_cdm = f(N_eff) inside; θ_s fixed) | S3 grid, linear axis | `NHF.html`, `neutrinos.html` Graphs 1–2 |
+| `mnu` | `cmb-emulator-mnu.js` / `sep_{tt,ee,pp}_mnu_reparam` | 1: `M_nu` (eV) | geo grid, log axis | `neutrinos.html` mass graph |
 
-- **Shared plot widget** — `emulator/cmb-plot.js` (+ `emulator/cmb-plot.css`) exposes
-  `createCMBPlot(root, config)`, which builds the whole widget (3-panel TT/EE/TE canvas, sliders,
-  legend, energy-density pie, derived-parameter readout, PNG/SVG export) inside `root`. Config
-  controls which inputs get sliders, per-slider range overrides, a `derive(params)` hook for
-  dependent parameters, and which sidebar sections show. Any number of instances can coexist on a
-  page (`matter.html` runs two).
+S3 defaults (Planck 2018): `omega_b 0.02237, omega_cdm 0.12, Omega_Lambda 0.685, ln10^{10}A_s 3.044,
+n_s 0.9649, tau_reio 0.0544`. All models output dimensionless `Dl = Cl·ℓ(ℓ+1)/2π` (the widget converts to
+10³ μK²), except `mnu`, which outputs ratios.
 
-- **Derived `H₀`** — `H₀` is **not** a model output. `cmb-plot.js` computes it from the flat
-  closure `h² = (ω_b + ω_cdm + ω_rad+ν) / (1 − Ω_Λ − Ω_k)` (the small radiation+neutrino term is
-  calibrated so the Planck fiducial returns `h = 0.6736`) and displays `H₀ = 100·h` in km/s/Mpc.
+**H₀.** For `geo`, `neutrino` and `mnu`, H₀ is a **model output** (their training fixed θ_s or used a
+closure). S3 takes `Omega_Lambda`, not `h`, and is trained flat, so `cmb-plot.js` computes H₀ from
+`h² = (ω_b + ω_cdm + ω_rad+ν) / (1 − Ω_Λ − Ω_k)` (the radiation+neutrino term is calibrated so the Planck
+fiducial returns h = 0.6736).
+
+### Shared plot widget (`emulator/cmb-plot.js` + `cmb-plot.css`)
+`createCMBPlot(root, config)` builds one widget inside `root`: the panel canvas (TT/EE/TE by default),
+sliders, legend, pie(s), derived-parameter readout, Reset and Save (PNG/SVG). Any number of instances can
+coexist on a page. Type size and line weights scale with the canvas width, capped at the standard 660 px
+plot width, so every graph renders at the same size. The full option list is in **"`createCMBPlot`
+config reference"** below.
+
+### Scheme pages (`geo`)
+Dark Energy slides Ω_Λ (flat), Photon Optical Depth slides τ, Curvature slides Ω_k (Ω_Λ fixed), and ODSA
+slides τ with A_s coupled by the degeneracy `A_s·e^{−2τ} = const` (`derive`). All use the log-linear ℓ-axis
+(`xaxis:'loglin'`) and no pie. Physics/design: `/Users/chase/cosmology/pages_model_geo/README.md`.
 
 ---
 
@@ -92,22 +103,39 @@ Two pages (`index.html`, `matter.html`) share one engine:
   neutrinos joining the matter today) and the usual derived values.
 - Physics/design: `/Users/chase/cosmology/pages_model_massive_neutrino/README.md` (§4 deploy contract).
 
-### `createCMBPlot` options added for these pages
-- `model: 's3' | 'geo' | 'neutrino'` — backend lookup (`BACKENDS` in `cmb-plot.js`).
-- `display: { transform, normalize:{extremum,lmin,lmax}, reference:'model', yLog, yRange, ySym, yTitle,
-  letter, xRange, xTicks, xMinor, aspect, zoom:{range,xTicks,xMinor,width,band} }` — per-widget plot
-  view; every field defaults to the standard D_ℓ figure. `zoom` adds the zoom column (G2 only) and the
-  `.emu-widget--zoom` CSS hook (wider plot, 220 px sidebar).
-- A widget with no `dataUrl` hides the data legend rows and draws no overlays.
-- `model: 'mnu'`; `xaxis: 'log'` (pure log ℓ, powers of ten labelled 10ⁿ, log minor ticks).
-- `display: { specs:['tt','ee','pp'], reference:'unity', referenceLabel, yFixed, yTicks, yTickDigits,
-  dataPoints:false, errorBand:{spec,source,label}, exportTitle:{spec:[{t,it,sub,sup}]},
-  pie:{title,symbol,wedges(result,params)} }` — panel spectra, a dotted unity reference, fixed y-axes and
-  ticks, a data error band without points, rich-text export titles, and an extra pie computed from the
-  model result. `PIE_COLOR` (now with `nu`) is exported for page configs.
-- `start: {param: value}` — initial and Reset values of slider params; `display.extraReference: {label,
-  params}` — a second (solid) reference curve from the emulator at `params`. One `legendRows()` list feeds the
-  HTML legend and both exports; line marks are `line`, `dotted` or `dot`.
+## `createCMBPlot` config reference
+
+Every option defaults to the standard D_ℓ figure, so a page sets only what it changes.
+
+**Top level**
+- `modelUrls` (required), `model: 's3' | 'geo' | 'neutrino' | 'mnu'`, `dataUrl`, `lcdmUrl`.
+- `sliders` (which inputs get sliders), `ranges` (per-slider overrides), `fixed` (params pinned to
+  non-default values), `start` (initial and Reset values of slider params, e.g. `{ M_nu: 0.06 }`),
+  `derive(params)` (recompute dependent params on every update), `constrainThetaS` (matter Graph 2).
+- `xaxis: 'linear' | 'loglin' | 'log'` — `loglin` = log below ℓ 30, linear above; `log` = pure log, powers of
+  ten labelled 10ⁿ with log minor ticks.
+- `showPie`, `showMatterPie`, `showDerived`, `showSave`, `showLegend`, `showDataToggles` (booleans).
+
+**`display: { … }`** (per-widget plot view)
+- *Curves:* `specs` (panel spectra, e.g. `['tt','ee','pp']`); `transform(spec, ell, value)` (applied to every
+  displayed curve); `normalize: {extremum, lmin, lmax}` (scale each curve so its n-th extremum matches the
+  reference's).
+- *References:* `reference: 'model'` (black curve = the emulator at the defaults) or `'unity'` (dotted line
+  at 1) with `referenceLabel`; `extraReference: {label, params}` (a second, solid curve from the emulator at
+  `params`).
+- *Data:* `dataPoints: false` (load `dataUrl` without drawing points); `errorBand: {spec, source, label}`
+  (light-grey filled envelope (D+σ⁺)/D … (D−σ⁻)/D, legend shows a shaded box).
+- *Axes:* `yLog`, `yRange`, `ySym`, `yFixed`, `yTicks`, `yTickDigits`, `yHideLabels` (ticks drawn without a
+  number), `yTitle` (MathJax), `exportTitle` (rich-text titles `[{t, it, sub, sup}]` for PNG/SVG), `letter`
+  (title symbol), `xRange`, `xTicks`, `xMinor`, `aspect` (canvas height/width, default 1.19).
+- *Layout:* `zoom: {range, xTicks, xMinor, width, band}` — a narrower zoom column beside the panels with a
+  y-range fixed across the slider, the window shaded on the main panels, and the `.emu-widget--zoom` CSS
+  hook (wider plot, 220 px sidebar); stacks below the main panels under ~610 px canvas width.
+- *Sidebar:* `pie: {title, symbol, wedges(result, params)}` — an extra pie computed from the model result
+  (`PIE_COLOR`, incl. `nu`, is exported for page configs).
+
+The HTML legend and both exports share one entry list (`legendRows()`), with marks `line`, `dotted`, `dot`
+or `fill`. A widget without data points hides the data legend rows.
 
 ---
 
@@ -122,16 +150,16 @@ Full provenance is in **`emulator/data/README.md`**. In brief:
 
 ---
 
-## Session changelog (2026-09-23 → 24)
+## History
 
-- **Data provenance.** Verified the ACT block against the official ACT DR6 CMB-only release
-  (`DR6-ACT-lite`), confirmed SPT-3G D1 (Camphuis et al. 2025), added machine-readable `meta` to the
-  JSON, wrote `emulator/data/README.md`, removed the stale `cmb_data_1.json`. Switched the site's ACT
-  overlay to the **Δℓ=20 plotting** bandpowers (trimmed ℓ ≤ 4100); kept the Δℓ=50 set as a companion.
-- **Refactor.** Extracted the home page's inline emulator driver into the shared, multi-instance
-  `emulator/cmb-plot.js` + `cmb-plot.css`; `index.html` now instantiates it. Added `H₀` to the
-  derived-parameter readout.
-- **`matter.html`.** Replaced the two image-flip graphs with two live emulator instances driven by
-  the `omega_cdm` slider only, each with its pie and derived readout. The physics and design of these
-  two graphs (what is fixed, the `Omega_Lambda`-fixed scheme, and the `theta_s`-fixed alternative) are
-  documented separately in `/Users/chase/cosmology/pages_matter`.
+The commit messages are the detailed changelog (`git log --stat`). Milestones:
+
+- **2026-09-03** — performance: WASM backend (WebGL/CPU fallback), rAF-gated sliders, one inference per render.
+- **2026-09-06** — the S3 deployment: three separate 5000-epoch spectrum models, full-range ω_cdm slider.
+- **2026-09-23/24** — data provenance (ACT DR6 Δℓ=20 plotting bandpowers verified, SPT-3G D1, machine-readable
+  `meta`, `emulator/data/README.md`); the shared multi-instance widget `cmb-plot.js`; live `matter.html`.
+- **2026-09-25** — `matter.html` Graph 2 θ_s-fixed with an ω_b slider and the matter-density pie; live
+  primordial page (S3); the `geo` backend and the four scheme pages.
+- **2026-10-07** — the `neutrino` backend (`NHF.html`, `neutrinos.html` Graphs 1–2, with CLASS-computed YHe
+  lines and Graph 2's zoom column) and the `mnu` backend (the neutrino-mass graph); the `display` options;
+  text/line scale capped at the standard plot width.
