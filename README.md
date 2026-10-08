@@ -13,7 +13,7 @@ the spectra live in the browser as the user moves sliders, overlaid on binned Pl
 | Path | What it is |
 |---|---|
 | `index.html` | Home page — the full **six-parameter** live emulator explorer. |
-| `matter.html` | "Baryons and Dark Matter" page — **two live S3 emulator graphs**: Graph 1 slides `omega_cdm` (ω_b, Ω_Λ fixed); Graph 2 slides `omega_b` with `omega_cdm` compensating (ω_m fixed) and θ_s held fixed (`constrainThetaS`). Physics/design: `/Users/chase/cosmology/pages_matter`. The dedicated matter model (`pages_model_matter`) is trained but **not yet deployed**. |
+| `matter.html` | "Baryons and Dark Matter" page — **two live graphs on the dedicated matter emulator** (`model:'matter'`): Graph 1 slides `omega_cdm` 10⁻⁵–0.25 (ω_b, Ω_Λ fixed); Graph 2 slides `omega_b` 0.005–0.14237 (up to an all-baryon universe) with `omega_cdm` compensating (ω_m fixed) and θ_s held fixed via the trained Ω_Λ(ω_b) curve. Physics/design: `/Users/chase/cosmology/pages_model_matter`. |
 | `primordial_power_spectrum.html` | Live S3 emulator graphs (`ln10^{10}A_s`, `n_s`). |
 | `dark_energy.html`, `photon_depth.html`, `curvature.html`, `ODSA.html` | Live **geo** emulator graphs (`model:'geo'`, log-linear ℓ-axis). |
 | `neutrinos.html` | Three live graphs. Graphs 1 & 2 on the **neutrino** emulator (`model:'neutrino'`): Graph 1 varies N_eff with BBN helium; Graph 2 holds the damping angle fixed and shows the undamped, 4th-peak-normalized spectra with a zoom column. The **neutrino-mass** graph on the **mnu** emulator (`model:'mnu'`): ratios to the massless case for TT/EE/φφ. |
@@ -28,7 +28,7 @@ the spectra live in the browser as the user moves sliders, overlaid on binned Pl
 
 ## The interactive emulator widget
 
-Every live graph is one instance of a shared widget driving one of four emulator backends.
+Every live graph is one instance of a shared widget driving one of five emulator backends.
 
 ### Emulator backends (`emulator/cmb-emulator-*.js`)
 Each module loads three single-spectrum TF.js graph models (converted from
@@ -38,7 +38,8 @@ Each module loads three single-spectrum TF.js graph models (converted from
 
 | `model` | Module / models | Inputs (sliders) | ℓ-grid / axis | Used by |
 |---|---|---|---|---|
-| `s3` (default) | `cmb-emulator-separate.js` / `sep_*_5000ep` | 6: `omega_b, omega_cdm, Omega_Lambda, ln10^{10}A_s, n_s, tau_reio` (`omega_cdm` fed as `log10`; full range, no clamp) | 115 nodes, linear axis | `index.html`, `matter.html`, `primordial_power_spectrum.html` |
+| `s3` (default) | `cmb-emulator-separate.js` / `sep_*_5000ep` | 6: `omega_b, omega_cdm, Omega_Lambda, ln10^{10}A_s, n_s, tau_reio` (`omega_cdm` fed as `log10`; full range, no clamp) | 115 nodes, linear axis | `index.html`, `primordial_power_spectrum.html` |
+| `matter` | `cmb-emulator-matter.js` / `sep_*_matter` | 3: `omega_b, omega_cdm, Omega_Lambda` (linear; YHe = 0.245, n_s, τ, A_s fixed) | S3 grid, linear axis | `matter.html` |
 | `geo` | `cmb-emulator-geo.js` / `sep_*_curv` | 4: `Omega_Lambda, Omega_k, tau_reio, ln10^{10}A_s` (ω_b, ω_cdm, n_s fixed) | 123 nodes (every ℓ ≤ 30), log-linear axis | `dark_energy`, `photon_depth`, `curvature`, `ODSA` |
 | `neutrino` | `cmb-emulator-neutrino.js` / `sep_*_neutrino` | 2: `N_eff, YHe` (ω_cdm = f(N_eff) inside; θ_s fixed) | S3 grid, linear axis | `NHF.html`, `neutrinos.html` Graphs 1–2 |
 | `mnu` | `cmb-emulator-mnu.js` / `sep_{tt,ee,pp}_mnu_reparam` | 1: `M_nu` (eV) | geo grid, log axis | `neutrinos.html` mass graph |
@@ -47,7 +48,7 @@ S3 defaults (Planck 2018): `omega_b 0.02237, omega_cdm 0.12, Omega_Lambda 0.685,
 n_s 0.9649, tau_reio 0.0544`. All models output dimensionless `Dl = Cl·ℓ(ℓ+1)/2π` (the widget converts to
 10³ μK²), except `mnu`, which outputs ratios.
 
-**H₀.** For `geo`, `neutrino` and `mnu`, H₀ is a **model output** (their training fixed θ_s or used a
+**H₀.** For `geo`, `matter`, `neutrino` and `mnu`, H₀ is a **model output** (their training fixed θ_s or used a
 closure). S3 takes `Omega_Lambda`, not `h`, and is trained flat, so `cmb-plot.js` computes H₀ from
 `h² = (ω_b + ω_cdm + ω_rad+ν) / (1 − Ω_Λ − Ω_k)` (the radiation+neutrino term is calibrated so the Planck
 fiducial returns h = 0.6736).
@@ -108,10 +109,11 @@ slides τ with A_s coupled by the degeneracy `A_s·e^{−2τ} = const` (`derive`
 Every option defaults to the standard D_ℓ figure, so a page sets only what it changes.
 
 **Top level**
-- `modelUrls` (required), `model: 's3' | 'geo' | 'neutrino' | 'mnu'`, `dataUrl`, `lcdmUrl`.
+- `modelUrls` (required), `model: 's3' | 'geo' | 'matter' | 'neutrino' | 'mnu'`, `dataUrl`, `lcdmUrl`.
 - `sliders` (which inputs get sliders), `ranges` (per-slider overrides), `fixed` (params pinned to
   non-default values), `start` (initial and Reset values of slider params, e.g. `{ M_nu: 0.06 }`),
-  `derive(params)` (recompute dependent params on every update), `constrainThetaS` (matter Graph 2).
+  `derive(params)` (recompute dependent params on every update), `constrainThetaS` (solve Ω_Λ live to
+  hold the model's θ_s; used by the earlier S3 matter Graph 2, kept for S3 widgets).
 - `xaxis: 'linear' | 'loglin' | 'log'` — `loglin` = log below ℓ 30, linear above; `log` = pure log, powers of
   ten labelled 10ⁿ with log minor ticks.
 - `showPie`, `showMatterPie`, `showDerived`, `showSave`, `showLegend`, `showDataToggles` (booleans).
@@ -150,7 +152,19 @@ Full provenance is in **`emulator/data/README.md`**. In brief:
 
 ---
 
-## History
+## Open follow-ups
+
+- **Pie labels at zero-size wedges** — the built-in energy and matter pies print a label for every wedge, so
+  at extreme slider values (e.g. matter Graph 2's all-baryon end) labels of empty wedges overlap. The mass
+  graph's custom pie avoids it by dropping zero wedges in its page config; the built-in pies would need the
+  same filter in `updatePie()` (shared code).
+- **Page prose** — proposed text fixes for `neutrinos.html` / `NHF.html` are in
+  `/Users/chase/cosmology/pages_model_neutrino/PAGE_TEXT_CHANGES.md` (applied by hand). `matter.html`'s text
+  predates Graph 2's extension to the all-baryon end and could mention it.
+- **Graph 2 (`neutrinos.html`) above ℓ ≈ 3000** — whether to caption, cut, or refit the undamping tail
+  (see `PAGE_TEXT_CHANGES.md` G2-d).
+
+
 
 The commit messages are the detailed changelog (`git log --stat`). Milestones:
 
@@ -162,4 +176,5 @@ The commit messages are the detailed changelog (`git log --stat`). Milestones:
   primordial page (S3); the `geo` backend and the four scheme pages.
 - **2026-10-07** — the `neutrino` backend (`NHF.html`, `neutrinos.html` Graphs 1–2, with CLASS-computed YHe
   lines and Graph 2's zoom column) and the `mnu` backend (the neutrino-mass graph); the `display` options;
-  text/line scale capped at the standard plot width.
+  text/line scale capped at the standard plot width; the `matter` backend on `matter.html` (Graph 2 up to
+  the all-baryon end); sliders reach their exact maxima.

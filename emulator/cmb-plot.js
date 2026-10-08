@@ -9,7 +9,7 @@
  *
  * config = {
  *   modelUrls : {tt, te, ee},           // required
- *   model     : 's3' | 'geo' | 'neutrino',  // emulator backend (default 's3'; see BACKENDS)
+ *   model     : 's3' | 'geo' | 'neutrino' | 'mnu' | 'matter',  // emulator backend (default 's3'; see BACKENDS)
  *   xaxis     : 'linear' | 'loglin',    // multipole axis (default 'linear')
  *   dataUrl, lcdmUrl,                   // optional overlays
  *   sliders   : ['omega_cdm', ...],     // which inputs get sliders (default: all six)
@@ -24,6 +24,7 @@ import CMBEmulatorS3, { META as META_S3 } from './cmb-emulator-separate.js';
 import CMBEmulatorGeo, { META as META_GEO } from './cmb-emulator-geo.js';
 import CMBEmulatorNeutrino, { META as META_NEU } from './cmb-emulator-neutrino.js';
 import CMBEmulatorMnu, { META as META_MNU } from './cmb-emulator-mnu.js';
+import CMBEmulatorMatter, { META as META_MAT } from './cmb-emulator-matter.js';
 
 // Emulator backends, selected per widget by config.model (default 's3').
 const BACKENDS = {
@@ -31,6 +32,7 @@ const BACKENDS = {
   geo:      { Emulator: CMBEmulatorGeo,      META: META_GEO },   // 4-input curvature model (scheme pages)
   neutrino: { Emulator: CMBEmulatorNeutrino, META: META_NEU },   // (N_eff, YHe) plane, theta_s fixed (neutrino pages)
   mnu:      { Emulator: CMBEmulatorMnu,      META: META_MNU },   // neutrino mass: ratios C_l(M_nu)/C_l(0), TT/EE/phi-phi
+  matter:   { Emulator: CMBEmulatorMatter,   META: META_MAT },   // matter page: omega_b, omega_cdm, Omega_Lambda (YHe fixed)
 };
 
 // ---- parameter display config (MathJax labels + value formatting) ----------

@@ -77,42 +77,49 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
 
-    <!-- Two live emulator instances, same model as index.html, omega_cdm slider only -->
+    <!-- Two live emulator instances on the dedicated matter model (pages_model_matter, sep_*_matter) -->
     <script type="module">
     import { createCMBPlot } from './emulator/cmb-plot.js';
+    import { loadMatterOmegaL } from './emulator/cmb-emulator-matter.js';
 
     const MODELS = {
-      tt: './emulator/sep_tt_5000ep/model.json',
-      te: './emulator/sep_te_5000ep/model.json',
-      ee: './emulator/sep_ee_5000ep/model.json',
+      tt: './emulator/sep_tt_matter/model.json',
+      te: './emulator/sep_te_matter/model.json',
+      ee: './emulator/sep_ee_matter/model.json',
     };
     const DATA = './emulator/data/cmb_data.json';
     const LCDM = './emulator/data/lcdm.json';
 
-    // Fiducial physical matter density (omega_b + omega_cdm), held fixed in scheme 2.
+    // Fiducial physical matter density (omega_b + omega_cdm), held fixed on Graph 2.
     const OMEGA_M_FID = 0.02237 + 0.12;   // = 0.14237
+    // Graph 2's Omega_Lambda(omega_b): the theta_s-fixed curve the model was trained on (CLASS).
+    const OL = await loadMatterOmegaL('./emulator/data/matter_g2_omegal.json');
 
     // Graph 1 — vary omega_cdm, omega_b FIXED at fiducial. Omega_Lambda & Omega_k
-    // held fixed => omega_m changes and h rises (visible in derived params).
+    // held fixed => omega_m changes and h rises (visible in derived params). H0 comes from the model.
     createCMBPlot(document.getElementById('emuRootDM'), {
       modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
+      model: 'matter',
       sliders: ['omega_cdm'],
-      ranges: { 'omega_cdm': [1e-5, 0.25] },   // full emulator range
+      ranges: { 'omega_cdm': [1e-5, 0.25] },
       showMatterPie: true,
     });
 
-    // Graph 2 — the slider now varies omega_b directly; omega_cdm compensates to keep
-    // omega_m fixed. Instead of pinning Omega_Lambda, we hold the acoustic scale theta_s
-    // fixed at its fiducial value (constrainThetaS): the widget solves Omega_Lambda per
-    // update so the emulator's 100*theta_s stays constant. Omega_Lambda & H0 therefore VARY
-    // (visible in derived params) while the peaks stay put; diffusion damping shifts.
-    // omega_b spans its trained range [0.015, 0.03] (=> omega_cdm in [0.11237, 0.12737]).
+    // Graph 2 — the slider varies omega_b from 0.005 up to omega_m (an all-baryon universe);
+    // omega_cdm compensates to keep omega_m fixed (floored at 1e-5, as in training). The acoustic
+    // scale theta_s is held at its fiducial value: Omega_Lambda follows the CLASS theta_s-fixed curve
+    // the model was trained on (not a live solve on the emulator, which overshoots the trained range
+    // near the all-baryon end). Omega_Lambda & H0 therefore VARY (H0 up to ~244) while the peaks stay
+    // put; baryon loading and diffusion damping change.
     createCMBPlot(document.getElementById('emuRootAeq'), {
       modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
+      model: 'matter',
       sliders: ['omega_b'],
-      ranges: { 'omega_b': [0.015, 0.03] },
-      derive: (p) => { p['omega_cdm'] = OMEGA_M_FID - p['omega_b']; },
-      constrainThetaS: true,
+      ranges: { 'omega_b': [0.005, OMEGA_M_FID] },
+      derive: (p) => {
+        p['omega_cdm'] = Math.max(OMEGA_M_FID - p['omega_b'], 1e-5);
+        p['Omega_Lambda'] = OL.omegaL(p['omega_b']);
+      },
       showMatterPie: true,
     });
     </script>

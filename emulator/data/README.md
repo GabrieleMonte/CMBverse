@@ -61,6 +61,18 @@ Both ACT products trace to Louis et al. 2025, JCAP 11 (2025) 062
   Camphuis et al. 2025 ([arXiv:2506.20707](https://arxiv.org/abs/2506.20707)). Grid/binning
   match the official release; values visually confirmed against published figures.
 
+## `matter_g2_omegal.json` — Ω_Λ(ω_b) for the matter page's Graph 2
+
+Not observational data: the θ_s-fixed curve Ω_Λ(ω_b) that `matter.html` Graph 2 follows, loaded by
+`loadMatterOmegaL()` in `emulator/cmb-emulator-matter.js` and interpolated linearly. It is exactly the curve
+the matter model was trained on: rows 30000–49999 of
+`/Users/chase/cosmology/connect_public/data/matter_schemes_sample.pkl` (built by
+`pages_model_matter/make_production_pickle.py` — a cubic spline through 200 CLASS θ_s-shooting runs at the
+fiducial 100·θ_s, YHe = 0.245, flat), every 20th row kept: 1000 log-spaced points, ω_b 0.005–0.14237,
+Ω_Λ 0.511–0.976, max linear-interpolation error 6×10⁻⁷. Graph 2 sets ω_cdm = max(0.14237 − ω_b, 10⁻⁵),
+as in training. Using this curve (not a live θ_s solve on the emulator) keeps Ω_Λ inside the trained range
+at the all-baryon end.
+
 ## `neutrino_lines.json` — YHe(N_eff) lines for the neutrino page graphs
 
 Not observational data: the two 1-D trajectories that `neutrinos.html` Graphs 1 and 2 follow through
