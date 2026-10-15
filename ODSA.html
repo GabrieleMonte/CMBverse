@@ -74,11 +74,19 @@
     const DATA = './emulator/data/cmb_data.json';
     const LCDM = './emulator/data/lcdm_geo.json';
     // Optical Depth + Scalar Amplitude — vary tau_reio; A_s coupled via the degeneracy
-    // A_s*e^{-2tau}=const (ln10^{10}A_s = 3.044 + 2(tau-0.0544)). Log-linear l-axis.
+    // A_s*e^{-2tau}=const (ln10^{10}A_s = 3.044 + 2(tau-0.0544)). (l axes per panel: see display below)
     const TAU_FID = 0.0544, LNAS_FID = 3.044;
     createCMBPlot(document.getElementById('emuRootODSA'), {
       modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
-      model: 'geo', xaxis: 'loglin', showPie: false,
+      model: 'geo', xaxis: 'linear', showPie: false,
+      // l axes as the original figure: TT and EE (log D_l) share a pure log l axis; TE has its own linear one
+      display: {
+        legendPos: 'bottom-left',     // the TT panel's empty corner (the top right holds the acoustic peaks)
+        xBySpec: {
+          tt: { xaxis:'log', xRange:[2, 4000], xTicks:[10, 100, 1000] },
+          ee: { xaxis:'log', xRange:[2, 4000], xTicks:[10, 100, 1000] },
+        },
+      },
       sliders: ['tau_reio'],
       ranges: { 'tau_reio': [0.0018, 0.2] },
       derive: (p) => { p['ln10^{10}A_s'] = LNAS_FID + 2*(p['tau_reio'] - TAU_FID); },

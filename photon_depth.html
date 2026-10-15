@@ -74,10 +74,18 @@
     const MODELS = { tt:'./emulator/sep_tt_curv/model.json', te:'./emulator/sep_te_curv/model.json', ee:'./emulator/sep_ee_curv/model.json' };
     const DATA = './emulator/data/cmb_data.json';
     const LCDM = './emulator/data/lcdm_geo.json';
-    // Photon Optical Depth — vary tau_reio; all else fiducial. Log-linear l-axis.
+    // Photon Optical Depth — vary tau_reio; all else fiducial. (l axes per panel: see display below)
     createCMBPlot(document.getElementById('emuRootTau'), {
       modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
-      model: 'geo', xaxis: 'loglin', showPie: false,
+      model: 'geo', xaxis: 'linear', showPie: false,
+      // l axes as the original figure: TT and EE (log D_l) share a log-linear l axis - log up to l=30 in the
+      // first quarter of the width, a dashed divider at l=30, linear above; TE has its own linear l axis
+      display: {
+        xBySpec: {
+          tt: { xaxis:'loglin', logFrac:0.25, xDivider:true, xTicks:[10, 30, 500, 1000, 2000, 3000, 4000] },
+          ee: { xaxis:'loglin', logFrac:0.25, xDivider:true, xTicks:[10, 30, 500, 1000, 2000, 3000, 4000] },
+        },
+      },
       sliders: ['tau_reio'],
       ranges: { 'tau_reio': [0.0018, 0.2] },
     });

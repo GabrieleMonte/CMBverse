@@ -83,10 +83,16 @@
     const MODELS = { tt:'./emulator/sep_tt_curv/model.json', te:'./emulator/sep_te_curv/model.json', ee:'./emulator/sep_ee_curv/model.json' };
     const DATA = './emulator/data/cmb_data.json';
     const LCDM = './emulator/data/lcdm_geo.json';
-    // Curvature — vary Omega_k (Omega_Lambda fixed); h derived by the model. Log-linear l-axis.
+    // Curvature — vary Omega_k (Omega_Lambda fixed); h derived by the model. (l axes per panel: see display below)
     createCMBPlot(document.getElementById('emuRootCurv'), {
       modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
-      model: 'geo', xaxis: 'loglin', showPie: false,
+      model: 'geo', xaxis: 'linear', showPie: false,
+      // l axes as the original figure: TT linear D_l on a log l axis (its own axis); EE (log D_l) and TE
+      // (linear) share a linear l axis
+      display: {
+        yLog: { tt:false }, yRange: { tt:[0, 7] },
+        xBySpec: { tt: { xaxis:'log', xRange:[2, 4000], xTicks:[10, 100, 1000] } },
+      },
       sliders: ['Omega_k'],
       ranges: { 'Omega_k': [-0.25, 0.25] },
     });
