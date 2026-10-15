@@ -49,7 +49,7 @@ export const META = {
 };
 
 // ---- Natural cubic spline (identical to cmb-emulator.js) --------------------
-function makeSpline(xs, ys) {
+export function makeSpline(xs, ys) {
   const n = xs.length, h = new Array(n - 1);
   for (let i = 0; i < n - 1; i++) h[i] = xs[i + 1] - xs[i];
   const alpha = new Array(n).fill(0);
@@ -131,7 +131,10 @@ export class CMBEmulatorSeparate {
     const f = makeSpline(META.ell, Array.from(ys));
     const ell = [], value = [];
     const unit = (uK2 ? META.T_CMB_uK * META.T_CMB_uK : 1) * scale;
-    for (let l = lmin; l <= lmax; l++) { ell.push(l); value.push(f(l) * unit); }
+    // opts.ells: explicit l values to evaluate (fractional allowed, e.g. dense sampling for log l axes);
+    // default every integer in [lmin, lmax]
+    if (opts.ells) for (const l of opts.ells) { ell.push(l); value.push(f(l) * unit); }
+    else for (let l = lmin; l <= lmax; l++) { ell.push(l); value.push(f(l) * unit); }
     return { ell, value };
   }
 }

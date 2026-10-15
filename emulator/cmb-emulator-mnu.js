@@ -113,7 +113,10 @@ export class CMBEmulatorMnu {
     const { lmin = 2, lmax = 4030 } = opts;
     const f = makeSpline(META.ell, result.Dl[spec]);
     const ell = [], value = [];
-    for (let l = lmin; l <= lmax; l++) { ell.push(l); value.push(f(l)); }
+    // opts.ells: explicit l values to evaluate (fractional allowed, e.g. dense sampling for log l axes);
+    // default every integer in [lmin, lmax]
+    if (opts.ells) for (const l of opts.ells) { ell.push(l); value.push(f(l)); }
+    else for (let l = lmin; l <= lmax; l++) { ell.push(l); value.push(f(l)); }
     return { ell, value };
   }
 }

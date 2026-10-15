@@ -123,7 +123,10 @@ export class CMBEmulatorGeo {
     const f = makeSpline(META.ell, Array.from(ys));
     const ell = [], value = [];
     const unit = (uK2 ? META.T_CMB_uK * META.T_CMB_uK : 1) * scale;
-    for (let l = lmin; l <= lmax; l++) { ell.push(l); value.push(f(l) * unit); }
+    // opts.ells: explicit l values to evaluate (fractional allowed, e.g. dense sampling for log l axes);
+    // default every integer in [lmin, lmax]
+    if (opts.ells) for (const l of opts.ells) { ell.push(l); value.push(f(l) * unit); }
+    else for (let l = lmin; l <= lmax; l++) { ell.push(l); value.push(f(l) * unit); }
     return { ell, value };
   }
 }
