@@ -8,7 +8,7 @@ theory curve. Each JSON has top-level keys `meta`, `tt`, `ee`, `te`; each spectr
 
 All bandpowers are stored as **D_ℓ = ℓ(ℓ+1)C_ℓ/(2π) in units of 10³ μK²** — i.e. the
 standard μK² value divided by 1000 (e.g. ACT TT 2223.86 μK² is stored as 2.22386). The
-theory (`lcdm.json`) uses the same convention.
+theory references (`lcdm_*.json`) use the same convention.
 
 Row columns:
 
@@ -20,8 +20,7 @@ Row columns:
 
 ## The two data files
 
-`lcdm.json` is the ΛCDM theory curve (ℓ = 2–4000). The two bandpower files differ **only
-in the ACT block**; Planck and SPT are identical between them.
+The two bandpower files differ **only in the ACT block**; Planck and SPT are identical between them.
 
 ### `cmb_data.json` — ACT at Δℓ=20 (plotting binning), trimmed  ← used by `index.html`
 
@@ -36,6 +35,8 @@ in the ACT block**; Planck and SPT are identical between them.
 
 ### `cmb_data_dl50.json` — ACT at Δℓ=50 (likelihood binning), full range
 
+(Used by the neutrino-mass graph for its dark-grey ACT DR6 EE relative error band, (D ± σ)/D, no points.)
+
 - **ACT DR6** CMB-only (foreground-marginalized) bandpowers, **Δℓ=50** (widening to 400 at
   high ℓ). TT 598.5–6123.5 (45 bins), TE 598.5–4123.5 (40), EE 498.5–4123.5 (42).
   Source: `act_dr6_cmb_sacc.fits` from
@@ -47,8 +48,8 @@ Both ACT products trace to Louis et al. 2025, JCAP 11 (2025) 062
 
 ## Planck and SPT (in both files)
 
-(The neutrino-mass graph also uses the Planck TT block of `cmb_data.json` for its relative error band,
-(D ± σ)/D, with no data points drawn.)
+(The neutrino-mass graph also uses the Planck TT and EE blocks of `cmb_data.json` for its light-grey relative
+error bands, (D ± σ)/D, with no data points drawn.)
 
 
 - **Planck 2018** — PR3 Plik binned CMB bandpowers (asymmetric errors). TT 47.7–2499.0
@@ -60,6 +61,30 @@ Both ACT products trace to Louis et al. 2025, JCAP 11 (2025) 062
   [pole.uchicago.edu/public/data/camphuis25](https://pole.uchicago.edu/public/data/camphuis25).
   Camphuis et al. 2025 ([arXiv:2506.20707](https://arxiv.org/abs/2506.20707)). Grid/binning
   match the official release; values visually confirmed against published figures.
+
+## `lcdm_{s3,geo,matter,neutrino}.json` — the black ΛCDM reference curves
+
+Not observational data: CLASS (lensed) at each emulator backend's site fiducial (its slider defaults) with
+that backend's training settings (the training `.param`'s `extra_input`, `l_max_scalars` 4030, Ω_Λ → H₀ by
+CONNECT's flat closure), stored **only at the backend's own ℓ nodes** (the `ell` list in its adapter), D_ℓ in
+10³ μK² with T_CMB = 2.7255 K. The widget splines it exactly as it splines the model, so at default sliders
+the black and purple curves differ only by the emulator's error at its nodes. Each file's `meta` records the
+CLASS input and derived h, 100θ_s, YHe.
+
+| file | backend / pages | fiducial |
+|------|-----------------|----------|
+| `lcdm_s3.json` | S3: `index`, `primordial_power_spectrum` | ω_b 0.02237, ω_cdm 0.12, Ω_Λ 0.685, ln10¹⁰A_s 3.044, n_s 0.9649, τ 0.0544, one 0.06 eV ν (h 0.67389) |
+| `lcdm_geo.json` | geo: the four scheme pages (123 nodes, every ℓ ≤ 30) | as S3 with Ω_k = 0 |
+| `lcdm_matter.json` | matter: `matter` | as S3 with YHe 0.245 |
+| `lcdm_neutrino.json` | neutrino: `NHF`, `neutrinos` Graph 1 | N_eff 3.044 (massless), YHe 0.245640, ω_cdm 0.1201075, 100θ_s 1.041783 (h 0.67808) |
+
+The first three use Planck 2018 means **rounded** to published precision (Ω_Λ 0.685 from 0.6847); the neutrino
+file uses CLASS's **unrounded** defaults (Planck 2018 best fit, massless ν). Pages on different sets differ by
+0.3–2%; the full comparison (and which values each model bakes in) is in the `pages_reference` README.
+
+Made by `/Users/chase/cosmology/pages_reference/make_lcdm_reference.py` (see its README). These replace the
+former `lcdm.json` (a notebook CLASS run at a different Planck cosmology, massless neutrinos, every other ℓ,
+μK² from T = 2.726 K), which sat 0.3–2% off every emulator's fiducial.
 
 ## `matter_g2_omegal.json` — Ω_Λ(ω_b) for the matter page's Graph 2
 

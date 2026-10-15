@@ -14,8 +14,8 @@ the spectra live in the browser as the user moves sliders, overlaid on binned Pl
 |---|---|
 | `index.html` | Home page — the full **six-parameter** live emulator explorer. |
 | `matter.html` | "Baryons and Dark Matter" page — **two live graphs on the dedicated matter emulator** (`model:'matter'`): Graph 1 slides `omega_cdm` 10⁻⁵–0.25 (ω_b, Ω_Λ fixed); Graph 2 slides `omega_b` 0.005–0.14237 (up to an all-baryon universe) with `omega_cdm` compensating (ω_m fixed) and θ_s held fixed via the trained Ω_Λ(ω_b) curve. Physics/design: `/Users/chase/cosmology/pages_model_matter`. |
-| `primordial_power_spectrum.html` | Live S3 emulator graphs (`ln10^{10}A_s`, `n_s`). |
-| `dark_energy.html`, `photon_depth.html`, `curvature.html`, `ODSA.html` | Live **geo** emulator graphs (`model:'geo'`, log-linear ℓ-axis). |
+| `primordial_power_spectrum.html` | One live S3 emulator graph with two sliders (`ln10^{10}A_s`, `n_s`). |
+| `dark_energy.html`, `photon_depth.html`, `curvature.html`, `ODSA.html` | Live **geo** emulator graphs (`model:'geo'`, per-panel ℓ axes). |
 | `neutrinos.html` | Three live graphs. Graphs 1 & 2 on the **neutrino** emulator (`model:'neutrino'`): Graph 1 varies N_eff with BBN helium; Graph 2 holds the damping angle fixed and shows the undamped, 4th-peak-normalized spectra with a zoom column. The **neutrino-mass** graph on the **mnu** emulator (`model:'mnu'`): ratios to the massless case for TT/EE/φφ. |
 | `NHF.html` | Live **neutrino** emulator with two sliders (N_eff, YHe) over the model's full plane. |
 | `tensor_scalar_ratio.html` | Still image-based (`imageSwitch.js` flips precomputed PNGs in `class_figures/`). |
@@ -57,13 +57,28 @@ fiducial returns h = 0.6736).
 `createCMBPlot(root, config)` builds one widget inside `root`: the panel canvas (TT/EE/TE by default),
 sliders, legend, pie(s), derived-parameter readout, Reset and Save (PNG/SVG). Any number of instances can
 coexist on a page. Type size and line weights scale with the canvas width, capped at the standard 660 px
-plot width, so every graph renders at the same size. The full option list is in **"`createCMBPlot`
-config reference"** below.
+plot width, so every graph renders at the same size.
+
+**How curves are drawn.** Each adapter fits a natural cubic spline through the model's ℓ nodes
+(`curveFrom`). On linear ℓ axes the curve is evaluated at every integer ℓ. On log and log-linear axes,
+where integer ℓ would be 15–50 px apart at low ℓ, it is evaluated on a dense grid (log-spaced at 0.005 dex
+up to ℓ ≈ 90, integers above). The black ΛCDM reference (`lcdmUrl`, `emulator/data/lcdm_<backend>.json`) is
+CLASS at the backend's fiducial stored on the backend's own ℓ nodes, so it gets the same spline and the same
+sampling; at default sliders the two curves differ only by the emulator's error at its nodes. The full option
+list is in **"`createCMBPlot` config reference"** below.
 
 ### Scheme pages (`geo`)
 Dark Energy slides Ω_Λ (flat), Photon Optical Depth slides τ, Curvature slides Ω_k (Ω_Λ fixed), and ODSA
-slides τ with A_s coupled by the degeneracy `A_s·e^{−2τ} = const` (`derive`). All use the log-linear ℓ-axis
-(`xaxis:'loglin'`) and no pie. Physics/design: `/Users/chase/cosmology/pages_model_geo/README.md`.
+slides τ with A_s coupled by the degeneracy `A_s·e^{−2τ} = const` (`derive`). No pie. Each panel's axes
+follow the original figures (`display.xBySpec`; references in `cosmology/pages_model_geo/old_site_plot_ref/`):
+
+| Page | TT | EE | TE |
+|---|---|---|---|
+| Dark Energy, Curvature | linear y, **log ℓ** (own axis) | log y, linear ℓ | linear y, linear ℓ (shared with EE) |
+| Photon optical depth | log y, **log-linear ℓ** (log part ¼ of the width, dashed divider at ℓ = 30) | log y, same axis as TT | linear y, linear ℓ (own axis) |
+| ODSA | log y, **log ℓ** (legend bottom left) | log y, same axis as TT | linear y, linear ℓ (own axis) |
+
+ℓ runs 2–4000 on log axes and 0–4000 on linear ones. Physics/design: `/Users/chase/cosmology/pages_model_geo/README.md`.
 
 ---
 
@@ -81,7 +96,7 @@ slides τ with A_s coupled by the degeneracy `A_s·e^{−2τ} = const` (`derive`
 - **Graph 2 display** uses `cmb-plot.js`'s `display` option (below): undamping
   `K_ℓ = D_ℓ·exp(0.68 (θ_d ℓ)^κ)` with κ = 1.3 / 1.17 / 0.91 (TT/EE/TE), θ_d = 1.6144×10⁻³, each spectrum
   scaled so its 4th peak (7th extremum in ℓ 100–2500) matches the fiducial's; reference curve from the
-  emulator at the fiducial; linear y, ℓ 0–4000, no data overlays. A **zoom column** (ℓ 950–1250, as on the
+  emulator at the fiducial; linear y, ℓ 0–3000, no data overlays. A **zoom column** (ℓ 950–1250, as on the
   original figure) sits beside each spectrum with a y-range fixed across the slider, and the window is
   shaded on the main panels; below ~610 px canvas width the zoom panels stack under the main ones.
   Save PNG/SVG exports all six panels.
@@ -97,8 +112,9 @@ slides τ with A_s coupled by the degeneracy `A_s·e^{−2τ} = const` (`derive`
   draw them; the model's `R = 1 + m·g` form makes **R(0) = 1 exactly**. ℓ-grid = the geo grid (123 nodes).
   H₀, σ8, Ω_m, … are model outputs; `derived` also carries ω_b, ω_cdm (fixed) and ω_ν = M_ν/93.14 eV.
 - **Display** (matches the original figure): log ℓ-axis 50–3000 with 10² / 10³ labels, fixed y-bands
-  (TT/EE 0.96–1.04, φφ 0.65–1.03), dotted line at R = 1, Planck 2018 TT relative errors (D ± σ)/D as a
-  light-grey filled envelope (legend: a shaded box), long ratio titles on screen and in exports. Opens (and resets) at **M_ν = 0.06 eV**, Planck
+  (TT/EE 0.96–1.04, φφ 0.65–1.03), dotted line at R = 1, relative data errors (D ± σ)/D as filled envelopes
+  (legend: shaded boxes): Planck 2018 on TT and EE (light grey; on EE it fills the panel above ℓ ≈ 1050, where
+  Planck's EE errors pass 4%) and ACT DR6 Δℓ=50 on EE (dark grey, from `cmb_data_dl50.json`), long ratio titles on screen and in exports. Opens (and resets) at **M_ν = 0.06 eV**, Planck
   2018's baseline, drawn as the solid **ΛCDM** reference; the dotted line is massless (M_ν = 0).
   Sidebar: a **matter-density pie** (ω_c, ω_b, ω_ν —
   neutrinos joining the matter today) and the usual derived values.
@@ -114,8 +130,8 @@ Every option defaults to the standard D_ℓ figure, so a page sets only what it 
   non-default values), `start` (initial and Reset values of slider params, e.g. `{ M_nu: 0.06 }`),
   `derive(params)` (recompute dependent params on every update), `constrainThetaS` (solve Ω_Λ live to
   hold the model's θ_s; used by the earlier S3 matter Graph 2, kept for S3 widgets).
-- `xaxis: 'linear' | 'loglin' | 'log'` — `loglin` = log below ℓ 30, linear above; `log` = pure log, powers of
-  ten labelled 10ⁿ with log minor ticks.
+- `xaxis: 'linear' | 'loglin' | 'log'` — the widget's ℓ axis. `loglin` = log below ℓ 30, linear above; `log` =
+  pure log, powers of ten labelled 10ⁿ with log minor ticks.
 - `showPie`, `showMatterPie`, `showDerived`, `showSave`, `showLegend`, `showDataToggles` (booleans).
 
 **`display: { … }`** (per-widget plot view)
@@ -125,11 +141,20 @@ Every option defaults to the standard D_ℓ figure, so a page sets only what it 
 - *References:* `reference: 'model'` (black curve = the emulator at the defaults) or `'unity'` (dotted line
   at 1) with `referenceLabel`; `extraReference: {label, params}` (a second, solid curve from the emulator at
   `params`).
-- *Data:* `dataPoints: false` (load `dataUrl` without drawing points); `errorBand: {spec, source, label}`
-  (light-grey filled envelope (D+σ⁺)/D … (D−σ⁻)/D, legend shows a shaded box).
+- *Data:* `dataPoints: false` (load `dataUrl` without drawing points); `errorBand: {specs, source, label,
+  shade, url}` or a list of them (filled envelope (D+σ⁺)/D … (D−σ⁻)/D of that dataset on those panels,
+  `shade: 'light' | 'dark'` grey, drawn in list order; `url` = another local data file in the `dataUrl`
+  layout, default `dataUrl`'s; one legend row and checkbox per band). The single-object `{spec, …}` form
+  still works.
+- *Legend:* `legendPos: 'top-right'` (default) `| 'bottom-right' | 'bottom-left'` of the top panel (on screen and
+  in exports). ODSA uses bottom-left, the neutrino-mass graph bottom-right.
 - *Axes:* `yLog`, `yRange`, `ySym`, `yFixed`, `yTicks`, `yTickDigits`, `yHideLabels` (ticks drawn without a
   number), `yTitle` (MathJax), `exportTitle` (rich-text titles `[{t, it, sub, sup}]` for PNG/SVG), `letter`
   (title symbol), `xRange`, `xTicks`, `xMinor`, `aspect` (canvas height/width, default 1.19).
+- *Per-panel ℓ axes:* `xBySpec: { spec: { xaxis, xRange, xTicks, xMinor, logFrac, xDivider } }` gives a panel its
+  own ℓ axis (`logFrac` = share of the width for the log part of `loglin`, default ⅓; `xDivider` = dashed grey
+  line at ℓ = 30). Adjacent panels with the same axis share it, with tick numbers under the last of them; a
+  gap separates axis groups; the ℓ label sits under the bottom panel.
 - *Layout:* `zoom: {range, xTicks, xMinor, width, band}` — a narrower zoom column beside the panels with a
   y-range fixed across the slider, the window shaded on the main panels, and the `.emu-widget--zoom` CSS
   hook (wider plot, 220 px sidebar); stacks below the main panels under ~610 px canvas width.
@@ -148,7 +173,8 @@ Full provenance is in **`emulator/data/README.md`**. In brief:
 - **`cmb_data.json`** (loaded by the site) — Planck 2018 + **ACT DR6** (CMB-only, Δℓ=20 *plotting*
   binning, trimmed to ℓ ≤ 4100) + **SPT-3G D1**. Bandpowers stored as `Dₗ` in **10³ μK²**.
 - **`cmb_data_dl50.json`** — companion with ACT DR6 at the Δℓ=50 *likelihood* binning (full range).
-- **`lcdm.json`** — the ΛCDM theory curve (ℓ = 2–4000).
+- **`lcdm_{s3,geo,matter,neutrino}.json`** — the black ΛCDM reference per backend: CLASS at that backend's
+  fiducial and training settings, on its own ℓ nodes (made by `~/cosmology/pages_reference/make_lcdm_reference.py`).
 
 ---
 
@@ -161,8 +187,10 @@ Full provenance is in **`emulator/data/README.md`**. In brief:
 - **Page prose** — proposed text fixes for `neutrinos.html` / `NHF.html` are in
   `/Users/chase/cosmology/pages_model_neutrino/PAGE_TEXT_CHANGES.md` (applied by hand). `matter.html`'s text
   predates Graph 2's extension to the all-baryon end and could mention it.
-- **Graph 2 (`neutrinos.html`) above ℓ ≈ 3000** — whether to caption, cut, or refit the undamping tail
-  (see `PAGE_TEXT_CHANGES.md` G2-d).
+- **Low-ℓ EE on the geo pages** — the geo model's EE is off by up to ~15% at ℓ < 30 (up to ~28% along the τ
+  range), visible against the ΛCDM reference on ODSA and photon depth's log ℓ axes. It is the model's own
+  error (its cosmic-variance loss gives ℓ < 30 little weight); fixing it needs a retrain.
+- **Drag-able zoom window** on neutrinos Graph 2 (paused).
 
 
 
