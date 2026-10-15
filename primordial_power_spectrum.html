@@ -63,13 +63,12 @@
         <div id="emuRootAs"></div>
 
         <p class="section-body">Here the slider varies the spectral index \(n_s\); all other parameters are held at their fiducial values.</p>
-        <div id="emuRootNs"></div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Live emulator graphs (S3 model), same widget as matter.html: A_s and n_s sliders. -->
+    <!-- Live emulator graph (S3 model), same widget as matter.html: one graph with A_s and n_s sliders. -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
     <script type="module">
@@ -82,17 +81,11 @@
     const DATA = './emulator/data/cmb_data.json';
     const LCDM = './emulator/data/lcdm_s3.json';
 
-    // Graph 1 — vary the scalar amplitude A_s (ln10^{10}A_s); all else fiducial.
+    // One graph, two sliders: the scalar amplitude A_s (ln10^{10}A_s) and the spectral index n_s, over the
+    // S3 model's full ranges; all else fiducial.
     createCMBPlot(document.getElementById('emuRootAs'), {
       modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
-      sliders: ['ln10^{10}A_s'],
-      showPie: false,
-    });
-
-    // Graph 2 — vary the spectral index n_s; all else fiducial.
-    createCMBPlot(document.getElementById('emuRootNs'), {
-      modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
-      sliders: ['n_s'],
+      sliders: ['ln10^{10}A_s', 'n_s'],
       showPie: false,
     });
     </script>
