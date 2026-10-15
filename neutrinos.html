@@ -117,7 +117,7 @@ createCMBPlot(document.getElementById('emuRootNnu1'), {
 // theta_d at its fiducial value, and the spectra are undamped and scaled to the 4th peak:
 //   K_l = D_l * exp(a (theta_d l)^kappa),  normalized so its 4th peak (7th extremum in l 100-2500)
 //   matches the fiducial's. a, kappa, theta_d as in the original figure (pages_neutrino notebook).
-//   Main panels l 0-4000; a zoom column shows l 950-1250 beside each spectrum.
+//   Main panels l 0-3000; a zoom column shows l 950-1250 beside each spectrum.
 const THD = 0.0016144385060630974, A_UND = 0.68, KAPPA = { tt:1.3, ee:1.17, te:0.91 };
 const K_TITLE = (x) => `\\(\\mathcal{K}_\\ell^{\\mathrm{${x}}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)`;
 createCMBPlot(document.getElementById('emuRootNnu2'), {
@@ -135,7 +135,7 @@ createCMBPlot(document.getElementById('emuRootNnu2'), {
     yHideLabels: { ee:[0.2], te:[0.2] },   // panel-top 0.2 labels collide with the panel above
     yTitle: { tt:K_TITLE('TT'), ee:K_TITLE('EE'), te:K_TITLE('TE') },
     letter: '\u{1D4A6}',
-    xRange: [0, 4000], xTicks: [0, 1000, 2000, 3000, 4000], xMinor: 100,
+    xRange: [0, 3000], xTicks: [0, 1000, 2000, 3000], xMinor: 100,
     aspect: 0.95,
     // zoom column: l 950-1250 (as the original figure), y-range fixed across the slider; the same
     // window is shaded on the main panels
@@ -146,7 +146,7 @@ createCMBPlot(document.getElementById('emuRootNnu2'), {
 // Neutrino mass - ratio of each spectrum to the massless case, R = C_l(M_nu) / C_l(M_nu = 0), for TT, EE
 // and the lensing potential phi-phi (sep_*_mnu_reparam; R(0) = 1 exactly). Three degenerate massive
 // neutrinos; omega_b, omega_cdm and theta_s fixed (H0 from the model). Log l-axis 50-3000 and fixed
-// y-bands as the original figure, with Planck 2018 TT relative errors. The matter-density pie shows
+// y-bands as the original figure, with Planck 2018 (TT, EE) and ACT DR6 (EE) relative errors. The matter-density pie shows
 // massive neutrinos joining the matter today: omega_c and omega_b fixed, omega_nu = M_nu / 93.14 eV.
 // Opens at M_nu = 0.06 eV (Planck 2018 baseline, the solid LCDM curve); the dotted line is massless.
 const R_TITLE = (x) => `\\(C_\\ell^{\\rm ${x}} / C_{\\ell\\,(M_\\nu=0)}^{\\rm ${x}}\\)`;
@@ -161,7 +161,14 @@ createCMBPlot(document.getElementById('emuRootMnu'), {
     specs: ['tt', 'ee', 'pp'],
     reference: 'unity', referenceLabel: 'M\u03BD = 0',
     extraReference: { label: '\u039BCDM', params: { M_nu: 0.06 } },   // Planck baseline, as on the other graphs
-    dataPoints: false, errorBand: { spec:'tt', source:'planck', label:'Planck 2018 ±1σ' },
+    // relative 1-sigma data envelopes (D +/- s)/D, no points: Planck 2018 (light, TT and EE) and ACT DR6
+    // (dark, EE; the Delta l = 50 CMB-only bins from the repo's cmb_data_dl50.json)
+    legendPos: 'bottom-right',
+    dataPoints: false,
+    errorBand: [
+      { specs:['tt', 'ee'], source:'planck', label:'Planck 2018 ±1σ', shade:'light' },
+      { specs:['ee'], source:'act', url:'./emulator/data/cmb_data_dl50.json', label:'ACT DR6 ±1σ', shade:'dark' },
+    ],
     yLog:   { tt:false, ee:false, pp:false },
     yFixed: true,
     yRange: { tt:[0.96, 1.04], ee:[0.96, 1.04], pp:[0.65, 1.03] },
