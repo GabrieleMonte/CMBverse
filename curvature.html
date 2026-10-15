@@ -82,7 +82,7 @@
     import { createCMBPlot } from './emulator/cmb-plot.js';
     const MODELS = { tt:'./emulator/sep_tt_curv/model.json', te:'./emulator/sep_te_curv/model.json', ee:'./emulator/sep_ee_curv/model.json' };
     const DATA = './emulator/data/cmb_data.json';
-    const LCDM = './emulator/data/lcdm.json';
+    const LCDM = './emulator/data/lcdm_geo.json';
     // Curvature — vary Omega_k (Omega_Lambda fixed); h derived by the model. Log-linear l-axis.
     createCMBPlot(document.getElementById('emuRootCurv'), {
       modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,

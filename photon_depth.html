@@ -73,7 +73,7 @@
     import { createCMBPlot } from './emulator/cmb-plot.js';
     const MODELS = { tt:'./emulator/sep_tt_curv/model.json', te:'./emulator/sep_te_curv/model.json', ee:'./emulator/sep_ee_curv/model.json' };
     const DATA = './emulator/data/cmb_data.json';
-    const LCDM = './emulator/data/lcdm.json';
+    const LCDM = './emulator/data/lcdm_geo.json';
     // Photon Optical Depth — vary tau_reio; all else fiducial. Log-linear l-axis.
     createCMBPlot(document.getElementById('emuRootTau'), {
       modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
