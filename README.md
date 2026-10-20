@@ -22,8 +22,7 @@ sliders, overlaid on binned Planck / ACT / SPT data.
 | `tensor_scalar_ratio.html` | One live **BB** graph on the **tensor** backend (`model:'tensor'`, a CLASS table, no TF.js): lensed D_ℓ^BB on log-log axes, 10²r slider, six B-mode datasets, compact legend top left. Physics/design: `/Users/chase/cosmology/pages_model_tensor`. |
 | `about.html`, `credits.html` | Static info pages. |
 | `emulator/` | The emulator model, the shared plot widget, and the data overlays (below). |
-| `class_figures/` | Precomputed CLASS figure image sets used by the image-based pages (`r_images/` is no longer used by `tensor_scalar_ratio.html`). |
-| `figures/`, `style.css`, `imageSwitch.js` | Site assets, global styles, and the legacy image-flip driver. |
+| `figures/`, `style.css` | Site assets and global styles. (The precomputed `class_figures/` image sets and their `imageSwitch.js` driver were removed on 2026-10-20: every page is now live.) |
 
 ---
 
