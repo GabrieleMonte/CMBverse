@@ -25,9 +25,11 @@ import CMBEmulatorGeo, { META as META_GEO } from './cmb-emulator-geo.js';
 import CMBEmulatorNeutrino, { META as META_NEU } from './cmb-emulator-neutrino.js';
 import CMBEmulatorMnu, { META as META_MNU } from './cmb-emulator-mnu.js';
 import CMBEmulatorMatter, { META as META_MAT } from './cmb-emulator-matter.js';
+import CMBEmulatorTensor, { META as META_TEN } from './cmb-emulator-tensor.js';
 
-// Emulator backends, selected per widget by config.model (default 's3').
+// Emulator backends, selected per widget by config.model (default 's3'). noTF: no TensorFlow.js needed.
 const BACKENDS = {
+  tensor:   { Emulator: CMBEmulatorTensor,   META: META_TEN, noTF: true },  // tensor page: CLASS table D_l^BB(r), 10^2 r slider
   s3:       { Emulator: CMBEmulatorS3,       META: META_S3  },   // deployed 6-input flat model
   geo:      { Emulator: CMBEmulatorGeo,      META: META_GEO },   // 4-input curvature model (scheme pages)
   neutrino: { Emulator: CMBEmulatorNeutrino, META: META_NEU },   // (N_eff, YHe) plane, theta_s fixed (neutrino pages)
@@ -47,9 +49,11 @@ const LABELS = {
   'N_eff':        '\\(N_{\\rm eff}\\)',
   'YHe':          '\\(Y_{p}\\)',
   'M_nu':         '\\(M_\\nu\\,[\\mathrm{eV}]\\)',
+  'r100':         '\\(10^{2}\\,r\\)',
 };
 const fmt = (name, v) =>
   name === 'omega_b'      ? v.toFixed(4) :
+  name === 'r100'         ? v.toFixed(2) :
   name === 'omega_cdm'    ? v.toFixed(3) :
   name === 'tau_reio'     ? v.toFixed(3) :
   name === 'YHe'          ? v.toFixed(3) :
@@ -75,8 +79,9 @@ const Y_TITLE = {
   tt:'\\(\\mathcal{D}_\\ell^{\\mathrm{TT}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
   ee:'\\(\\mathcal{D}_\\ell^{\\mathrm{EE}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
   te:'\\(\\mathcal{D}_\\ell^{\\mathrm{TE}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
+  bb:'\\(\\mathcal{D}_\\ell^{\\mathrm{BB}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)',
 };
-const TITLE_SPEC = { tt:'TT', ee:'EE', te:'TE', pp:'φφ' };
+const TITLE_SPEC = { tt:'TT', ee:'EE', te:'TE', pp:'φφ', bb:'BB' };
 const LETTER_D = '\u{1D49F}';          // script D, used in exported axis titles
 const BAND_FILL = 'rgba(0,0,0,0.07)';  // zoom-window band on the main panels
 const DIVIDER_COLOR = '#999999';       // dashed l=30 divider on log-linear panels (display.xBySpec.*.xDivider)
@@ -295,8 +300,14 @@ export function createCMBPlot(root, config){
   const VIS = { ref2:true, lcdm:true, planck:true, act:true, spt:true };
   // data points: drawn when a dataUrl is given, unless display.dataPoints === false (data loaded only for
   // display.errorBand)
-  const showPoints = !!cfg.dataUrl && disp.dataPoints !== false;
+  const showPoints = !!cfg.dataUrl && disp.dataPoints !== false && !disp.dataSets;
   if (!showPoints){ VIS.planck = VIS.act = VIS.spt = false; }
+  // display.dataSets: a per-widget list of datasets in dataUrl's OBS[spec][key], replacing the fixed Planck/ACT/SPT
+  // points. Each { key, label, color, kind:'points'|'limit' }. 'points' rows: [l, D, err_lo, err_hi, lmin, lmax]
+  // (lmin/lmax null = no x-bar); 'limit' rows: [lmin, lmax, D95] drawn as a solid bar across the bin with a downward arrow. On a log
+  // axis any value <= the axis floor (negative D, or a lower error end <= 0) is drawn at the floor.
+  const dsets = (cfg.dataUrl && disp.dataSets) || [];
+  for (const ds of dsets) VIS[ds.key] = true;
   const refLabel = disp.referenceLabel || 'ΛCDM';
   // display.errorBand: one band or a list, each { specs (or spec), source, url, label, shade }; drawn in list
   // order, each with its own legend checkbox (VIS.band0, band1, ...)
@@ -327,7 +338,9 @@ export function createCMBPlot(root, config){
   //               between (D+s+)/D and (D-s-)/D of that dataset in grey (shade 'light' | 'dark'; legend: a
   //               shaded box). url: a local data file with the same layout as dataUrl (default: dataUrl's).
   //               A list draws several bands in order, e.g. Planck light then ACT dark on top.
-  //   legendPos : 'top-right' (default) | 'bottom-right' | 'bottom-left' of the top panel
+  //   legendPos : 'top-right' (default) | 'top-left' | 'bottom-right' | 'bottom-left' of the top panel
+  //   legendCompact: true draws the legend tighter (less padding and row spacing, smaller type, closer to the
+  //               panel corner), on screen and in exports, for long legends (the tensor page's seven rows)
   //   extraReference: { label, params } a second black reference curve: this emulator at params (+ fixed,
   //               derive), e.g. the LCDM baseline M_nu = 0.06 eV on the mass graph
   //   exportTitle: { spec: [ {t, it, sub, sup}, ... ] } rich-text y titles for PNG/SVG export
@@ -584,8 +597,9 @@ export function createCMBPlot(root, config){
         const tx = document.createElement('span'); tx.textContent=label;
         l.append(cb, sw, tx); return l;
       };
-      mtog.append(
-        mkTog('lcdm', refLabel, COLOR_LCDM, 'line'),
+      mtog.append(mkTog('lcdm', refLabel, COLOR_LCDM, 'line'));
+      if (dsets.length) mtog.append(...dsets.map(ds => mkTog(ds.key, ds.label, ds.color, ds.kind === 'limit' ? 'line' : 'dot')));
+      else mtog.append(
         mkTog('planck','Planck 2018', COLOR.planck, 'dot'),
         mkTog('act','ACT DR6', COLOR.act, 'dot'),
         mkTog('spt','SPT-3g D1', COLOR.spt, 'dot'),
@@ -788,8 +802,55 @@ export function createCMBPlot(root, config){
       if (VIS.planck) drawData(g, OBS[spec].planck, COLOR.planck, yPix, X0, X1, true,  logFloor);
       if (VIS.act)    drawData(g, OBS[spec].act,    COLOR.act,    yPix, X0, X1, false, logFloor);
       if (VIS.spt)    drawData(g, OBS[spec].spt,    COLOR.spt,    yPix, X0, X1, false, logFloor);
+      for (const ds of dsets) if (VIS[ds.key]) drawDataSet(g, OBS[spec][ds.key], ds, yPix, X0, X1, logFloor);
     }
     g.restore();
+  }
+
+  // display.dataSets geometry, shared by the canvas and the SVG export: line segments [x0,y0,x1,y1], markers
+  // [x,y] and limit arrows [x,y] (downward from the bar) in pixels. Values at or below the log-axis floor
+  // (negative D, lower error ends <= 0) sit on the floor.
+  function dataSetMarks(rows, ds, yPix, X0, X1, logFloor){
+    const segs = [], dots = [], arrows = [];
+    const atFloor = (v) => logFloor !== null && v <= logFloor ? logFloor : v;
+    for (const row of rows || []){
+      if (ds.kind === 'limit'){
+        const [a, b, v] = row; if (b < VIEW.xmin || a > VIEW.xmax) continue;
+        const y = yPix(atFloor(v)), xa = xPix(a,X0,X1), xb = xPix(b,X0,X1);
+        segs.push([xa, y, xb, y]); arrows.push([(xa + xb)/2, y]); continue;
+      }
+      const [l, v, eLo, eHi, a, b] = row; if (l < VIEW.xmin || l > VIEW.xmax) continue;
+      const x = xPix(l,X0,X1), y = yPix(atFloor(v));
+      segs.push([x, yPix(atFloor(v + eHi)), x, yPix(atFloor(v - eLo))]);
+      if (a != null && b != null) segs.push([xPix(a,X0,X1), y, xPix(b,X0,X1), y]);
+      dots.push([x, y]);
+    }
+    return { segs, dots, arrows };
+  }
+  // upper-limit arrow: shaft down from (x, y), filled head; sizes in px (scaled by SS)
+  const ARROW = { len:15, head:5.5, half:3.5 };
+  function arrowShape(x, y, len = ARROW.len*SS){
+    const h = ARROW.head*SS, w = ARROW.half*SS, yb = y + len;
+    return { shaft: [x, y, x, yb - h], head: [[x - w, yb - h], [x + w, yb - h], [x, yb]] };
+  }
+  function drawArrow(g, x, y, len){
+    const a = arrowShape(x, y, len);
+    g.beginPath(); g.moveTo(a.shaft[0], a.shaft[1]); g.lineTo(a.shaft[2], a.shaft[3]); g.stroke();
+    g.beginPath(); a.head.forEach(([px, py], k) => k ? g.lineTo(px, py) : g.moveTo(px, py)); g.closePath(); g.fill();
+  }
+  function svgArrow(x, y, color, sw, len){
+    const a = arrowShape(x, y, len), f = (v) => v.toFixed(1);
+    return `<line x1="${f(a.shaft[0])}" y1="${f(a.shaft[1])}" x2="${f(a.shaft[2])}" y2="${f(a.shaft[3])}" stroke="${color}" stroke-width="${sw}"/>`
+         + `<polygon fill="${color}" points="${a.head.map(([px, py]) => `${f(px)},${f(py)}`).join(' ')}"/>`;
+  }
+  function drawDataSet(g, rows, ds, yPix, X0, X1, logFloor){
+    const { segs, dots, arrows } = dataSetMarks(rows, ds, yPix, X0, X1, logFloor);
+    g.strokeStyle = ds.color; g.fillStyle = ds.color; g.globalAlpha = 0.85;
+    g.lineWidth = (ds.kind === 'limit' ? STYLE.lcdmWidth*1.2 : STYLE.errWidth)*SS;
+    for (const [x0,y0,x1,y1] of segs){ g.beginPath(); g.moveTo(x0,y0); g.lineTo(x1,y1); g.stroke(); }
+    for (const [x,y] of arrows) drawArrow(g, x, y);
+    for (const [x,y] of dots){ g.beginPath(); g.arc(x, y, STYLE.markerR*SS, 0, 2*Math.PI); g.fill(); }
+    g.globalAlpha = 1;
   }
 
   // Error envelope for display.errorBand: a closed polygon, upper edge (D+s+)/D left to right then the
@@ -837,6 +898,7 @@ export function createCMBPlot(root, config){
         ['act',   'ACT DR6',        COLOR.act,    'dot'],
         ['spt',   'SPT-3g D1',      COLOR.spt,    'dot'],
       ] : []),
+      ...dsets.map(ds => [ds.key, ds.label, ds.color, ds.kind === 'limit' ? 'limit' : 'dot']),
     ];
   }
   // ---- HTML legend with dataset checkboxes (over the TT panel) ------------
@@ -853,25 +915,32 @@ export function createCMBPlot(root, config){
         render();
       });
       const sw = document.createElement('span');
-      sw.className = mark==='dot' ? 'emu-leg-dot' : mark==='fill' ? 'emu-leg-box' : 'emu-leg-line';
+      sw.className = mark==='dot' ? 'emu-leg-dot' : mark==='fill' ? 'emu-leg-box' : mark==='limit' ? 'emu-leg-limit' : 'emu-leg-line';
       if (mark==='dotted'){ sw.style.background = 'none'; sw.style.borderTop = `2px dotted ${color}`; sw.style.height = '0'; }
+      else if (mark==='limit')   // bar with a downward arrow (upper limit)
+        sw.innerHTML = `<svg viewBox="0 0 16 12" width="16" height="12"><line x1="1" y1="1.5" x2="15" y2="1.5" stroke="${color}" stroke-width="2"/>`
+                     + `<line x1="8" y1="1.5" x2="8" y2="7" stroke="${color}" stroke-width="1.6"/><polygon fill="${color}" points="5,7 11,7 8,11.5"/></svg>`;
       else sw.style.background = color;
       const tx = document.createElement('span'); tx.textContent=label;
       row.append(cb, sw, tx); box.append(row);
     }
+    if (disp.legendCompact) box.classList.add('emu-legend--compact');
     wrap.append(box); legendEl = box;
   }
+  const LEG_INSET = disp.legendCompact ? 6 : 10, LEG_TOP = disp.legendCompact ? 4 : 6;   // px from the panel frame
+  const LEG_ROW = disp.legendCompact ? 1.25 : 1.35;                                     // export row spacing (x font)
+  const LEG_FONT = disp.legendCompact ? 0.94 : 1;                                       // export font scale
   function placeLegend(ttGeom, W){
     if (!legendEl) return;
     const left = legendPos.endsWith('left'), bottom = legendPos.startsWith('bottom');
-    if (left){ legendEl.style.right = 'auto'; legendEl.style.left = (ttGeom.X0 + 10) + 'px'; }
-    else     { legendEl.style.left = 'auto';  legendEl.style.right = ((W - ttGeom.X1) + 10) + 'px'; }
-    legendEl.style.top = (bottom ? ttGeom.Y1 - legendEl.offsetHeight - 6 : ttGeom.Y0 + 6) + 'px';
+    if (left){ legendEl.style.right = 'auto'; legendEl.style.left = (ttGeom.X0 + LEG_INSET) + 'px'; }
+    else     { legendEl.style.left = 'auto';  legendEl.style.right = ((W - ttGeom.X1) + LEG_INSET) + 'px'; }
+    legendEl.style.top = (bottom ? ttGeom.Y1 - legendEl.offsetHeight - LEG_TOP : ttGeom.Y0 + LEG_TOP) + 'px';
   }
-  // exported legend (PNG and SVG): [x of the swatch, y of the first row's centre], rows 1.35 f apart
+  // exported legend (PNG and SVG): [x of the swatch, y of the first row's centre], rows LEG_ROW f apart
   function legendOrigin(ttGeom, nRows, f){
-    const x = legendPos.endsWith('left') ? ttGeom.X0 + 10*SS : ttGeom.X1 - 8.8*f;
-    const y = legendPos.startsWith('bottom') ? ttGeom.Y1 - 6*SS - 0.5*f - (nRows - 1)*1.35*f : ttGeom.Y0 + f + 5*SS;
+    const x = legendPos.endsWith('left') ? ttGeom.X0 + (LEG_INSET + 4)*SS : ttGeom.X1 - 8.8*f;
+    const y = legendPos.startsWith('bottom') ? ttGeom.Y1 - LEG_TOP*SS - 0.5*f - (nRows - 1)*LEG_ROW*f : ttGeom.Y0 + 0.6*f + (LEG_TOP + 3)*SS;
     return [x, y];
   }
 
@@ -1077,15 +1146,17 @@ export function createCMBPlot(root, config){
   }
   function drawLegendCanvas(g, ttGeom, W){
     const items = legendRows().filter(r => VIS[r[0]]).map(([, label, color, mark]) => [mark, color, label]);
-    const f = STYLE.legendFont*SS;
+    const f = STYLE.legendFont*SS*LEG_FONT;
     g.save(); g.font=`${f}px ${FONT}`; g.textAlign='left'; g.textBaseline='middle';
     let [x, y] = legendOrigin(ttGeom, items.length, f);
     for (const [type,color,text] of items){
       g.strokeStyle=color; g.fillStyle=color; g.lineWidth=STYLE.lcdmWidth*SS;
       if (type==='fill'){ g.fillRect(x, y-0.4*f, 1.4*f, 0.8*f); }
-      else if (type!=='dot'){ if (type==='dotted') g.setLineDash([2*SS, 3*SS]); g.beginPath(); g.moveTo(x,y); g.lineTo(x+1.4*f,y); g.stroke(); g.setLineDash([]); }
+      else if (type==='limit'){ g.beginPath(); g.moveTo(x, y-0.4*f); g.lineTo(x+1.4*f, y-0.4*f); g.stroke(); drawArrow(g, x+0.7*f, y-0.4*f, 0.85*f); }
+      else if (type!=='dot'){ if (type==='dotted') g.setLineDash([2*SS, 3*SS]);
+        g.beginPath(); g.moveTo(x,y); g.lineTo(x+1.4*f,y); g.stroke(); g.setLineDash([]); }
       else { g.beginPath(); g.arc(x+0.7*f,y,STYLE.markerR*SS,0,2*Math.PI); g.fill(); }
-      g.fillStyle='#000'; g.fillText(text, x+1.8*f, y); y += f*1.35;
+      g.fillStyle='#000'; g.fillText(text, x+1.8*f, y); y += f*LEG_ROW;
     }
     g.restore();
   }
@@ -1173,6 +1244,14 @@ export function createCMBPlot(root, config){
         if (VIS.planck) drawPts(OBS[spec].planck, COLOR.planck, true);
         if (VIS.act)    drawPts(OBS[spec].act,    COLOR.act,    false);
         if (VIS.spt)    drawPts(OBS[spec].spt,    COLOR.spt,    false);
+        for (const ds of dsets){
+          if (!VIS[ds.key]) continue;
+          const { segs, dots, arrows } = dataSetMarks(OBS[spec][ds.key], ds, yPix, X0, X1, svgLogFloor);
+          const sw = ((ds.kind === 'limit' ? STYLE.lcdmWidth*1.2 : STYLE.errWidth)*SS).toFixed(2);
+          for (const [x0,y0,x1,y1] of segs) P.push(`<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="${ds.color}" stroke-width="${sw}" opacity="0.85"/>`);
+          for (const [x,y] of arrows) P.push(`<g opacity="0.85">${svgArrow(x, y, ds.color, sw)}</g>`);
+          for (const [x,y] of dots) P.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${STYLE.markerR*SS}" fill="${ds.color}" opacity="0.85"/>`);
+        }
       }
       const poly = (xs,ys,pred) => { let pts=''; for(let k=0;k<xs.length;k++){ const l=xs[k]; if(pred&&(l<VIEW.xmin||l>VIEW.xmax))continue;
           pts += `${xPix(l,X0,X1).toFixed(1)},${ys(k).toFixed(1)} `; } return pts.trim(); };
@@ -1194,14 +1273,15 @@ export function createCMBPlot(root, config){
     for (const [x, y] of xLabelSpots(geoms, W, H, padL))
       P.push(`<text x="${x}" y="${y}" font-size="${16*SS}" font-style="italic" text-anchor="middle">ℓ</text>`);
     const items = legendRows().filter(r => VIS[r[0]]).map(([, label, color, mark]) => [mark, color, label]);
-    const f=STYLE.legendFont*SS, tt=geoms[0];
+    const f=STYLE.legendFont*SS*LEG_FONT, tt=geoms[0];
     let [lx, ly] = legendOrigin(tt, items.length, f);
     for (const [type,color,text] of items){
       if (type==='fill') P.push(`<rect x="${lx}" y="${ly-0.4*f}" width="${1.4*f}" height="${0.8*f}" fill="${color}"/>`);
+      else if (type==='limit') P.push(`<line x1="${lx}" y1="${ly-0.4*f}" x2="${lx+1.4*f}" y2="${ly-0.4*f}" stroke="${color}" stroke-width="${STYLE.lcdmWidth*SS}"/>` + svgArrow(lx+0.7*f, ly-0.4*f, color, STYLE.lcdmWidth*SS, 0.85*f));
       else if (type!=='dot') P.push(`<line x1="${lx}" y1="${ly}" x2="${lx+1.4*f}" y2="${ly}" stroke="${color}" stroke-width="${STYLE.lcdmWidth*SS}"${type==='dotted' ? ` stroke-dasharray="${2*SS} ${3*SS}"` : ''}/>`);
       else P.push(`<circle cx="${lx+0.7*f}" cy="${ly}" r="${STYLE.markerR*SS}" fill="${color}"/>`);
       P.push(`<text x="${lx+1.8*f}" y="${ly+f*0.34}" font-size="${f}">${svgEsc(text)}</text>`);
-      ly += f*1.35;
+      ly += f*LEG_ROW;
     }
     P.push('</svg>');
     return P.join('');
@@ -1262,7 +1342,7 @@ export function createCMBPlot(root, config){
   buildLegend();
   (async () => {
     try {
-      await initBackend();
+      if (!backend.noTF) await initBackend();
       const tasks = [ CMBEmulator.load(cfg.modelUrls, window.tf) ];
       tasks.push(cfg.dataUrl ? fetch(cfg.dataUrl).then(r=>r.ok?r.json():null).then(d=>OBS=d).catch(()=>OBS=null) : Promise.resolve());
       for (const url of new Set(bands.map(b => b.url).filter(Boolean)))   // local data files for errorBand

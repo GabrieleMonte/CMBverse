@@ -120,6 +120,9 @@
 .emu-legend .emu-leg-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
 .emu-legend .emu-leg-line{ width:16px; height:2px; display:inline-block; margin:0 0 0 2px; }
 .emu-legend .emu-leg-box{ width:16px; height:10px; display:inline-block; margin:0 0 0 2px; }  /* shaded envelope */
+/* display.legendCompact: a tighter legend for long entry lists */
+.emu-legend.emu-legend--compact{ gap:1px; padding:1px 3px; font-size:0.85rem; line-height:1.2; }
+.emu-legend .emu-leg-limit{ width:16px; height:12px; display:inline-block; margin:0 0 0 2px; line-height:0; }  /* upper-limit bar + arrow */
 
 /* zoom-column layout (display.zoom; neutrinos.html Graph 2 only): a wider plot for the
    main + zoom columns and a slimmer sidebar (slider, buttons, derived values; no pie).
@@ -182,6 +185,7 @@
   .emu-plot-wrap{ max-width:100%; }
 
   .emu-legend input[type="checkbox"]{ display:none; }
+  .emu-legend.emu-legend--compact{ font-size:0.7rem; }
   .emu-legend{ font-size:0.8rem; }
   .emu-mobile-toggles{
     display:block;
