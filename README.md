@@ -3,8 +3,9 @@
 An interactive educational website showing how cosmological parameters shape the Cosmic Microwave
 Background (CMB) power spectra — the six ΛCDM parameters on the home page, and one effect at a time on the
 parameter pages (matter, primordial spectrum, dark energy, optical depth, curvature, neutrino number,
-helium and mass). It is a **static site** (HTML/CSS/JS) with **TensorFlow.js CMB emulators** that predict
-the spectra live in the browser as the user moves sliders, overlaid on binned Planck / ACT / SPT data.
+helium and mass, tensor-to-scalar ratio). It is a **static site** (HTML/CSS/JS) with **TensorFlow.js CMB emulators**
+(and, for the tensor page, a CLASS coefficient table) that predict the spectra live in the browser as the user moves
+sliders, overlaid on binned Planck / ACT / SPT data.
 
 ---
 
@@ -18,17 +19,17 @@ the spectra live in the browser as the user moves sliders, overlaid on binned Pl
 | `dark_energy.html`, `photon_depth.html`, `curvature.html`, `ODSA.html` | Live **geo** emulator graphs (`model:'geo'`, per-panel ℓ axes). |
 | `neutrinos.html` | Three live graphs. Graphs 1 & 2 on the **neutrino** emulator (`model:'neutrino'`): Graph 1 varies N_eff with BBN helium; Graph 2 holds the damping angle fixed and shows the undamped, 4th-peak-normalized spectra with a zoom column. The **neutrino-mass** graph on the **mnu** emulator (`model:'mnu'`): ratios to the massless case for TT/EE/φφ. |
 | `NHF.html` | Live **neutrino** emulator with two sliders (N_eff, YHe) over the model's full plane. |
-| `tensor_scalar_ratio.html` | Still image-based (`imageSwitch.js` flips precomputed PNGs in `class_figures/`). |
+| `tensor_scalar_ratio.html` | One live **BB** graph on the **tensor** backend (`model:'tensor'`, a CLASS table, no TF.js): lensed D_ℓ^BB on log-log axes, 10²r slider, six B-mode datasets, compact legend top left. Physics/design: `/Users/chase/cosmology/pages_model_tensor`. |
 | `about.html`, `credits.html` | Static info pages. |
 | `emulator/` | The emulator model, the shared plot widget, and the data overlays (below). |
-| `class_figures/` | Precomputed CLASS figure image sets used by the image-based pages. |
+| `class_figures/` | Precomputed CLASS figure image sets used by the image-based pages (`r_images/` is no longer used by `tensor_scalar_ratio.html`). |
 | `figures/`, `style.css`, `imageSwitch.js` | Site assets, global styles, and the legacy image-flip driver. |
 
 ---
 
 ## The interactive emulator widget
 
-Every live graph is one instance of a shared widget driving one of five emulator backends.
+Every live graph is one instance of a shared widget driving one of six emulator backends.
 
 ### Emulator backends (`emulator/cmb-emulator-*.js`)
 Each module loads three single-spectrum TF.js graph models (converted from
@@ -43,10 +44,13 @@ Each module loads three single-spectrum TF.js graph models (converted from
 | `geo` | `cmb-emulator-geo.js` / `sep_*_curv` | 4: `Omega_Lambda, Omega_k, tau_reio, ln10^{10}A_s` (ω_b, ω_cdm, n_s fixed) | 123 nodes (every ℓ ≤ 30), log-linear axis | `dark_energy`, `photon_depth`, `curvature`, `ODSA` |
 | `neutrino` | `cmb-emulator-neutrino.js` / `sep_*_neutrino` | 2: `N_eff, YHe` (ω_cdm = f(N_eff) inside; θ_s fixed) | S3 grid, linear axis | `NHF.html`, `neutrinos.html` Graphs 1–2 |
 | `mnu` | `cmb-emulator-mnu.js` / `sep_{tt,ee,pp}_mnu_reparam` | 1: `M_nu` (eV) | geo grid, log axis | `neutrinos.html` mass graph |
+| `tensor` | `cmb-emulator-tensor.js` / `data/tensor_bb.json` (CLASS table, **not** a NN; `BACKENDS.tensor.noTF`, so the page loads no TF.js) | 1: `r100` = 10²r ∈ [0, 1] | every integer ℓ 2–2500, log axis | `tensor_scalar_ratio.html` |
 
 S3 defaults (Planck 2018): `omega_b 0.02237, omega_cdm 0.12, Omega_Lambda 0.685, ln10^{10}A_s 3.044,
 n_s 0.9649, tau_reio 0.0544`. All models output dimensionless `Dl = Cl·ℓ(ℓ+1)/2π` (the widget converts to
-10³ μK²), except `mnu`, which outputs ratios.
+10³ μK²), except `mnu`, which outputs ratios, and `tensor`, which outputs D_ℓ^BB already in 10³ μK² (its `curveFrom`
+ignores `uK2`/`scale`). The tensor table holds 7 Chebyshev coefficients per ℓ of the lensed total BB in
+x = 2r/0.01 − 1; `predict` evaluates them with Clenshaw's recurrence (matches CLASS to 7×10⁻¹²).
 
 **H₀.** For `geo`, `matter`, `neutrino` and `mnu`, H₀ is a **model output** (their training fixed θ_s or used a
 closure). S3 takes `Omega_Lambda`, not `h`, and is trained flat, so `cmb-plot.js` computes H₀ from
@@ -125,7 +129,7 @@ follow the original figures (`display.xBySpec`; references in `cosmology/pages_m
 Every option defaults to the standard D_ℓ figure, so a page sets only what it changes.
 
 **Top level**
-- `modelUrls` (required), `model: 's3' | 'geo' | 'matter' | 'neutrino' | 'mnu'`, `dataUrl`, `lcdmUrl`.
+- `modelUrls` (required; `{table}` for `tensor`), `model: 's3' | 'geo' | 'matter' | 'neutrino' | 'mnu' | 'tensor'`, `dataUrl`, `lcdmUrl`.
 - `sliders` (which inputs get sliders), `ranges` (per-slider overrides), `fixed` (params pinned to
   non-default values), `start` (initial and Reset values of slider params, e.g. `{ M_nu: 0.06 }`),
   `derive(params)` (recompute dependent params on every update), `constrainThetaS` (solve Ω_Λ live to
@@ -146,8 +150,15 @@ Every option defaults to the standard D_ℓ figure, so a page sets only what it 
   `shade: 'light' | 'dark'` grey, drawn in list order; `url` = another local data file in the `dataUrl`
   layout, default `dataUrl`'s; one legend row and checkbox per band). The single-object `{spec, …}` form
   still works.
-- *Legend:* `legendPos: 'top-right'` (default) `| 'bottom-right' | 'bottom-left'` of the top panel (on screen and
-  in exports). ODSA uses bottom-left, the neutrino-mass graph bottom-right.
+  `dataSets: [{key, label, color, kind: 'points' | 'limit'}]` replaces the fixed Planck/ACT/SPT points with a
+  per-widget list read from `OBS[spec][key]` of `dataUrl`. `points` rows are `[l, D, err_lo, err_hi, lmin, lmax]`
+  (asymmetric errors; x-bar from lmin to lmax, none when null); `limit` rows are `[lmin, lmax, D95]`, drawn as a
+  solid bar across the bin with a downward arrow at its centre (the usual upper-limit glyph). On a log axis every value at or below the axis floor (a negative D, or a lower error
+  end ≤ 0) is drawn at the floor. Each set gets a legend row/checkbox (mark `dot`, or `limit` = bar with arrow).
+- *Legend:* `legendPos: 'top-right'` (default) `| 'top-left' | 'bottom-right' | 'bottom-left'` of the top panel (on
+  screen and in exports). ODSA uses bottom-left, the neutrino-mass graph bottom-right, the tensor page top-left.
+  `legendCompact: true` draws a tighter legend (less padding and row spacing, smaller type, closer to the corner) on
+  screen and in exports, for long legends (the tensor page's seven rows).
 - *Axes:* `yLog`, `yRange`, `ySym`, `yFixed`, `yTicks`, `yTickDigits`, `yHideLabels` (ticks drawn without a
   number), `yTitle` (MathJax), `exportTitle` (rich-text titles `[{t, it, sub, sup}]` for PNG/SVG), `letter`
   (title symbol), `xRange`, `xTicks`, `xMinor`, `aspect` (canvas height/width, default 1.19).
@@ -162,7 +173,7 @@ Every option defaults to the standard D_ℓ figure, so a page sets only what it 
   (`PIE_COLOR`, incl. `nu`, is exported for page configs).
 
 The HTML legend and both exports share one entry list (`legendRows()`), with marks `line`, `dotted`, `dot`
-or `fill`. A widget without data points hides the data legend rows.
+`fill` or `limit`. A widget without data points hides the data legend rows.
 
 ---
 
@@ -175,6 +186,10 @@ Full provenance is in **`emulator/data/README.md`**. In brief:
 - **`cmb_data_dl50.json`** — companion with ACT DR6 at the Δℓ=50 *likelihood* binning (full range).
 - **`lcdm_{s3,geo,matter,neutrino}.json`** — the black ΛCDM reference per backend: CLASS at that backend's
   fiducial and training settings, on its own ℓ nodes (made by `~/cosmology/pages_reference/make_lcdm_reference.py`).
+- **`bb_data.json`** — the tensor page's B-mode data (BK18 CMB component, ACT DR6, SPTpol 500d, POLARBEAR 2017 and
+  2022, Planck PR4 95% upper limits), made by `~/cosmology/pages_model_tensor/make_bb_data.py`.
+- **`tensor_bb.json`** — the tensor backend's CLASS coefficient table (not data), copied from
+  `~/cosmology/pages_model_tensor/tables/`.
 
 ---
 
@@ -206,3 +221,6 @@ The commit messages are the detailed changelog (`git log --stat`). Milestones:
   lines and Graph 2's zoom column) and the `mnu` backend (the neutrino-mass graph); the `display` options;
   text/line scale capped at the standard plot width; the `matter` backend on `matter.html` (Graph 2 up to
   the all-baryon end); sliders reach their exact maxima.
+- **2026-10-19** — the `tensor` backend (a CLASS Chebyshev table for D_ℓ^BB(r)) and the live
+  `tensor_scalar_ratio.html`; widget `display.dataSets` (asymmetric errors, x-bars, axis-floor values, limit bars),
+  `legendCompact`, `legendPos: 'top-left'`.

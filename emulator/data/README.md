@@ -113,3 +113,30 @@ Copied verbatim from `/Users/chase/cosmology/pages_model_neutrino/tables/neutrin
 - Both pass through the shared fiducial (N_eff 3.044, YHe 0.245640). Every point uses the model's scheme:
   ω_b, A_s, n_s, τ fixed; 100·θ_s = 1.041783 (h solved); a_eq fixed via ω_cdm = f(N_eff).
 - `meta` records the CLASS settings, table, grids and validation bounds.
+
+## `bb_data.json` — B-mode data for `tensor_scalar_ratio.html`
+
+Built by `/Users/chase/cosmology/pages_model_tensor/make_bb_data.py` from the files in that arm's
+`investigation/data_candidates/` (selection rationale: its `INVESTIGATION.md` D1 and `investigation/01_datasets.md`).
+Layout `{meta, bb: {bk18, act, sptpol, pb17, pb22, pr4}}`, read by the widget's `display.dataSets`. All values are
+D_ℓ^BB in **10³ μK²** (published μK² × 10⁻³).
+
+| key | dataset | rows | notes |
+|---|---|---|---|
+| `bk18` | BICEP/Keck 2018 CMB component (BK-XIII, arXiv:2110.00483), `BK18_components_20210607.txt` | `[ℓ_c, D, σ⁻, σ⁺, ℓmin, ℓmax]` | most-probable value with the 68% interval; the only foreground-separated BB; ℓmin/ℓmax are the file's window extents (they overlap) |
+| `act` | ACT DR6 combined BB, wide bins (Louis et al. 2025), `combined_BB.dat` | `[ℓ_c, D, σ, σ, null, null]` | Galactic dust subtracted; bin edges not published (no x-bars); the ℓ 2664 bin (off-axis, negative) dropped |
+| `sptpol` | SPTpol 500d combined (Sayre et al. 2020), `sayre19/bb_plotting.txt` | `[ℓ_c, D, σ, σ, ℓmin, ℓmax]` | not foreground-subtracted |
+| `pb17` | POLARBEAR 2017 (arXiv:1705.02907, Table 4) | `[ℓ_c, D, σ⁻, σ⁺, ℓmin, ℓmax]` | statistical errors only (identical to the LAMBDA 2021apr rows) |
+| `pb22` | POLARBEAR 2022 (Adachi et al., arXiv:2203.02495, Table 6, from the LaTeX source) | `[ℓ_mid, D, σ, σ, ℓmin, ℓmax]` | σ = stat ⊕ syst ⊕ cal; bands ℓmin−1 < ℓ ≤ ℓmax plotted at the midpoint; 3 negative bins |
+| `pr4` | Planck PR4 low-ℓ BB (LoLLiPoP `cl_lolEB_NPIPE.dat` + covariance; Tristram et al. 2021/2022) | `[ℓmin, ℓmax, D₉₅]` | 95% upper limit = max(0, μ) + 2σ per bin (ℓ 2–7, 8–23, 24–35), μ weighted with the PR4 BB covariance |
+
+Display rules (page decisions): values at or below the log axis floor — negative bandpowers and lower error ends
+≤ 0 — are drawn at the floor (no arrows on points); the Planck PR4 limits are solid bars across their bins with a
+downward arrow, the usual upper-limit glyph.
+
+## `tensor_bb.json` — the tensor backend's CLASS table (not data)
+
+Copied verbatim from `/Users/chase/cosmology/pages_model_tensor/tables/tensor_bb.json`. Per ℓ = 2…2500, the 7
+Chebyshev coefficients of CLASS's lensed total D_ℓ^BB (10³ μK²) on r ∈ [0, 0.01] (`meta` records the cosmology,
+physics, nodes and precision). Accuracy, decisions and rebuild steps: that arm's `README.md`.
+
