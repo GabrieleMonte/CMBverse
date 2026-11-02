@@ -9,8 +9,8 @@
    generic serif (cmb-plot.js FONT) and equations use MathJax's STIX2 font (mathjax.js). */
 :root {
     --font-text: "STIX Two Text", "Times New Roman", Times, serif;
-    /* interface text (nav, widget controls). Trial: the article serif everywhere. The sans alternative is
-       "Helvetica Neue", Helvetica, Arial, sans-serif (PRD's running-head face). */
+    /* interface text (nav, widget controls): the article serif, like the rest of the site (chosen 2026-11-02;
+       the sans alternative considered was "Helvetica Neue", Helvetica, Arial, sans-serif) */
     --font-ui: var(--font-text);
 }
 

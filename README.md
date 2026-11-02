@@ -212,9 +212,9 @@ APS co-developed.
 - **Fonts by role** (tokens at the top of `style.css`):
   - `--font-text` (STIX Two Text, self-hosted from `fonts/`): body, headings, paragraphs, lists, bios.
   - `--font-ui`: the nav and every widget control (slider labels, buttons, the save menu, the sidebar
-    panels, status text). Currently on trial as the article serif (`var(--font-text)`; UI bold resolves to
-    STIX Semibold). The sans alternative, kept in a comment beside the token, is Helvetica Neue / Helvetica /
-    Arial, which PRD itself uses for running heads. Switching is a one-line change.
+    panels, status text). It uses the article serif (`var(--font-text)`; UI bold resolves to STIX Semibold),
+    so the whole site is set in STIX Two. Helvetica Neue / Helvetica / Arial (PRD's running-head face) was
+    considered and not chosen; switching back would be a one-line change.
   - Plot text (tick labels, legends, pie labels) stays in generic `serif`, like matplotlib-style figures.
     It's drawn on canvas, and exports depend on it. Power-of-ten ticks are typeset rather than written in
     Unicode superscripts: "10", then the exponent in ordinary digits with a true minus (U+2212) at 70% size,
