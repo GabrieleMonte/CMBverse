@@ -451,10 +451,12 @@ export function createCMBPlot(root, config){
     }
     return null;
   }
-  // The curve actually drawn for one spectrum: D_l in 10^3 uK^2 on [2, xmax], then the optional
-  // display transform and normalization.
+  // log-l panels also draw the unbinned Planck 2018 low-l points (OBS[spec].planck_lowl, l 2-29) with Planck's
+  // points; linear-l panels keep only the binned bandpowers
   const isLogAxis = (v) => v.xaxis === 'log' || v.xaxis === 'loglin';
   const denseSpec = (spec) => isLogAxis(specView[spec] || view);
+  // The curve actually drawn for one spectrum: D_l in 10^3 uK^2 on [2, xmax], then the optional
+  // display transform and normalization.
   function displayCurve(result, spec, { normalize = true } = {}){
     const lmax = Math.min(4030, view.xmax);
     const c = emulator.curveFrom(result, spec, { quantity:'Dl', lmin:2, lmax, uK2:true, scale:1e-3,
@@ -846,6 +848,7 @@ export function createCMBPlot(root, config){
     const logFloor = VIEW.yLog[spec] ? rLo : null;
     if (OBS && OBS[spec]){
       if (VIS.planck) drawData(g, OBS[spec].planck, PAL.data.planck, yPix, X0, X1, true,  logFloor);
+      if (VIS.planck && isLogAxis(VIEW)) drawData(g, OBS[spec].planck_lowl, PAL.data.planck, yPix, X0, X1, true, logFloor);
       if (VIS.act)    drawData(g, OBS[spec].act,    PAL.data.act,    yPix, X0, X1, false, logFloor);
       if (VIS.spt)    drawData(g, OBS[spec].spt,    PAL.data.spt,    yPix, X0, X1, false, logFloor);
       for (const ds of dsets) if (VIS[ds.key]) drawDataSet(g, OBS[spec][ds.key], ds, yPix, X0, X1, logFloor);
@@ -1309,6 +1312,7 @@ export function createCMBPlot(root, config){
         } };
       if (OBS && OBS[spec]){
         if (VIS.planck) drawPts(OBS[spec].planck, COLOR.planck, true);
+        if (VIS.planck && isLogAxis(VIEW)) drawPts(OBS[spec].planck_lowl, COLOR.planck, true);
         if (VIS.act)    drawPts(OBS[spec].act,    COLOR.act,    false);
         if (VIS.spt)    drawPts(OBS[spec].spt,    COLOR.spt,    false);
         for (const ds of dsets){

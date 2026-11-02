@@ -2,7 +2,8 @@
 
 Binned CMB power-spectrum bandpowers (Planck, ACT, SPT) that the site overlays on the
 theory curve. Each JSON has top-level keys `meta`, `tt`, `ee`, `te`; each spectrum holds
-`planck`, `act`, and `spt` arrays of bandpower rows.
+`planck`, `act`, and `spt` arrays of bandpower rows; `cmb_data.json` also has `tt.planck_lowl` and
+`ee.planck_lowl` (Planck 2018 unbinned ℓ 2–29, below).
 
 ## Units and columns
 
@@ -15,6 +16,7 @@ Row columns:
 | dataset | columns |
 |---------|---------|
 | planck  | `[ℓ_eff, D_ℓ, σ_minus, σ_plus]` (asymmetric errors) |
+| planck_lowl | `[ℓ, D_ℓ, σ_minus, σ_plus]` (as planck; `cmb_data.json` TT and EE only) |
 | act     | `[ℓ_eff, D_ℓ, σ]` |
 | spt     | `[ℓ_eff, D_ℓ, σ]` |
 
@@ -56,6 +58,21 @@ error bands, (D ± σ)/D, with no data points drawn.)
 - **Planck 2018** — PR3 Plik binned CMB bandpowers (asymmetric errors). TT 47.7–2499.0
   (83 bins), TE/EE 47.7–1988.0 (66 bins). Grid consistent with the PR3 Plik binned product;
   values not independently re-verified.
+- **Planck 2018 low-ℓ** (`tt.planck_lowl`, `ee.planck_lowl`; `cmb_data.json` only) — the unbinned PR3 points
+  at ℓ = 2–29 (28 per spectrum), the range the binned Plik product above does not cover. Source: rows ℓ 2–29 of
+  `COM_PowerSpect_CMB-TT-full_R3.01.txt` and `COM_PowerSpect_CMB-EE-full_R3.01.txt` (columns ℓ, D_ℓ [μK²],
+  −σ, +σ at 68%) from the PR3 cosmology-parameter ancillary data,
+  [IRSA mirror](https://irsa.ipac.caltech.edu/data/Planck/release_3/ancillary-data/cosmoparams/); described on
+  the [PLA wiki](https://wiki.cosmos.esa.int/planck-legacy-archive/index.php/CMB_spectrum_&_Likelihood_Code).
+  **TT** is the Commander component-separated spectrum (30–857 GHz), asymmetric 68% limits that include the
+  foreground uncertainty; **EE** is the SimAll estimate (the "lowE" likelihood, HFI 100×143), symmetric 68% errors
+  from the Fisher matrix. These are the ℓ < 30 points of Planck 2018 results V/VI (A&A 641, A5/A6). All columns
+  divided by 1000 for 10³ μK² and rounded to 6 significant figures; taken directly from the files 2026-11-02 (the
+  raw files are not kept in the repo). 7 of the 28 EE values are negative (ℓ 10, 11, 12, 14, 20, 26, 29): on log-y
+  panels they, and any lower error end ≤ 0, are drawn at the axis floor, as for every dataset. For plotting
+  only. The widget draws them with the Planck points (same style, colour, checkbox and legend row) on panels
+  whose ℓ axis is `log` or `loglin` only: curvature and dark_energy TT, photon_depth and ODSA TT and EE.
+  Not in `cmb_data_dl50.json` (its one user, the neutrino-mass graph, starts at ℓ = 50).
 - **SPT-3G D1** — CMB-cleaned (foreground- and nuisance-subtracted) bandpowers, Δℓ=50.
   TT ~425–2975 (52 bins, official 400<ℓ<3000), TE/EE ~425–3975 (72 bins, official
   400<ℓ<4000). Source: `spt3gd1_mv_cleaned_bandpowers.zip` from

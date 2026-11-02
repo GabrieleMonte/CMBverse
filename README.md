@@ -103,7 +103,8 @@ follow the original figures (`display.xBySpec`; references in `cosmology/pages_m
 | Photon optical depth | log y, **log-linear ℓ** (log part ¼ of the width, dashed divider at ℓ = 30) | log y, same axis as TT | linear y, linear ℓ (own axis) |
 | ODSA | log y, **log ℓ** (legend bottom left) | log y, same axis as TT | linear y, linear ℓ (own axis) |
 
-ℓ runs 2–4000 on log axes and 0–4000 on linear ones. Physics/design: `/Users/chase/cosmology/pages_model_geo/README.md`.
+ℓ runs 2–4000 on log axes and 0–4000 on linear ones. The log and log-linear TT/EE panels also show Planck 2018's
+unbinned low-ℓ points (ℓ 2–29) as part of the Planck 2018 points. Physics/design: `/Users/chase/cosmology/pages_model_geo/README.md`.
 
 ---
 
@@ -168,7 +169,8 @@ Every option defaults to the standard D_ℓ figure, so a page sets only what it 
 - *References:* `reference: 'model'` (black curve = the emulator at the defaults) or `'unity'` (dotted line
   at 1) with `referenceLabel`; `extraReference: {label, params}` (a second, solid curve from the emulator at
   `params`).
-- *Data:* `dataPoints: false` (load `dataUrl` without drawing points); `errorBand: {specs, source, label,
+- *Data:* the fixed Planck/ACT/SPT points; on a panel whose ℓ axis is `log` or `loglin` the Planck points also
+  include `OBS[spec].planck_lowl` (unbinned ℓ 2–29, same style and checkbox). `dataPoints: false` (load `dataUrl` without drawing points); `errorBand: {specs, source, label,
   shade, url}` or a list of them (filled envelope (D+σ⁺)/D … (D−σ⁻)/D of that dataset on those panels,
   `shade: 'light'` grey or `'act'` light green, both opaque with a darker edge line on each side drawn over all the
   fills so overlapping bands stay visible (`'dark'`: translucent grey, no edge), drawn in list order; `url` = another local data file in the `dataUrl`
@@ -274,7 +276,9 @@ The full spec and color map are in `dark_mode_instructions.md`. In brief:
 Full provenance is in **`emulator/data/README.md`**. In brief:
 
 - **`cmb_data.json`** (loaded by the site) — Planck 2018 + **ACT DR6** (CMB-only, Δℓ=20 *plotting*
-  binning, trimmed to ℓ ≤ 4100) + **SPT-3G D1**. Bandpowers stored as `Dₗ` in **10³ μK²**.
+  binning, trimmed to ℓ ≤ 4100) + **SPT-3G D1**. Bandpowers stored as `Dₗ` in **10³ μK²**. Also the unbinned
+  Planck 2018 low-ℓ points (ℓ 2–29, `tt`/`ee.planck_lowl`: TT Commander, EE SimAll), drawn only on log and
+  log-linear ℓ panels.
 - **`cmb_data_dl50.json`** — companion with ACT DR6 at the Δℓ=50 *likelihood* binning (full range).
 - **`lcdm_{s3,geo,matter,neutrino}.json`** — the black ΛCDM reference per backend: CLASS at that backend's
   fiducial and training settings, on its own ℓ nodes (made by `~/cosmology/pages_reference/make_lcdm_reference.py`).
