@@ -66,14 +66,19 @@ sliders, legend, pie(s), derived-parameter readout, Reset and Save (PNG/SVG). An
 coexist on a page. Type size and line weights scale with the canvas width (`figScale`), capped at the
 standard 660 px plot width, so every graph renders at the same size.
 
-**Sizing.** The canvas fills its container (`.emu-plot-wrap`) and keeps the figure's aspect (height/width:
-1.19 by default, `display.aspect` per widget); it redraws on window resize.
-- **Side-by-side layout (> 980 px, sliders beside the plot):** the container's width is
-  `min(660px, max(420px, (100svh − 3rem) / aspect))`, so the whole figure fits the visible window height
-  while keeping its shape, as Bokeh's `scale_both`. It's 800/610 px for the zoom figure; the 610 px floor
-  keeps it out of its stacked layout. JS only sets `--emu-aspect` on the container.
-- **Stacked layouts (≤ 980 px, tablets and phones):** the plot fills the width (up to 660 px) and the sidebar
-  drops below it, unchanged by the height fit.
+**Sizing.** The widget is one unit at its design size: figure 660 px wide (800 px for the zoom figure) and a
+300 px sidebar (220 px). The canvas fills its container (`.emu-plot-wrap`), keeps the figure's aspect
+(height/width: 1.19 by default, `display.aspect` per widget) and redraws on window resize. `cmb-plot.css`
+declares the design size per widget (`--emu-design`, `--emu-floor`, `--emu-side`) and uses one rule:
+- **Every layout:** the figure's width is at most `fit = min(design, max(floor, (100svh − 3rem) / aspect))`,
+  so it keeps its shape and fits the visible window height, as Bokeh's `scale_both`. The floor (420 px, or
+  610 px for the zoom figure, which keeps it out of its stacked layout) keeps short windows readable.
+- **Side by side (> 980 px):** the figure is also at most the room beside the *design-width* sidebar, never
+  the sidebar's actual width, so the two can't feed back. The sidebar scales with the figure by CSS
+  `zoom: k`, with `k = figure width / design width` (`--emu-k`, set in `resize()`), so it stays as tall as
+  the figure. Zoomed sliders hit-test normally.
+- **Stacked (≤ 980 px, tablets and phones):** the sidebar drops below as a grid and the figure, fitted the
+  same way, is centered above it. On phones the figure is width-limited; in landscape the floor applies.
 - **Saved figures are universal:** PNG (×3) and SVG always render at the figure's design size (660 px wide,
   800 px for the zoom figure) with that size's type scale, never the on-screen size, so a figure saved on a
   phone, a laptop or a desktop is byte-identical.

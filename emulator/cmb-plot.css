@@ -8,9 +8,18 @@
 .emu-widget{
   display:flex; gap:18px; align-items:flex-start;
   margin:24px 0 40px;
+  /* design size: figure width, the narrowest it may get, sidebar width (zoom figure: see below) */
+  --emu-design:660px; --emu-floor:420px; --emu-side:300px;
 }
+/* The widget is one unit at its design size. The figure keeps its shape (--emu-aspect = height/width, set in
+   cmb-plot.js) and in every layout is fitted to the visible window height, as Bokeh's sizing_mode "scale_both":
+   fit = min(design, max(floor, (visible height - 3rem) / aspect)). Side by side it is also never wider than
+   the room beside the design-width sidebar (never the sidebar's actual width, so the two can't feed back).
+   The canvas sizes itself from this box. */
 .emu-plot-wrap{
-  position:relative; flex:1 1 460px; max-width:660px;
+  position:relative; flex:0 0 auto;
+  --emu-fit:min(var(--emu-design), max(var(--emu-floor), calc((100svh - 3rem) / var(--emu-aspect, 1.19))));
+  width:min(var(--emu-fit), calc(100% - var(--emu-side) - 18px));
 }
 /* portrait 3:4 aspect, like the python figures */
 .emu-plot-wrap canvas{ width:100%; height:auto; display:block; }
@@ -21,7 +30,7 @@
 .emu-status.err{ color:var(--danger); }
 
 .emu-sliders{
-  flex:0 0 300px; display:flex; flex-direction:column; gap:11px;
+  flex:0 0 var(--emu-side); display:flex; flex-direction:column; gap:11px;
   padding-top:2px;
 }
 .emu-slider{ display:flex; flex-direction:column; align-items:stretch; }
@@ -127,17 +136,13 @@
 /* zoom-column layout (display.zoom; neutrinos.html Graph 2 only): a wider plot for the
    main + zoom columns and a slimmer sidebar (slider, buttons, derived values; no pie).
    800 + 18 + 220 = 1038px fits the 1110px page container. */
-.emu-widget--zoom .emu-plot-wrap{ flex:1 1 560px; max-width:800px; }
+.emu-widget--zoom{ --emu-design:800px; --emu-floor:610px; --emu-side:220px; }   /* floor: stays out of its stacked layout (STACK_BELOW_W) */
 
-/* Side-by-side layout only (> 980px, sliders beside the plot): also cap the plot's width so its height
-   (width x aspect) fits the visible window, keeping the figure's shape (as Bokeh's sizing_mode "scale_both").
-   --emu-aspect is set per widget in cmb-plot.js; the canvas sizes itself from this box. The floor keeps short
-   windows readable and keeps the zoom figure out of its stacked layout (cmb-plot.js STACK_BELOW_W = 610). */
+/* side by side, the sidebar scales with the figure: --emu-k = figure width / design width (cmb-plot.js).
+   CSS zoom re-lays out text, sliders and the pie at the smaller size, so they stay crisp. */
 @media (min-width:981px){
-  .emu-plot-wrap{ max-width:min(660px, max(420px, calc((100svh - 3rem) / var(--emu-aspect, 1.19)))); }
-  .emu-widget--zoom .emu-plot-wrap{ max-width:min(800px, max(610px, calc((100svh - 3rem) / var(--emu-aspect, 0.95)))); }
+  .emu-sliders{ zoom:var(--emu-k, 1); }
 }
-.emu-widget--zoom .emu-sliders{ flex:0 0 220px; }
 
 /* energy-density pie */
 .emu-pie{
@@ -167,7 +172,7 @@
   .emu-widget{ flex-direction:column; }
   /* In column flex, flex-basis becomes the main-axis (height). Reset it
      so the plot-wrap sizes to the canvas, not a stale 460px height. */
-  .emu-plot-wrap{ flex-basis:auto; width:100%; }
+  .emu-plot-wrap{ width:min(var(--emu-fit), 100%); align-self:center; }   /* same height fit, centered */
   .emu-sliders{ flex-basis:auto; width:100%; }
 
   /* sliders in 3 rows x 2 columns to reclaim vertical space */

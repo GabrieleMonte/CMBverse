@@ -729,6 +729,7 @@ export function createCMBPlot(root, config){
   // ---- canvas sizing (portrait, retina) -----------------------------------
   function resize(){
     const cssW = wrap.clientWidth;
+    widget.style.setProperty('--emu-k', Math.min(1, cssW / FIG_W).toFixed(4));   // sidebar scale (side by side)
     const cssH = Math.round(cssW * (isStacked(cssW) ? ASPECT_STACKED : ASPECT));
     const dpr = window.devicePixelRatio || 1;
     cv.style.height = cssH + 'px';
