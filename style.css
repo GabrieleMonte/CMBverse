@@ -281,6 +281,35 @@ nav ul li:hover ul {
 :root[data-theme="dark"] .theme-toggle .icon-sun {
     display: block;
 }
+/* Desktop/tablet nav buttons. Each top-level link is one centered box, so a label that wraps (below ~1000px)
+   stays centered with a single rounded highlight; buttons share the bar's height. The negative vertical margins
+   cancel the padding so a one-line bar is exactly as tall as before. Only the two menu headings (the items
+   with a submenu) may wrap; Home, About Us and Credits stay on one line. Sizes keep the one-line highlight
+   32px tall inside the 41.6px bar, as the old inline links had: 1.25 line height + 0.375rem padding, and
+   -0.2rem margins so the box adds nothing to the bar's height. */
+@media (min-width: 601px) {
+    nav > ul {
+        align-items: stretch;
+    }
+    nav > ul > li {
+        display: flex;
+    }
+    nav > ul > li > a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        text-wrap: balance;
+        line-height: 1.25;
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+        margin-top: -0.2rem;
+        margin-bottom: -0.2rem;
+    }
+    nav > ul > li:not(:has(> ul)) > a {
+        white-space: nowrap;
+    }
+}
 /* mid widths: the links span the whole bar, so keep them clear of the toggle */
 @media (min-width: 601px) and (max-width: 1000px) {
     nav {
@@ -288,6 +317,13 @@ nav ul li:hover ul {
     }
     nav ul li a {
         margin: 0 0.25rem;
+    }
+}
+/* narrowest end of the band: slimmer buttons so the row never overflows into the toggle */
+@media (min-width: 601px) and (max-width: 700px) {
+    nav ul li a {
+        padding-left: 0.6rem;
+        padding-right: 0.6rem;
     }
 }
 /* stacked mobile nav: pin to the top-right corner instead of the vertical middle */

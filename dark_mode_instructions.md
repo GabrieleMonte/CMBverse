@@ -54,7 +54,9 @@ The choice is site-wide and persists across all 12 pages.
   positioned inside `nav` (which is already `position: relative`), so the centered link list
   doesn't shift.
 - **Mid widths (601–1000px):** the links span the whole bar there, wrapping onto two lines, so the
-  nav reserves `3.5rem` on the right and the gap between links tightens to `0.25rem`. A test confirmed
+  nav reserves `3.5rem` on the right and the gap between links tightens to `0.25rem` (button side padding
+  `0.6rem` below 700px). Each top-level link is a centered flex box (2026-11-01). A wrapped label stays
+  centered under one rounded highlight, and only the two submenu headings may wrap. A test confirmed
   the toggle clears all link text from 320 to 1600px. Above 1000px the nav is unchanged.
 - **Mobile (≤ 600px, where the nav links stack vertically):** pinned to the top-right corner of
   the nav, above the stacked links, never inside the column.
