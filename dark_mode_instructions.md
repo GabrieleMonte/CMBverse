@@ -194,8 +194,11 @@ Dark mode keeps that relationship.
 | `COLOR_LCDM`, the ΛCDM / reference curve (incl. `extraReference`) | `#000000` | `#E2E8F5` |
 | `BAND_FILL`, zoom-window shading | `rgba(0,0,0,0.07)` | `rgba(226,232,245,0.07)` |
 | `DIVIDER_COLOR`, dashed ℓ=30 divider | `#999999` | `#6B7894` |
-| `ERRBAND_FILL.light`, faint envelope (e.g. Planck ±1σ) | `rgba(110,110,110,0.28)` | `rgba(226,232,245,0.14)` |
-| `ERRBAND_FILL.dark`, strong envelope (e.g. ACT ±1σ) | `rgba(40,40,40,0.42)` | `rgba(226,232,245,0.30)` |
+| `ERRBAND_FILL.light`, opaque faint envelope (e.g. Planck ±1σ; the old translucent grey over the page background) | `#D3D3D1` | `#2C3241` |
+| `ERRBAND_FILL.dark`, strong envelope | `rgba(40,40,40,0.42)` | `rgba(226,232,245,0.30)` |
+| `ERRBAND_FILL.act`, opaque ACT DR6 ±1σ envelope (ACT green 35% over the page background) | `#B2DAB0` | `#295737` |
+| `ERRBAND_EDGE.light` (`errbandEdge`), Planck envelope edge lines and legend-box border | `#8C8C8A` | `#6B7387` |
+| `ERRBAND_EDGE.act` (`errbandEdge`), ACT envelope edge lines and legend-box border | `#2ca02c` | `#5BD25B` |
 
 On dark, "strong" means a *brighter* fill, so the `light`/`dark` shade names keep their meaning
 (faint vs. strong) while the actual colors invert.

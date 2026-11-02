@@ -137,9 +137,9 @@ follow the original figures (`display.xBySpec`; references in `cosmology/pages_m
   draw them; the model's `R = 1 + m·g` form makes **R(0) = 1 exactly**. ℓ-grid = the geo grid (123 nodes).
   H₀, σ8, Ω_m, … are model outputs; `derived` also carries ω_b, ω_cdm (fixed) and ω_ν = M_ν/93.14 eV.
 - **Display** (matches the original figure): log ℓ-axis 50–3000 with 10² / 10³ labels, fixed y-bands
-  (TT/EE 0.96–1.04, φφ 0.65–1.03), dotted line at R = 1, relative data errors (D ± σ)/D as filled envelopes
-  (legend: shaded boxes): Planck 2018 on TT and EE (light grey; on EE it fills the panel above ℓ ≈ 1050, where
-  Planck's EE errors pass 4%) and ACT DR6 Δℓ=50 on EE (dark grey, from `cmb_data_dl50.json`), long ratio titles on screen and in exports. Opens (and resets) at **M_ν = 0.06 eV**, Planck
+  (TT/EE 0.96–1.04, φφ 0.65–1.03), dotted line at R = 1, relative data errors (D ± σ)/D as opaque filled envelopes
+  with darker edge lines (legend: outlined boxes): Planck 2018 on TT and EE (light grey; on EE it fills the panel above ℓ ≈ 1050, where
+  Planck's EE errors pass 4%) and ACT DR6 Δℓ=50 on TT and EE (opaque light green, from `cmb_data_dl50.json`), long ratio titles on screen and in exports. Opens (and resets) at **M_ν = 0.06 eV**, Planck
   2018's baseline, drawn as the solid **ΛCDM** reference; the dotted line is massless (M_ν = 0).
   Sidebar: a **matter-density pie** (ω_c, ω_b, ω_ν —
   neutrinos joining the matter today) and the usual derived values.
@@ -168,7 +168,8 @@ Every option defaults to the standard D_ℓ figure, so a page sets only what it 
   `params`).
 - *Data:* `dataPoints: false` (load `dataUrl` without drawing points); `errorBand: {specs, source, label,
   shade, url}` or a list of them (filled envelope (D+σ⁺)/D … (D−σ⁻)/D of that dataset on those panels,
-  `shade: 'light' | 'dark'` grey, drawn in list order; `url` = another local data file in the `dataUrl`
+  `shade: 'light'` grey or `'act'` light green, both opaque with a darker edge line on each side drawn over all the
+  fills so overlapping bands stay visible (`'dark'`: translucent grey, no edge), drawn in list order; `url` = another local data file in the `dataUrl`
   layout, default `dataUrl`'s; one legend row and checkbox per band). The single-object `{spec, …}` form
   still works.
   `dataSets: [{key, label, color, colorDark, kind: 'points' | 'limit'}]` replaces the fixed Planck/ACT/SPT points with a

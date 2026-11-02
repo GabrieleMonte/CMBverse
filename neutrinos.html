@@ -160,13 +160,13 @@ createCMBPlot(document.getElementById('emuRootMnu'), {
     specs: ['tt', 'ee', 'pp'],
     reference: 'unity', referenceLabel: 'M\u03BD = 0',
     extraReference: { label: '\u039BCDM', params: { M_nu: 0.06 } },   // Planck baseline, as on the other graphs
-    // relative 1-sigma data envelopes (D +/- s)/D, no points: Planck 2018 (light, TT and EE) and ACT DR6
-    // (dark, EE; the Delta l = 50 CMB-only bins from the repo's cmb_data_dl50.json)
+    // relative 1-sigma data envelopes (D +/- s)/D, no points: Planck 2018 (light grey, TT and EE) and ACT DR6
+    // (opaque light green, TT and EE; the Delta l = 50 CMB-only bins from the repo's cmb_data_dl50.json)
     legendPos: 'bottom-right',
     dataPoints: false,
     errorBand: [
       { specs:['tt', 'ee'], source:'planck', label:'Planck 2018 ±1σ', shade:'light' },
-      { specs:['ee'], source:'act', url:'./emulator/data/cmb_data_dl50.json', label:'ACT DR6 ±1σ', shade:'dark' },
+      { specs:['tt', 'ee'], source:'act', url:'./emulator/data/cmb_data_dl50.json', label:'ACT DR6 ±1σ', shade:'act' },
     ],
     yLog:   { tt:false, ee:false, pp:false },
     yFixed: true,

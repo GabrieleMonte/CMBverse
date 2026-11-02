@@ -35,13 +35,14 @@ The two bandpower files differ **only in the ACT block**; Planck and SPT are ide
 
 ### `cmb_data_dl50.json` — ACT at Δℓ=50 (likelihood binning), full range
 
-(Used by the neutrino-mass graph for its dark-grey ACT DR6 EE relative error band, (D ± σ)/D, no points.)
+(Used by the neutrino-mass graph for its light-green ACT DR6 TT and EE relative error bands, (D ± σ)/D, no points.)
 
 - **ACT DR6** CMB-only (foreground-marginalized) bandpowers, **Δℓ=50** (widening to 400 at
   high ℓ). TT 598.5–6123.5 (45 bins), TE 598.5–4123.5 (40), EE 498.5–4123.5 (42).
   Source: `act_dr6_cmb_sacc.fits` from
   [ACTCollaboration/DR6-ACT-lite](https://github.com/ACTCollaboration/DR6-ACT-lite).
-  Verified 2026-09-23: D_ℓ and σ match the official SACC file exactly on every bin.
+  Verified 2026-09-23, and again 2026-11-02 for TT, EE and TE (D_ℓ, σ = √diag(cov) and ℓ_eff on every bin, to
+  machine precision): match the official SACC file exactly. TT starts at ℓ 600 and EE at 500 by the DR6 cuts.
 
 Both ACT products trace to Louis et al. 2025, JCAP 11 (2025) 062
 ([arXiv:2503.14452](https://arxiv.org/abs/2503.14452)).

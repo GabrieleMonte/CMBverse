@@ -85,15 +85,20 @@ const TITLE_SPEC = { tt:'TT', ee:'EE', te:'TE', pp:'φφ', bb:'BB' };
 const LETTER_D = '\u{1D49F}';          // script D, used in exported axis titles
 const BAND_FILL = 'rgba(0,0,0,0.07)';  // zoom-window band on the main panels
 const DIVIDER_COLOR = '#999999';       // dashed l=30 divider on log-linear panels (display.xBySpec.*.xDivider)
-// data error envelopes, filled (display.errorBand shade 'light' | 'dark')
-const ERRBAND_FILL = { light:'rgba(110,110,110,0.28)', dark:'rgba(40,40,40,0.42)' };
+// data error envelopes, filled (display.errorBand shade 'light' grey | 'dark' grey | 'act' light ACT green). 'light'
+// and 'act' are opaque (the old translucent grey, and #2ca02c at 35%, over the page background) and get a darker
+// edge line (ERRBAND_EDGE) on both sides, so a band drawn over another still shows the one beneath
+const ERRBAND_FILL = { light:'#D3D3D1', dark:'rgba(40,40,40,0.42)', act:'#B2DAB0' };
+const ERRBAND_EDGE = { light:'#8C8C8A', act:'#2ca02c' };
 
 // Plot palettes. The constants above are the light one; DARK is used on screen when <html data-theme="dark">
 // (dark_mode_instructions.md §2.7). PAL is a module global set at the start of every draw, like VIEW;
 // exports pin it to LIGHT. The SVG export body draws with the constants directly (always light).
-const LIGHT = { ink:'#000', model:COLOR_MODEL, lcdm:COLOR_LCDM, data:COLOR, band:BAND_FILL, divider:DIVIDER_COLOR, errband:ERRBAND_FILL };
+const LIGHT = { ink:'#000', model:COLOR_MODEL, lcdm:COLOR_LCDM, data:COLOR, band:BAND_FILL, divider:DIVIDER_COLOR, errband:ERRBAND_FILL,
+  errbandEdge:ERRBAND_EDGE };
 const DARK  = { ink:'#D0D6E2', model:'#C39BE8', lcdm:'#E2E8F5', data:{ planck:'#E2E8F5', act:'#5BD25B', spt:'#FF6B6B' },
-  band:'rgba(226,232,245,0.07)', divider:'#6B7894', errband:{ light:'rgba(226,232,245,0.14)', dark:'rgba(226,232,245,0.30)' } };
+  band:'rgba(226,232,245,0.07)', divider:'#6B7894', errband:{ light:'#2C3241', dark:'rgba(226,232,245,0.30)', act:'#295737' },
+  errbandEdge:{ light:'#6B7387', act:'#5BD25B' } };
 // dark variants of the data-set colors pages pass in display.dataSets (a data set's colorDark overrides)
 const DARK_OF = { '#000000':'#E2E8F5', '#2ca02c':'#5BD25B', '#d62728':'#FF6B6B', '#ff7f0e':'#FFA552', '#8c564b':'#C99A8C', '#1f77b4':'#6BB3F0' };
 let PAL = LIGHT;
@@ -372,9 +377,9 @@ export function createCMBPlot(root, config){
   //               would collide with the neighbouring panel's
   //   dataPoints: false loads dataUrl without drawing points (for errorBand only)
   //   errorBand : { specs:['tt','ee'], source:'planck', label, shade:'light', url } fills the envelope
-  //               between (D+s+)/D and (D-s-)/D of that dataset in grey (shade 'light' | 'dark'; legend: a
-  //               shaded box). url: a local data file with the same layout as dataUrl (default: dataUrl's).
-  //               A list draws several bands in order, e.g. Planck light then ACT dark on top.
+  //               between (D+s+)/D and (D-s-)/D of that dataset (shade 'light' | 'dark' grey, 'act' light
+  //               green; 'light' and 'act' are opaque with darker edge lines; legend: a shaded box). url: a local data file with the same layout as dataUrl
+  //               (default: dataUrl's). A list draws several bands in order, e.g. Planck light then ACT on top.
   //   legendPos : 'top-right' (default) | 'top-left' | 'bottom-right' | 'bottom-left' of the top panel
   //   legendCompact: true draws the legend tighter (less padding and row spacing, smaller type, closer to the
   //               panel corner), on screen and in exports, for long legends (the tensor page's seven rows)
@@ -807,6 +812,14 @@ export function createCMBPlot(root, config){
       env.forEach(([l, v], k) => { const x=xPix(l,X0,X1), y=yPix(v); k ? g.lineTo(x,y) : g.moveTo(x,y); });
       g.closePath(); g.fill();
     }
+    for (const b of bands){                      // then every band's upper and lower edge, over all the fills
+      const edge = PAL.errbandEdge[b.shade];
+      if (!edge) continue;
+      g.strokeStyle = edge; g.lineWidth = 1.0*SS;
+      for (const line of errBandLines(spec, b)){
+        g.beginPath(); line.forEach(([l, v], k) => { const x=xPix(l,X0,X1), y=yPix(v); k ? g.lineTo(x,y) : g.moveTo(x,y); }); g.stroke();
+      }
+    }
 
     if (LCDM && VIS.lcdm){
       g.strokeStyle=PAL.lcdm; g.lineWidth=STYLE.lcdmWidth*SS; g.globalAlpha=0.9;
@@ -927,12 +940,12 @@ export function createCMBPlot(root, config){
   }
 
   // ---- legend entries (HTML legend, PNG and SVG export share this list) --------
-  // [key, label, color, mark]; mark: 'line' | 'dotted' | 'dot' | 'fill' (shaded box)
+  // [key, label, color, mark, edge]; mark: 'line' | 'dotted' | 'dot' | 'fill' (shaded box, edge: its border)
   function legendRows(){
     return [
       ...(extraRef ? [['ref2', extraRef.label || 'ΛCDM', PAL.lcdm, 'line']] : []),
       ['lcdm',  refLabel,    PAL.lcdm, VIEW.refDash || view.refDash ? 'dotted' : 'line'],
-      ...bands.map(b => [b.key, b.label || 'Planck 2018 ±1σ', PAL.errband[b.shade], 'fill']),
+      ...bands.map(b => [b.key, b.label || 'Planck 2018 ±1σ', PAL.errband[b.shade], 'fill', PAL.errbandEdge[b.shade]]),
       ...(showPoints ? [
         ['planck','Planck 2018',    PAL.data.planck, 'dot'],
         ['act',   'ACT DR6',        PAL.data.act,    'dot'],
@@ -946,13 +959,15 @@ export function createCMBPlot(root, config){
   function paintSwatches(){
     PAL = themePal();
     const colorOf = Object.fromEntries(legendRows().map(([key, , color]) => [key, color]));
+    const edgeOf = Object.fromEntries(legendRows().map(([key, , , , edge]) => [key, edge]));
     for (const [sw, key, mark] of swatches){
       const color = colorOf[key] || PAL.data[key];
       if (mark==='dotted'){ sw.style.background = 'none'; sw.style.borderTop = `2px dotted ${color}`; sw.style.height = '0'; }
       else if (mark==='limit')   // bar with a downward arrow (upper limit)
         sw.innerHTML = `<svg viewBox="0 0 16 12" width="16" height="12"><line x1="1" y1="1.5" x2="15" y2="1.5" stroke="${color}" stroke-width="2"/>`
                      + `<line x1="8" y1="1.5" x2="8" y2="7" stroke="${color}" stroke-width="1.6"/><polygon fill="${color}" points="5,7 11,7 8,11.5"/></svg>`;
-      else sw.style.background = color;
+      else { sw.style.background = color;
+        if (edgeOf[key]){ sw.style.boxSizing = 'border-box'; sw.style.border = `1px solid ${edgeOf[key]}`; } }
     }
   }
   // ---- HTML legend with dataset checkboxes (over the TT panel) ------------
@@ -1195,13 +1210,14 @@ export function createCMBPlot(root, config){
     return bottoms.map(b => [(b.X0 + b.X1)/2, (b.col === 'main' && isStacked(W)) ? b.Y1 + 30*SS : H - 2*SS]);
   }
   function drawLegendCanvas(g, ttGeom, W){
-    const items = legendRows().filter(r => VIS[r[0]]).map(([, label, color, mark]) => [mark, color, label]);
+    const items = legendRows().filter(r => VIS[r[0]]).map(([, label, color, mark, edge]) => [mark, color, label, edge]);
     const f = STYLE.legendFont*SS*LEG_FONT;
     g.save(); g.font=`${f}px ${FONT}`; g.textAlign='left'; g.textBaseline='middle';
     let [x, y] = legendOrigin(ttGeom, items.length, f);
-    for (const [type,color,text] of items){
+    for (const [type,color,text,edge] of items){
       g.strokeStyle=color; g.fillStyle=color; g.lineWidth=STYLE.lcdmWidth*SS;
-      if (type==='fill'){ g.fillRect(x, y-0.4*f, 1.4*f, 0.8*f); }
+      if (type==='fill'){ g.fillRect(x, y-0.4*f, 1.4*f, 0.8*f);
+        if (edge){ g.strokeStyle=edge; g.lineWidth=1.0*SS; g.strokeRect(x, y-0.4*f, 1.4*f, 0.8*f); } }
       else if (type==='limit'){ g.beginPath(); g.moveTo(x, y-0.4*f); g.lineTo(x+1.4*f, y-0.4*f); g.stroke(); drawArrow(g, x+0.7*f, y-0.4*f, 0.85*f); }
       else if (type!=='dot'){ if (type==='dotted') g.setLineDash([2*SS, 3*SS]);
         g.beginPath(); g.moveTo(x,y); g.lineTo(x+1.4*f,y); g.stroke(); g.setLineDash([]); }
@@ -1315,6 +1331,11 @@ export function createCMBPlot(root, config){
         const env = errBandPolygon(spec, b);
         if (env) P.push(`<polygon fill="${ERRBAND_FILL[b.shade]}" stroke="none" points="${env.map(([l,v]) => `${xPix(l,X0,X1).toFixed(1)},${yPix(v).toFixed(1)}`).join(' ')}"/>`);
       }
+      for (const b of bands){                    // band edges over all the fills, as on the canvas
+        if (!ERRBAND_EDGE[b.shade]) continue;
+        for (const line of errBandLines(spec, b))
+          P.push(`<polyline fill="none" stroke="${ERRBAND_EDGE[b.shade]}" stroke-width="${SS}" points="${line.map(([l,v]) => `${xPix(l,X0,X1).toFixed(1)},${yPix(v).toFixed(1)}`).join(' ')}"/>`);
+      }
       if (LCDM && VIS.lcdm)
         P.push(`<polyline fill="none" stroke="${COLOR_LCDM}" stroke-width="${STYLE.lcdmWidth*SS}" opacity="0.9"${VIEW.refDash ? ` stroke-dasharray="${2*SS} ${3*SS}"` : ''} points="${(r => poly(r.ell, k=>yPix(r.value[k]), true))(refCurve(spec))}"/>`);
       if (REF2 && VIS.ref2)
@@ -1328,11 +1349,11 @@ export function createCMBPlot(root, config){
     VIEW = view;
     for (const [x, y] of xLabelSpots(geoms, W, H, padL))
       P.push(`<text x="${x}" y="${y}" font-size="${16*SS}" font-style="italic" text-anchor="middle">ℓ</text>`);
-    const items = legendRows().filter(r => VIS[r[0]]).map(([, label, color, mark]) => [mark, color, label]);
+    const items = legendRows().filter(r => VIS[r[0]]).map(([, label, color, mark, edge]) => [mark, color, label, edge]);
     const f=STYLE.legendFont*SS*LEG_FONT, tt=geoms[0];
     let [lx, ly] = legendOrigin(tt, items.length, f);
-    for (const [type,color,text] of items){
-      if (type==='fill') P.push(`<rect x="${lx}" y="${ly-0.4*f}" width="${1.4*f}" height="${0.8*f}" fill="${color}"/>`);
+    for (const [type,color,text,edge] of items){
+      if (type==='fill') P.push(`<rect x="${lx}" y="${ly-0.4*f}" width="${1.4*f}" height="${0.8*f}" fill="${color}"${edge ? ` stroke="${edge}" stroke-width="${SS}"` : ''}/>`);
       else if (type==='limit') P.push(`<line x1="${lx}" y1="${ly-0.4*f}" x2="${lx+1.4*f}" y2="${ly-0.4*f}" stroke="${color}" stroke-width="${STYLE.lcdmWidth*SS}"/>` + svgArrow(lx+0.7*f, ly-0.4*f, color, STYLE.lcdmWidth*SS, 0.85*f));
       else if (type!=='dot') P.push(`<line x1="${lx}" y1="${ly}" x2="${lx+1.4*f}" y2="${ly}" stroke="${color}" stroke-width="${STYLE.lcdmWidth*SS}"${type==='dotted' ? ` stroke-dasharray="${2*SS} ${3*SS}"` : ''}/>`);
       else P.push(`<circle cx="${lx+0.7*f}" cy="${ly}" r="${STYLE.markerR*SS}" fill="${color}"/>`);
