@@ -1,14 +1,97 @@
+/* STIX Two Text (fonts/, unmodified v2.13 files, SIL OFL: fonts/OFL.txt): the Times-derived face of the
+   STIX project, matching Physical Review's typeset Times text. Article text uses 400 and 600 only (bold
+   resolves to the 600 face); browsers download only the faces a page uses. */
+@font-face { font-family: "STIX Two Text"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/STIXTwoText-Regular.woff2") format("woff2"); }
+@font-face { font-family: "STIX Two Text"; font-style: italic; font-weight: 400; font-display: swap; src: url("fonts/STIXTwoText-Italic.woff2") format("woff2"); }
+@font-face { font-family: "STIX Two Text"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/STIXTwoText-SemiBold.woff2") format("woff2"); }
+
+/* Fonts by role: article text in STIX Two Text, interface (nav, widget controls) in sans. Plot text keeps
+   generic serif (cmb-plot.js FONT) and equations use MathJax's STIX2 font (mathjax.js). */
+:root {
+    --font-text: "STIX Two Text", "Times New Roman", Times, serif;
+    /* interface text (nav, widget controls). Trial: the article serif everywhere. The sans alternative is
+       "Helvetica Neue", Helvetica, Arial, sans-serif (PRD's running-head face). */
+    --font-ui: var(--font-text);
+}
+
+/* Theme colors. theme.js sets <html data-theme="light|dark">; the dark values override these
+   below. Shared with emulator/cmb-plot.css. See dark_mode_instructions.md for the full map. */
+:root {
+    --bg: #FAFAF7;              /* page background: paper off-white */
+    --text: #2C3E50;            /* body text, headings */
+    --text-muted: #6b7280;      /* small-caps headings, "=" signs */
+    --text-faint: #9aa3b2;      /* plot loading status */
+    --surface: #fff;            /* menus, <main> */
+    --surface-2: #f3eef8;       /* menu hover rows */
+    --card: #f4f4f4;            /* About-page cards */
+    --border: #d7d2e0;          /* dividers, menu borders */
+    --accent: #7B4397;          /* sliders, numbers, buttons, citation links */
+    --accent-hover: #6a3a83;
+    --accent-divider: #eebfe0;  /* split-button divider */
+    --on-accent: #fff;          /* text on a solid accent fill */
+    --track: #e0e0e0;           /* slider track, unfilled part */
+    --danger: #c0392b;
+    --nav-bg: #3465A2;          /* midway between the original #4A90E2 and dark mode's #1F3A63 */
+    --nav-text: #fff;
+    --nav-hover: #7B4397;
+    --nav-hover-text: #fff;
+    --chrome-border: #555;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --shadow-menu: rgba(0, 0, 0, 0.2);
+    --shadow-pop: rgba(0, 0, 0, 0.12);
+    --link: #007bff;            /* Bootstrap's link colors */
+    --link-hover: #0056b3;
+    --code: #e83e8c;
+    --plot-ink: #000;           /* axis titles, legend text over the plots */
+    --pie-text: #1a1a1a;        /* labels outside the pie */
+    --pie-sep: #fff;            /* gaps between pie wedges */
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0E1424;
+    --text: #E2E8F5;
+    --text-muted: #9AA6BD;
+    --text-faint: #9AA6BD;
+    --surface: #182033;
+    --surface-2: #22304A;
+    --card: #182033;
+    --border: #2A3550;
+    --accent: #B48AD6;
+    --accent-hover: #C9A8E6;
+    --accent-divider: #8E6AB0;
+    --on-accent: #0E1424;
+    --track: #2A3550;
+    --danger: #FF8A80;
+    --nav-bg: #1F3A63;
+    --nav-text: #E2E8F5;
+    --nav-hover: #5B3A7A;
+    --nav-hover-text: #fff;
+    --chrome-border: #2A3550;
+    --shadow: rgba(0, 0, 0, 0.4);
+    --shadow-menu: rgba(0, 0, 0, 0.5);
+    --shadow-pop: rgba(0, 0, 0, 0.5);
+    --link: #8AB4F8;
+    --link-hover: #B3CDFB;
+    --code: #F27CB4;
+    --plot-ink: #D0D6E2;
+    --pie-text: #E2E8F5;
+    --pie-sep: #0E1424;
+}
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+code { color: var(--code); }
+
 /* Reset some default styles */
 body, h1, h2, h3, p {
     margin: 0;
     padding: 0;
 }
 body {
-    font-family: 'sans-serif', Arial; /* Using generic sans-serif font with Arial fallback */
-    font-weight: 500; /* Bold font */
+    font-family: var(--font-text);
+    font-weight: 400;
     line-height: 1.6;
-    background-color: #E0E7FF; /* Very Light Blue Background */
-    color: #2C3E50; /* Dark Slate Blue Text Color */
+    background-color: var(--bg); /* Paper off-white background */
+    color: var(--text); /* Dark Slate Blue Text Color */
     margin: 0 auto;
     max-width: 100%;
     padding: 1rem;
@@ -16,8 +99,8 @@ body {
 /* Custom class for section titles */
 .section-title {
     font-size: 2.5rem;  /* Larger font for section titles */
-    font-weight: bold;  /* Bold text */
-    color: #2C3E50;     /* Dark slate blue */
+    font-weight: 600;   /* STIX semibold: bold reads heavy at title sizes */
+    color: var(--text);     /* Dark slate blue */
     margin-top: 2rem;   /* Top margin for spacing */
 }
 /* Specific styles for h1 using section-title */
@@ -48,18 +131,16 @@ h3.section-title {
 }
 /* Custom class for section descriptions/body text */
 .section-body {
-    font-size: 1.2rem;  /* Consistent body text */
-    font-weight: 500;   /* Bold text */
+    font-size: 1.25rem; /* STIX runs smaller than Arial at the same size */
     line-height: 1.6;   /* Consistent line height */
-    color: #2C3E50;     /* Dark slate blue for consistency */
+    color: var(--text);     /* Dark slate blue for consistency */
     padding-bottom: 1rem; /* Bottom padding for spacing */
+    text-align: justify;  /* journal-style margins; hyphenation (needs <html lang>) keeps word gaps even */
+    -webkit-hyphens: auto;
+    hyphens: auto;
 }
 
 /* Adjust spacing if needed */
-.mt-2 {
-    margin-top: 1rem;
-}
-
 .mt-5 {
     margin-top: 2rem;
 }
@@ -89,9 +170,9 @@ header {
     justify-content: center;
     position: relative;
     text-align: center;
-    background-color: #4A90E2; /* Moderate Blue for Header */
-    color: #fff;
-    border-bottom: 2px solid #555;
+    background-color: var(--nav-bg); /* Moderate Blue for Header */
+    color: var(--nav-text);
+    border-bottom: 2px solid var(--chrome-border);
     box-sizing: border-box;
     height: 25vh; /* Height based on viewport height */
 }
@@ -105,7 +186,8 @@ header.main-header {
     max-height: 40vh; /* Ensure a maximum height */
 }
 nav {
-    background-color: #4A90E2; /* Moderate Blue for Nav Background */
+    font-family: var(--font-ui);
+    background-color: var(--nav-bg); /* Moderate Blue for Nav Background */
     padding: 0.5rem 1rem;
     position: relative;
     z-index: 1000; /* Add this high z-index value */
@@ -121,7 +203,7 @@ nav ul li {
     position: relative;
 }
 nav ul li a {
-    color: #fff; /* White for all navigation items */
+    color: var(--nav-text); /* White for all navigation items */
     margin: 0 1rem;
     text-decoration: none; /* Remove underline */
     padding: 0.5rem 1rem;
@@ -130,8 +212,8 @@ nav ul li a {
     font-weight: bold; /* Bold navigation links */
 }
 nav ul li a:hover {
-    background-color: #7B4397; /* Dark Lavender on Hover */
-    color: #fff; /* Keep the text white on hover */
+    background-color: var(--nav-hover); /* Dark Lavender on Hover */
+    color: var(--nav-hover-text); /* Keep the text white on hover */
     text-decoration: none; /* Ensure no underline on hover */
 }
 nav ul li ul {
@@ -139,11 +221,11 @@ nav ul li ul {
     position: absolute;
     top: 100%;
     left: 0;
-    background-color: #4A90E2; /* Moderate Blue for Dropdown */
+    background-color: var(--nav-bg); /* Moderate Blue for Dropdown */
     padding: 0.5rem 0;
     border-radius: 5px;
     z-index: 1000; /* Add this high z-index value */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Optional: adds shadow for better visibility */
+    box-shadow: 0 2px 5px var(--shadow-menu); /* Optional: adds shadow for better visibility */
 }
 nav ul li ul li {
     display: block;
@@ -154,12 +236,66 @@ nav ul li ul li a {
     text-decoration: none; /* Remove underline for dropdown items */
 }
 nav ul li ul li a:hover {
-    background-color: #7B4397; /* Dark Lavender on Hover */
-    color: #fff; /* Keep the text white on hover */
+    background-color: var(--nav-hover); /* Dark Lavender on Hover */
+    color: var(--nav-hover-text); /* Keep the text white on hover */
     text-decoration: none; /* Ensure no underline on hover */
 }
 nav ul li:hover ul {
     display: block;
+}
+
+/* Light/dark toggle, added to the right end of the nav by theme.js */
+.theme-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2.2rem;
+    height: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--nav-text);
+    cursor: pointer;
+}
+.theme-toggle:hover {
+    background: var(--nav-hover);
+    color: var(--nav-hover-text);
+}
+.theme-toggle:focus-visible {
+    outline: 2px solid var(--nav-text);
+    outline-offset: 2px;
+}
+.theme-toggle svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+.theme-toggle .icon-sun,
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+    display: none;
+}
+:root[data-theme="dark"] .theme-toggle .icon-sun {
+    display: block;
+}
+/* mid widths: the links span the whole bar, so keep them clear of the toggle */
+@media (min-width: 601px) and (max-width: 1000px) {
+    nav {
+        padding-right: 3.5rem;
+    }
+    nav ul li a {
+        margin: 0 0.25rem;
+    }
+}
+/* stacked mobile nav: pin to the top-right corner instead of the vertical middle */
+@media (max-width: 600px) {
+    .theme-toggle {
+        top: 0.5rem;
+        transform: none;
+    }
 }
 
 /* Increase the width of the dropdown menu */
@@ -173,27 +309,6 @@ nav ul ul li {
     white-space: nowrap; /* Prevent text wrapping */
 }
 
-main {
-    background-color: #fff;
-    padding: 2rem;
-    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
-    margin-top: 2rem;
-    border-radius: 5px;
-}
-footer {
-    margin-top: 2rem;
-    text-align: center;
-    font-size: 0.8rem;
-    padding: 1rem 0;
-    background-color: #4A90E2; /* Moderate Blue for Footer */
-    color: #fff;
-    border-top: 2px solid #555;
-    border-radius: 0 0 5px 5px;
-}
-/* Emphasized text in the main page */
-.emphasized-text {
-    margin: 2rem 0;
-}
 /* Ensure elements don't exceed 100% of the viewport width */
 img, video, iframe, embed {
     max-width: 100%;
@@ -219,13 +334,6 @@ body {
         padding: 1rem; /* Add some padding to ensure the image is centered */
     }
 }
-/* Mobile styles for non-main pages headers */
-@media (max-width: 550px) {
-    header.page-header {
-        background: none;
-        height: 15vh; /* Adjust height for mobile screens */
-    }
-}
 /* Set navigation links to stack vertically on smaller screens */
 @media (max-width: 600px) {
     nav ul {
@@ -249,188 +357,6 @@ body {
         padding: 1rem 0;
     }
 }
-h2 {
-    margin-top: 2rem; /* Adjust as needed */
-    margin-bottom: 1.5rem; /* Adjust as needed */
-}
-/* Ensure the image container adjusts its size dynamically */
-.Cosmo-container, .Dl-container, .kTT-container, .kEE-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 20px 0;
-}
-.Cosmo-container img, .Dl-container img, .kTT-container img, .kEE-container img {
-    max-width: 100%;
-    max-height: 80vh; /* Adjust height to always fit in view */
-    width: auto;
-    height: auto;
-    object-fit: contain; /* Maintain aspect ratio without clipping */
-    display: block;
-}
-/* Style the slider container to match the image size */
-.slider-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%; /* Match the width of the image container */
-}
-
-/* Style the slider */
-.slider-container input[type="range"] {
-    width: 60%; /* Length relative to the container width */
-    height: 0.5em; /* Thickness of the slider */
-    margin: 10px 0;
-    background: linear-gradient(to right, #7B4397 0%, #7B4397 50%, #e0e0e0 50%, #e0e0e0 100%);;
-    border-radius: 0.25em;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-}
-
-/* Style the slider thumb */
-.slider-container input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 1.5em;
-    height: 1.5em;
-    background: #7B4397; /* Purple color from the palette */
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.slider-container input[type="range"]::-moz-range-thumb {
-    width: 1.5em;
-    height: 1.5em;
-    background: #7B4397; /* Purple color from the palette */
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-/* Style the value display */
-.slider-value {
-    margin-top: 1em;
-    font-size: 1.5rem; /* Larger font size */
-    font-weight: bold;
-    font-family: 'sans-serif', Arial; /* San-serif font */
-    color: #2C3E50; /* Dark Slate Blue Text Color */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.slider-value span {
-    font-family: 'sans-serif', Arial; /* San-serif font */
-    font-weight: bold;
-    color: #7B4397; /* Purple color for the number */
-    margin-left: 0.5em;
-}
-
-/* Media queries for responsiveness */
-@media (max-width: 768px) {
-    .slider-container input[type="range"] {
-        width: 80%; /* Full width on smaller screens */
-    }
-
-    .slider-value {
-        font-size: 1.2rem; /* Slightly smaller font size on smaller screens */
-    }
-}
-
-@media (max-width: 480px) {
-    .slider-container input[type="range"] {
-        height: 0.4em; /* Slightly thinner slider on very small screens */
-    }
-
-    .slider-value {
-        font-size: 1rem; /* Smaller font size on very small screens */
-    }
-}
-
-/* Style for the new slider container */
-.new-slider-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%; /* Match the width of the image container */
-    margin-top: 20px;
-}
-
-/* Style the new sliders */
-.new-slider-container input[type="range"] {
-    width: 60%; /* Length relative to the container width */
-    height: 1em; /* Increased thickness of the slider */
-    margin: 10px 0;
-    background: #e0e0e0; /* Gray background */
-    border-radius: 0.25em;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-}
-
-/* Style the new slider thumb */
-.new-slider-container input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 1.5em;
-    height: 1.5em;
-    background: #7B4397; /* Purple color from the palette */
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.new-slider-container input[type="range"]::-moz-range-thumb {
-    width: 1.5em;
-    height: 1.5em;
-    background: #7B4397; /* Purple color from the palette */
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-/* Style the value display for the new sliders */
-.new-slider-value {
-    margin-top: 1em;
-    font-size: 1.5rem; /* Larger font size */
-    font-weight: bold;
-    font-family: 'sans-serif', Arial; /* San-serif font */
-    color: #2C3E50; /* Dark Slate Blue Text Color */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.new-slider-value span {
-    font-family: 'sans-serif', Arial; /* San-serif font */
-    font-weight: bold;
-    color: #7B4397; /* Purple color for the number */
-    margin-left: 0.5em;
-}
-
-/* Media queries for responsiveness */
-@media (max-width: 768px) {
-    .new-slider-container input[type="range"] {
-        width: 80%; /* Full width on smaller screens */
-    }
-
-    .new-slider-value {
-        font-size: 1.2rem; /* Slightly smaller font size on smaller screens */
-    }
-}
-
-@media (max-width: 480px) {
-    .new-slider-container input[type="range"] {
-        height: 0.8em; /* Slightly thinner slider on very small screens */
-    }
-
-    .new-slider-value {
-        font-size: 1rem; /* Smaller font size on very small screens */
-    }
-}
 /* About Us page container */
 .about-container {
     display: flex;
@@ -438,9 +364,9 @@ h2 {
     justify-content: space-between;
     padding: 2rem;
     margin: 2rem 0;
-    background-color: #f4f4f4;
+    background-color: var(--card);
     border-radius: 1rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px var(--shadow);
 }
 
 /* Name and description container */
@@ -452,18 +378,19 @@ h2 {
 /* Name style */
 .about-name {
     font-size: 2.5rem;
-    font-weight: bold;
-    color: #2C3E50;
+    font-weight: 600;
+    color: var(--text);
     margin-bottom: 1rem;
 }
 
 /* Description style - matching body text style */
 .about-description {
-    font-family: 'sans-serif', Arial;
-    font-weight: 500; /* Matching the body font weight */
-    color: #2C3E50; /* Dark slate blue */
+    color: var(--text); /* Dark slate blue */
     line-height: 1.6;
-    background-color: #E0E7FF; /* Light blue background */
+    text-align: justify;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+    background-color: var(--bg); /* same as the page background */
     padding: 1rem;
     border-radius: 0.5rem;
 }
@@ -477,7 +404,7 @@ h2 {
     max-height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    border: 0.3rem solid #7B4397;
+    border: 0.3rem solid var(--accent);
 }
 
 /* Mobile responsiveness */
@@ -509,23 +436,16 @@ h2 {
     }
 }
 
-/* Ensure the list font matches the body text */
-.resource-list li, .citation-list li {
-    font-size: 1.2rem;  /* Match the paragraph font size */
-    font-weight: 700;   /* Match the paragraph weight */
-    line-height: 1.6;   /* Match the line height */
-    color: #2C3E50;     /* Match the color */
-}
 /* Citation link styling */
 .citation-link {
-    color: #7B4397; /* Purple color to match the site's palette */
+    color: var(--accent); /* Purple color to match the site's palette */
     text-decoration: underline;
-    font-weight: bold; /* Make it stand out */
+    font-weight: 600; /* semibold, like the headings */
     transition: color 0.3s ease; /* Smooth transition for hover effect */
 }
 
 .citation-link:hover {
-    color: #2C3E50; /* Dark slate blue on hover */
+    color: var(--text); /* Dark slate blue on hover */
 }
 
 /* Make wide MathJax expressions (e.g. the parameter table) horizontally

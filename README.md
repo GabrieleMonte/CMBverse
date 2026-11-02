@@ -23,6 +23,10 @@ sliders, overlaid on binned Planck / ACT / SPT data.
 | `about.html`, `credits.html` | Static info pages. |
 | `emulator/` | The emulator model, the shared plot widget, and the data overlays (below). |
 | `figures/`, `style.css` | Site assets and global styles. (The precomputed `class_figures/` image sets and their `imageSwitch.js` driver were removed on 2026-10-20: every page is now live.) |
+| `theme.js` | Light/dark theme and the nav-bar toggle (see **Theming** below). |
+| `mathjax.js` | Loads MathJax 4 with the STIX2 math font; the one place its version and options are set (see **Typography**). |
+| `fonts/` | STIX Two Text web fonts (Regular, Italic, SemiBold; unmodified v2.13 files) and their SIL OFL license. |
+| `dark_mode_instructions.md` | Dark-mode spec: behavior, the full light→dark color map, implementation footprint. |
 
 ---
 
@@ -149,7 +153,7 @@ Every option defaults to the standard D_ℓ figure, so a page sets only what it 
   `shade: 'light' | 'dark'` grey, drawn in list order; `url` = another local data file in the `dataUrl`
   layout, default `dataUrl`'s; one legend row and checkbox per band). The single-object `{spec, …}` form
   still works.
-  `dataSets: [{key, label, color, kind: 'points' | 'limit'}]` replaces the fixed Planck/ACT/SPT points with a
+  `dataSets: [{key, label, color, colorDark, kind: 'points' | 'limit'}]` replaces the fixed Planck/ACT/SPT points with a
   per-widget list read from `OBS[spec][key]` of `dataUrl`. `points` rows are `[l, D, err_lo, err_hi, lmin, lmax]`
   (asymmetric errors; x-bar from lmin to lmax, none when null); `limit` rows are `[lmin, lmax, D95]`, drawn as a
   solid bar across the bin with a downward arrow at its centre (the usual upper-limit glyph). On a log axis every value at or below the axis floor (a negative D, or a lower error
@@ -173,6 +177,58 @@ Every option defaults to the standard D_ℓ figure, so a page sets only what it 
 
 The HTML legend and both exports share one entry list (`legendRows()`), with marks `line`, `dotted`, `dot`
 `fill` or `limit`. A widget without data points hides the data legend rows.
+
+---
+
+## Typography
+
+The site follows the look of a typeset *Physical Review* article. Published PRD PDFs set text in Times and
+math in STIX (verified from the fonts embedded in the PDFs). The site uses the open STIX Two family, which
+APS co-developed.
+
+- **Fonts by role** (tokens at the top of `style.css`):
+  - `--font-text` (STIX Two Text, self-hosted from `fonts/`): body, headings, paragraphs, lists, bios.
+  - `--font-ui`: the nav and every widget control (slider labels, buttons, the save menu, the sidebar
+    panels, status text). Currently on trial as the article serif (`var(--font-text)`; UI bold resolves to
+    STIX Semibold). The sans alternative, kept in a comment beside the token, is Helvetica Neue / Helvetica /
+    Arial, which PRD itself uses for running heads. Switching is a one-line change.
+  - Plot text (tick labels, legends, pie labels) stays in generic `serif`, like matplotlib-style figures.
+    It's drawn on canvas, and exports depend on it. Power-of-ten ticks are typeset rather than written in
+    Unicode superscripts: "10", then the exponent in ordinary digits with a true minus (U+2212) at 70% size,
+    raised 0.36 em, as in the axis titles (`fillTickLabel` / `svgTickLabel`). Fonts like Times lack ⁻, ⁰ and
+    ⁴–⁹, and the browser's fallback font draws them at a different height than ¹²³, which misaligned the
+    exponents.
+  - Math is MathJax 4 with its `mathjax-stix2` font, loaded by `mathjax.js` (version pinned there). In-line
+    line breaking is off (`linebreaks.inline: false`, the v3 behavior). Otherwise v4 splits the rotated plot
+    axis titles across lines.
+- **Weights:** text 400. Headings, About names and citation links 600 (STIX bold reads heavy at title
+  sizes). Bold resolves to the 600 face, so no 700 file ships.
+- **Sizes:** paragraphs 1.25rem (STIX runs smaller than Arial) and 1rem under 768px.
+- **Justification:** `.section-body` and the About bios are `text-align: justify` at every width, with
+  `hyphens: auto` (needs the `lang="en"` every page has) to keep word spacing even on phones.
+
+---
+
+## Theming (light / dark)
+
+The full spec and color map are in `dark_mode_instructions.md`. In brief:
+
+- **`theme.js`** is loaded synchronously in every page's `<head>` (one line), before the stylesheets. It
+  sets `<html data-theme="light|dark">` before first paint, using the saved choice
+  (`localStorage['cmbverse-theme']`) or else the OS setting, followed live. It injects the toggle button at
+  the right end of `<nav>` and syncs open tabs through the `storage` event.
+- **CSS colors are tokens.** `style.css` defines every color as a custom property on `:root` (light) and
+  overrides them under `:root[data-theme="dark"]`. `cmb-plot.css` uses the same tokens. To change a
+  color, edit the token, not the rule.
+- **Plots** (`cmb-plot.js`): the existing color constants are the light palette and `DARK` is the dark
+  one. The module global `PAL` is chosen at the start of every `render()` (the same pattern as `VIEW`).
+  A data set's dark color comes from `DARK_OF` (keyed by its light hex) unless it passes `colorDark`.
+  Each widget watches `data-theme` with a `MutationObserver` and redraws, so it doesn't depend on
+  `theme.js`.
+- **Exports are always light.** PNG pins `PAL = LIGHT` around `drawExport`; the SVG builder draws with the
+  light constants directly.
+- Slider fills set only a `--fill` percentage (the gradient is in CSS). Legend and touch-toggle swatches
+  are painted by `paintSwatches()`. Pie separators and labels are colored by CSS classes.
 
 ---
 

@@ -15,10 +15,10 @@
 /* portrait 3:4 aspect, like the python figures */
 .emu-plot-wrap canvas{ width:100%; height:auto; display:block; }
 .emu-status{
-  position:absolute; top:6px; right:10px; font:11px/1.2 serif;
-  color:#9aa3b2;
+  position:absolute; top:6px; right:10px; font:11px/1.2 var(--font-ui);
+  color:var(--text-faint);
 }
-.emu-status.err{ color:#c0392b; }
+.emu-status.err{ color:var(--danger); }
 
 .emu-sliders{
   flex:0 0 300px; display:flex; flex-direction:column; gap:11px;
@@ -30,87 +30,87 @@
   border-radius:0.25em; outline:none;
   -webkit-appearance:none; appearance:none; cursor:pointer;
   /* fill-to-value gradient; updated in JS (matches .slider-container) */
-  background:linear-gradient(to right,#7B4397 0%,#7B4397 50%,#e0e0e0 50%,#e0e0e0 100%);
+  background:linear-gradient(to right,var(--accent) 0%,var(--accent) var(--fill,50%),var(--track) var(--fill,50%),var(--track) 100%);
 }
 .emu-slider input[type="range"]::-webkit-slider-thumb{
   -webkit-appearance:none; appearance:none; width:1.1em; height:1.1em;
-  background:#7B4397; border-radius:50%; cursor:pointer;
+  background:var(--accent); border-radius:50%; cursor:pointer;
 }
 .emu-slider input[type="range"]::-moz-range-thumb{
-  width:1.1em; height:1.1em; background:#7B4397; border-radius:50%;
+  width:1.1em; height:1.1em; background:var(--accent); border-radius:50%;
   cursor:pointer; border:0;
 }
 .emu-slider-value{
-  font-family:'sans-serif',Arial; font-weight:bold; font-size:1.05rem;
-  color:#2C3E50; display:flex; align-items:center; justify-content:flex-start;
+  font-family:var(--font-ui); font-weight:bold; font-size:1.05rem;
+  color:var(--text); display:flex; align-items:center; justify-content:flex-start;
 }
-.emu-slider-value .emu-num{ color:#7B4397; margin-left:0.4em; }
+.emu-slider-value .emu-num{ color:var(--accent); margin-left:0.4em; }
 
 .emu-reset{
-  font-family:'sans-serif',Arial; font-size:0.8rem; font-weight:bold; line-height:1.2;
-  color:#7B4397; background:transparent; border:1.5px solid #7B4397;
+  font-family:var(--font-ui); font-size:0.8rem; font-weight:bold; line-height:1.2;
+  color:var(--accent); background:transparent; border:1.5px solid var(--accent);
   border-radius:0.4em; padding:7px 10px; cursor:pointer; white-space:nowrap;
 }
-.emu-reset:hover{ background:#7B4397; color:#fff; }
+.emu-reset:hover{ background:var(--accent); color:var(--on-accent); }
 
 .emu-btn-row{ display:flex; gap:8px; align-items:center; flex-wrap:nowrap; margin-top:4px; }
 .emu-save{ position:relative; display:inline-flex; }
 .emu-save-main, .emu-save-caret{
-  font-family:'sans-serif',Arial; font-size:0.8rem; font-weight:bold; line-height:1.2;
-  color:#fff; background:#7B4397; border:1.5px solid #7B4397; cursor:pointer;
+  font-family:var(--font-ui); font-size:0.8rem; font-weight:bold; line-height:1.2;
+  color:var(--on-accent); background:var(--accent); border:1.5px solid var(--accent); cursor:pointer;
   white-space:nowrap;
 }
 .emu-save-main{ border-radius:0.4em 0 0 0.4em; padding:7px 10px; }
-.emu-save-caret{ border-radius:0 0.4em 0.4em 0; padding:7px 8px; border-left:1.5px solid #eebfe0; }
-.emu-save-main:hover, .emu-save-caret:hover{ background:#6a3a83; }
+.emu-save-caret{ border-radius:0 0.4em 0.4em 0; padding:7px 8px; border-left:1.5px solid var(--accent-divider); }
+.emu-save-main:hover, .emu-save-caret:hover{ background:var(--accent-hover); }
 .emu-save-menu{
   display:none; position:absolute; top:calc(100% + 4px); right:0; z-index:5;
-  background:#fff; border:1px solid #d7d2e0; border-radius:0.4em;
-  box-shadow:0 4px 14px rgba(0,0,0,0.12); overflow:hidden; min-width:180px;
+  background:var(--surface); border:1px solid var(--border); border-radius:0.4em;
+  box-shadow:0 4px 14px var(--shadow-pop); overflow:hidden; min-width:180px;
 }
 .emu-save-menu.open{ display:block; }
 .emu-save-menu button{
-  display:block; width:100%; text-align:left; background:#fff; border:0;
-  font-family:'sans-serif',Arial; font-size:0.85rem; color:#2C3E50;
+  display:block; width:100%; text-align:left; background:var(--surface); border:0;
+  font-family:var(--font-ui); font-size:0.85rem; color:var(--text);
   padding:9px 14px; cursor:pointer;
 }
-.emu-save-menu button:hover{ background:#f3eef8; color:#7B4397; }
+.emu-save-menu button:hover{ background:var(--surface-2); color:var(--accent); }
 
 /* real-LaTeX axis-title overlays positioned over the canvas */
 .emu-axis-overlay{ position:absolute; inset:0; pointer-events:none; }
 .emu-ylabel{
   position:absolute; left:0; display:flex; align-items:center; justify-content:center;
-  font-size:0.95rem; color:#000;
+  font-size:0.95rem; color:var(--plot-ink);
 }
 .emu-ylabel > span{ transform:rotate(-90deg); white-space:nowrap; }
 .emu-xlabel{
-  position:absolute; bottom:0; text-align:center; font-size:1.05rem; color:#000;
+  position:absolute; bottom:0; text-align:center; font-size:1.05rem; color:var(--plot-ink);
 }
 
 /* derived-parameter readout */
 .emu-derived{
-  border-top:1px solid #d7d2e0; padding-top:6px; margin-top:0;
-  font-family:'sans-serif',Arial;
+  border-top:1px solid var(--border); padding-top:6px; margin-top:0;
+  font-family:var(--font-ui);
 }
 .emu-derived h4{
   margin:0 0 6px; font-size:0.8rem; font-weight:bold; letter-spacing:.04em;
-  text-transform:uppercase; color:#6b7280;
+  text-transform:uppercase; color:var(--text-muted);
 }
 .emu-derived-grid{
   display:grid; grid-template-columns:1fr 1fr; column-gap:16px; row-gap:4px;
 }
 .emu-derived-grid .cell{
   display:flex; justify-content:flex-start; align-items:baseline; gap:5px;
-  font-size:0.95rem; color:#2C3E50;
+  font-size:0.95rem; color:var(--text);
 }
-.emu-derived-grid .cell .eq{ color:#6b7280; }
-.emu-derived-grid .cell b{ color:#7B4397; font-weight:bold; }
+.emu-derived-grid .cell .eq{ color:var(--text-muted); }
+.emu-derived-grid .cell b{ color:var(--accent); font-weight:bold; }
 
 /* dataset legend + checkboxes, overlaid on the TT panel */
 .emu-legend{
   position:absolute; z-index:3; pointer-events:auto;
   display:flex; flex-direction:column; gap:2px;
-  font-family:serif; font-size:0.9rem; color:#000;
+  font-family:serif; font-size:0.9rem; color:var(--plot-ink);
   padding:2px 4px;
 }
 .emu-legend .emu-leg-row{
@@ -132,15 +132,17 @@
 
 /* energy-density pie */
 .emu-pie{
-  border-top:1px solid #d7d2e0; padding-top:12px; margin-top:2px;
-  font-family:'sans-serif',Arial;
+  border-top:1px solid var(--border); padding-top:12px; margin-top:2px;
+  font-family:var(--font-ui);
 }
 .emu-pie h4{
   margin:0 0 6px; font-size:0.8rem; font-weight:bold; letter-spacing:.04em;
-  text-transform:uppercase; color:#6b7280;
+  text-transform:uppercase; color:var(--text-muted);
 }
 .emu-pie .emu-pie-svg{ display:flex; justify-content:center; margin-bottom:-6px; }
-.emu-pie svg text{ font-family:serif; fill:#1a1a1a; }
+.emu-pie svg text{ font-family:serif; fill:var(--pie-text); }
+.emu-pie svg text.emu-pct{ fill:#1a1a1a; }   /* % inside the wedges: on the pastel fill in both themes */
+.emu-pie svg path{ stroke:var(--pie-sep); }
 /* container for one or two stacked pies (energy density, plus matter density on
    the matter page). Stacks vertically in the sidebar; goes side-by-side when narrow. */
 .emu-pies{ display:flex; flex-direction:column; }
@@ -189,16 +191,16 @@
   .emu-legend{ font-size:0.8rem; }
   .emu-mobile-toggles{
     display:block;
-    border-top:1px solid #d7d2e0; padding-top:10px; margin-top:2px;
-    font-family:'sans-serif',Arial;
+    border-top:1px solid var(--border); padding-top:10px; margin-top:2px;
+    font-family:var(--font-ui);
   }
   .emu-mobile-toggles h4{
     margin:0 0 6px; font-size:0.8rem; font-weight:bold; letter-spacing:.04em;
-    text-transform:uppercase; color:#6b7280;
+    text-transform:uppercase; color:var(--text-muted);
   }
   .emu-mobile-toggles label{
     display:inline-flex; align-items:center; gap:5px; margin-right:12px;
-    font-size:0.9rem; color:#2C3E50; cursor:pointer; user-select:none;
+    font-size:0.9rem; color:var(--text); cursor:pointer; user-select:none;
   }
   .emu-mobile-toggles input[type="checkbox"]{ width:14px; height:14px; cursor:pointer; }
   .emu-mobile-toggles .emu-swatch{ width:10px; height:10px; border-radius:50%; display:inline-block; }
