@@ -17,10 +17,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dark Matter</title>
+    <script src="site.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="emulator/cmb-plot.css">
+    <script src="mathjax.js"></script>
 </head>
 <body>
     <header class="main-header"></header>
@@ -42,12 +43,11 @@
             <li>
                 <a href="#">Relevant Degeneracies</a>
                 <ul>
-                    <li><a href="ODSA">Optical depth and Scalar Amplitude</a></li>
+                    <li><a href="ODSA">Optical Depth and Scalar Amplitude</a></li>
                     <li><a href="NHF">Neutrinos and Helium Fraction</a></li>
                 </ul>
             </li>
-            <li><a href="about">About Us</a></li>
-            <li><a href="credits">Credits</a></li>
+            <li><a href="about">About</a></li>
         </ul>
     </nav>
     <div class="container">
@@ -55,35 +55,72 @@
         <br>
         <p class="section-body"> The total matter density in the universe is a crucial parameter in the evolution of the primordial plasma, primarily through its influence on the expansion rate and its role in sourcing the gravitational potential wells that seed structure in the universe. Specifically, the patterns of fluctuations in the CMB require both a pressure-supported and a pressureless form of matter. The former, known as baryons, consists primarily of electrons and protons, which are strongly coupled to photons in the early universe. The inertia of these particles consequently slows down the sound waves in the fluid, while photon pressure counteracts their gravitational collapse. This is why an additional, pressureless form of matter—dark matter—is essential, as it clusters freely under gravity without resistance from photon pressure, enhancing the initial fluctuations and seeding the growth of cosmic structure.</p>
         <p class="section-body"> By holding the density of baryonic matter \(\omega_{b}\) constant while allowing for the density of dark matter \(\omega_{c}\) to vary, we can isolate the effects of a collisionless matter component, dark matter, while also highlighting the sensitivity of the CMB to changes in the total matter density. With less dark matter, the gravitational potential wells in which the photon-baryon fluid propagates become shallower. Thus the outward photon pressure is less effectively counteracted by gravity, a mechanism known as radiation driving. This drives acoustic oscillations to oscillate with greater amplitudes, specifically at lower angular scales. Additionally, a decreased matter density also moves the moment of matter-radiation equality in the universe to a later time. This increases the duration of the radiation dominated phase in which gravitational potential wells decay. This in turn results in a boost in the amplitude of the perturbations in the photon-baryon fluid traveling through these wells, an effect called the early Integrated Sachs-Wolfe (ISW) effect. This time dependence deviates from zero only at large scales, thus the effect further contributes to an increase in the amplitude of the first few peaks.</p>
-        
-        <div class="Cosmo-container">
-            <img id="imageomegacdmDMpage" src="class_figures/omega_cdm_images/Dl_omega_cdm_v25.png">
-            <div class="slider-container">
-                <input type="range" id="mySlideromegacdmDMpage" min="1" max="50" value="25" oninput="updateValue_omega_cdm(this.value); updateSliderBackground(this.value, 'mySlideromegacdmDMpage');">
-                <div class="slider-value">
-                    <span>\( \omega_{\rm{cdm}} = \)</span><span id="sliderValueomega_cdm_DMpage">0.1201</span>
-                </div>
-            </div>
-        </div>
-        
+        <p class="section-body">Here we vary \(\omega_c\) with the baryon density \(\omega_b\) held at its fiducial value, so the total matter density \(\omega_m\) changes. The dark-energy and curvature densities \(\Omega_\Lambda\) and \(\Omega_k\) are held fixed, so the Hubble constant \(H_0\) rises with \(\omega_c\) (shown in the derived parameters).</p>
+
+        <div id="emuRootDM"></div>
+
         <p class="section-body">Next, we examine the effects of varying the relative proportions of pressure-supported and pressureless forms of matter while fixing the time of radiation and matter equality. This approach removes the effects of a varying total matter energy density and isolates the influence of the baryonic-dark matter balance on acoustic oscillations in the CMB. We vary the amount of baryonic matter in the universe while inversely adjusting the dark matter concentration so that the total matter concentration maintains its fiducial value. Firstly, whereas dark matter effectively only increases the depth of potential wells as a whole, the coupled baryonic matter also drags down the oscillations. This baryon loading results in an influence on the equilibrium position of the acoustic waves in the photon-baryon plasma. Thus, a greater baryonic matter density would enhance the amplitude of odd peaks (representing contraction) relative to the even peaks (representing rarefaction). Additionally, there is an observed damping effect with more baryonic matter. This stems from a choice to fix the position of the first peak to reflect its well-measured angular scale, which is our best indication of the flatness of the universe. The total dark energy must then increase with the baryonic matter energy density to maintain this flatness, which results in an ehnancement of the cosmic expansion rate (measured by Hubble's constant, \(H\)). If we fix the angular scale of the sound horizon at the surface of last scattering \(\theta_s\), then the angular scale at which diffusion damping occurs should increase by the proportionality:</p>
         <p style="text-align: center; margin: 20px 0;">\( \theta_d  \propto H^{1/2} \theta_s \)</p>
         <p class="section-body">Thus, an increase in baryonic matter density results in damping at larger angular scales, corresponding to smaller multipoles.</p>
+        <p class="section-body">Here the slider varies \(\omega_b\) while \(\omega_c\) adjusts to keep the total matter density \(\omega_m\) fixed. We hold the acoustic scale \(\theta_s\) fixed at its well-measured fiducial value rather than fixing \(\Omega_\Lambda\): the dark-energy density \(\Omega_\Lambda\) (and hence \(H_0\)) adjusts as \(\omega_b\) changes, so the acoustic peaks stay put while the diffusion-damping scale shifts (\(\Omega_\Lambda\) and \(H_0\) shown in the derived parameters).</p>
 
-        
-        <div class="Cosmo-container">
-            <img id="imageomegabDMpage" src="class_figures/DM_aeq_fixed_figures/Dl_DM_aeq_fixed__omega_b_1.png">            
-            <div class="new-slider-container">
-                <input type="range" id="mySlideromegabDMpage" min="1" max="50" value="1" oninput="updateValue_omega_b(this.value); updateSliderBackground(this.value, 'mySlideromegabDMpage');">
-                <div class="new-slider-value">
-                    <span>\( \omega_b = \)</span><span id="sliderValueomega_b_DMpage">0.0224</span>
-                </div>
-            </div>
-        </div>
-                
+
+        <div id="emuRootAeq"></div>
+
     </div>
-    <script src="imageSwitch.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script></body>
-    </html>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- TensorFlow.js runtime (same as index.html) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
+
+    <!-- Two live emulator instances on the dedicated matter model (pages_model_matter, sep_*_matter) -->
+    <script type="module">
+    import { createCMBPlot } from './emulator/cmb-plot.js';
+    import { loadMatterOmegaL } from './emulator/cmb-emulator-matter.js';
+
+    const MODELS = {
+      tt: './emulator/sep_tt_matter/model.json',
+      te: './emulator/sep_te_matter/model.json',
+      ee: './emulator/sep_ee_matter/model.json',
+    };
+    const DATA = './emulator/data/cmb_data.json';
+    const LCDM = './emulator/data/lcdm_matter.json';
+
+    // Fiducial physical matter density (omega_b + omega_cdm), held fixed on Graph 2.
+    const OMEGA_M_FID = 0.02237 + 0.12;   // = 0.14237
+    // Graph 2's Omega_Lambda(omega_b): the theta_s-fixed curve the model was trained on (CLASS).
+    const OL = await loadMatterOmegaL('./emulator/data/matter_g2_omegal.json');
+
+    // Graph 1 — vary omega_cdm, omega_b FIXED at fiducial. Omega_Lambda & Omega_k
+    // held fixed => omega_m changes and h rises (visible in derived params). H0 comes from the model.
+    createCMBPlot(document.getElementById('emuRootDM'), {
+      modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
+      model: 'matter',
+      sliders: ['omega_cdm'],
+      ranges: { 'omega_cdm': [1e-5, 0.25] },
+      showMatterPie: true,
+    });
+
+    // Graph 2 — the slider varies omega_b from 0.005 up to omega_m (an all-baryon universe);
+    // omega_cdm compensates to keep omega_m fixed (floored at 1e-5, as in training). The acoustic
+    // scale theta_s is held at its fiducial value: Omega_Lambda follows the CLASS theta_s-fixed curve
+    // the model was trained on (not a live solve on the emulator, which overshoots the trained range
+    // near the all-baryon end). Omega_Lambda & H0 therefore VARY (H0 up to ~244) while the peaks stay
+    // put; baryon loading and diffusion damping change.
+    createCMBPlot(document.getElementById('emuRootAeq'), {
+      modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
+      model: 'matter',
+      sliders: ['omega_b'],
+      ranges: { 'omega_b': [0.005, OMEGA_M_FID] },
+      derive: (p) => {
+        p['omega_cdm'] = Math.max(OMEGA_M_FID - p['omega_b'], 1e-5);
+        p['Omega_Lambda'] = OL.omegaL(p['omega_b']);
+      },
+      showMatterPie: true,
+    });
+    </script>
+</body>
+</html>

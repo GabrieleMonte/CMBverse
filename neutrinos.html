@@ -16,10 +16,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neutrinos</title>
+    <script src="site.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="emulator/cmb-plot.css">
+    <script src="mathjax.js"></script>
 </head>
 <body>
     <header class="main-header"></header>
@@ -41,12 +42,11 @@
             <li>
                 <a href="#">Relevant Degeneracies</a>
                 <ul>
-                    <li><a href="ODSA">Optical depth and Scalar Amplitude</a></li>
+                    <li><a href="ODSA">Optical Depth and Scalar Amplitude</a></li>
                     <li><a href="NHF">Neutrinos and Helium Fraction</a></li>
                 </ul>
             </li>
-            <li><a href="about">About Us</a></li>
-            <li><a href="credits">Credits</a></li>
+            <li><a href="about">About</a></li>
         </ul>
     </nav>
 <div class="container">
@@ -63,15 +63,7 @@
          The most significant effect of cosmic neutrinos arises from their contribution to the background energy density, which influences the Hubble expansion rate. If we fix the sound horizon at the surface of last scattering \(\theta_s\), then the angular scale at which diffusion damping occurs increases according to:</p>
         <p style="text-align: center; margin: 20px 0;">\( \theta_d  \propto H^{1/2} \theta_s \)</p>
         <p class="section-body">Thus, a larger value of (\(N_{\rm eff}\)) corresponds to a larger Hubble expansion rate and thus more damping at larger angular scales, corresponding to smaller multipoles. We show this effect explictly in the plot below, where we hold fixed both \(\theta_s\), \(a_{eq}\) and \(\omega_b\).</p>
-    <div class="Cosmo-container">
-        <img id="Nnu1image" src="class_figures/Neutrino_Nnu1_images/Dl_damping_Neff_v44.png">
-        <div class="slider-container">
-            <input type="range" id="mySliderNnu1" min="1" max="100" value="44" oninput="updateValueNnu1(this.value); updateSliderBackground(this.value, 'mySliderNnu1');">
-            <div class="slider-value">
-                <span>\(N_{\rm eff} = \)</span><span id="sliderValueNnu1">3.05</span>
-            </div>
-        </div>
-    </div>
+    <div id="emuRootNnu1"></div>
 
     <br>
     <p class="section-body">
@@ -84,15 +76,7 @@ to the baryons prior to recombination) and then gravitationally pull them slight
         \mathcal{K}^{XY}_\ell = \frac{\ell (\ell+1)}{2\pi} C^{XY}_\ell \exp\{a\,(\theta_d \ell)^\kappa\}
         \]
         <p class="section-body">where  \(\theta_d\approx 1.3\times 10^{-3}\) is the fiducial damping scale and \(a\approx 0.68\) and \(\kappa\approx 1.3\) are the fitting parameters to effectively remove the exponential diffusion damping.</p>
-    <div class="Cosmo-container">
-        <img id="Nnu2image" src="class_figures/Neutrino_Nnu2_images/kTT_phase_shift_Neff_v51_lens.png">
-        <div class="slider-container">
-            <input type="range" id="mySliderNnu2" min="1" max="100" value="51" oninput="updateValueNnu2(this.value); updateSliderBackground(this.value, 'mySliderNnu2');">
-            <div class="slider-value">
-                <span>\(N_{\rm eff} = \)</span><span id="sliderValueNnu2">3.05</span>
-            </div>
-        </div>
-    </div>
+    <div id="emuRootNnu2"></div>
 
         <h3 class="section-title mt-5">Neutrino Masses (\(M_{\nu}\))</h3>
     <br>
@@ -102,20 +86,105 @@ to the baryons prior to recombination) and then gravitationally pull them slight
      <p class="section-body">
         The panels below illustrate these effects by showing the residuals between the predictions of the standard \(\Lambda\)CDM model with massless and massive neutrinos. Notice the oscillatory features in the temperature spectra residuals at small scales and the overall suppression of the lensing spectrum. These signatures provide crucial information about neutrino masses and their cosmological effects. While this discussion focuses on these primary effects, it is worth noting that many details - such as the exact mass hierarchy - remain subjects of ongoing research.
     </p>
-    <div class="Cosmo-container">
-        <img id="mncdmImage" src="class_figures/Neutrino_m_ncdm_images/Dl_ns_v1.png">
-        <div class="new-slider-container">
-            <input type="range" id="mySlidermncdm" min="1" max="21" value="1" oninput="updateValuemncdm(this.value); updateSliderBackground(this.value, 'mySlidermncdm');">
-            <div class="new-slider-value">
-                <span>\(M_{\nu} = \)<span id="sliderValuemncdm">0</span>\(\, \text{eV}\)</span>
-            </div>
-        </div>
-    </div>
+    <div id="emuRootMnu"></div>
        
 </div>
-<script src="imageSwitch.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
+<script type="module">
+import { createCMBPlot, PIE_COLOR } from './emulator/cmb-plot.js';
+import { loadNeutrinoLines } from './emulator/cmb-emulator-neutrino.js';
+const MODELS = { tt:'./emulator/sep_tt_neutrino/model.json', te:'./emulator/sep_te_neutrino/model.json', ee:'./emulator/sep_ee_neutrino/model.json' };
+const DATA = './emulator/data/cmb_data.json';
+const LCDM = './emulator/data/lcdm_neutrino.json';
+// YHe(N_eff) for the two graphs: CLASS-computed tables (see emulator/data/README.md).
+const LINES = await loadNeutrinoLines('./emulator/data/neutrino_lines.json');
+
+// Graph 1 - damping from N_eff. theta_s, a_eq (omega_cdm inside the emulator) and omega_b fixed;
+// helium follows the standard-BBN prediction (PRIMAT 2025). Linear l-axis, data overlays.
+createCMBPlot(document.getElementById('emuRootNnu1'), {
+  modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
+  model: 'neutrino', xaxis: 'linear', showPie: false,
+  sliders: ['N_eff'],
+  derive: (p) => { p['YHe'] = LINES.g1(p['N_eff']); },
+});
+
+// Graph 2 - neutrino phase shift. As Graph 1, but helium is the value that holds the damping angle
+// theta_d at its fiducial value, and the spectra are undamped and scaled to the 4th peak:
+//   K_l = D_l * exp(a (theta_d l)^kappa),  normalized so its 4th peak (7th extremum in l 100-2500)
+//   matches the fiducial's. a, kappa, theta_d as in the original figure (pages_neutrino notebook).
+//   Main panels l 0-3000; a zoom column shows l 950-1250 beside each spectrum.
+const THD = 0.0016144385060630974, A_UND = 0.68, KAPPA = { tt:1.3, ee:1.17, te:0.91 };
+const K_TITLE = (x) => `\\(\\mathcal{K}_\\ell^{\\mathrm{${x}}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)`;
+createCMBPlot(document.getElementById('emuRootNnu2'), {
+  modelUrls: MODELS,
+  model: 'neutrino', xaxis: 'linear', showPie: false,
+  sliders: ['N_eff'],
+  derive: (p) => { p['YHe'] = LINES.g2(p['N_eff']); },
+  display: {
+    transform: (spec, ell, v) => v.map((d, i) => d * Math.exp(A_UND * Math.pow(ell[i] * THD, KAPPA[spec]))),
+    normalize: { extremum: 6, lmin: 100, lmax: 2500 },
+    reference: 'model',
+    yLog:   { tt:false, ee:false, te:false },
+    ySym:   { te:false },
+    yRange: { tt:[0, 8], ee:[0, 0.2], te:[-0.3, 0.2] },
+    yHideLabels: { ee:[0.2], te:[0.2] },   // panel-top 0.2 labels collide with the panel above
+    yTitle: { tt:K_TITLE('TT'), ee:K_TITLE('EE'), te:K_TITLE('TE') },
+    letter: '\u{1D4A6}',
+    xRange: [0, 3000], xTicks: [0, 1000, 2000, 3000], xMinor: 100,
+    aspect: 0.95,
+    // zoom column: l 950-1250 (as the original figure), y-range fixed across the slider; the same
+    // window is shaded on the main panels
+    zoom: { range: [950, 1250], xTicks: [1000, 1100, 1200], xMinor: 50, width: 0.36, band: true },
+  },
+});
+
+// Neutrino mass - ratio of each spectrum to the massless case, R = C_l(M_nu) / C_l(M_nu = 0), for TT, EE
+// and the lensing potential phi-phi (sep_*_mnu_reparam; R(0) = 1 exactly). Three degenerate massive
+// neutrinos; omega_b, omega_cdm and theta_s fixed (H0 from the model). Log l-axis 50-3000 and fixed
+// y-bands as the original figure, with Planck 2018 (TT, EE) and ACT DR6 (EE) relative errors. The matter-density pie shows
+// massive neutrinos joining the matter today: omega_c and omega_b fixed, omega_nu = M_nu / 93.14 eV.
+// Opens at M_nu = 0.06 eV (Planck 2018 baseline, the solid LCDM curve); the dotted line is massless.
+const R_TITLE = (x) => `\\(C_\\ell^{\\rm ${x}} / C_{\\ell\\,(M_\\nu=0)}^{\\rm ${x}}\\)`;
+const R_EXPORT = (x) => [{ t:'C', it:true, sub:'ℓ', sup:x }, { t:' / ' }, { t:'C', it:true, sub:'ℓ (Mν=0)', sup:x }];
+createCMBPlot(document.getElementById('emuRootMnu'), {
+  modelUrls: { tt:'./emulator/sep_tt_mnu_reparam/model.json', ee:'./emulator/sep_ee_mnu_reparam/model.json', pp:'./emulator/sep_pp_mnu_reparam/model.json' },
+  dataUrl: DATA,
+  model: 'mnu', xaxis: 'log', showPie: false,
+  sliders: ['M_nu'],
+  start: { M_nu: 0.06 },          // open (and Reset) at Planck 2018's baseline: one massive neutrino, 0.06 eV
+  display: {
+    specs: ['tt', 'ee', 'pp'],
+    reference: 'unity', referenceLabel: 'M\u03BD = 0',
+    extraReference: { label: '\u039BCDM', params: { M_nu: 0.06 } },   // Planck baseline, as on the other graphs
+    // relative 1-sigma data envelopes (D +/- s)/D, no points: Planck 2018 (light grey, TT and EE) and ACT DR6
+    // (opaque light green, TT and EE; the Delta l = 50 CMB-only bins from the repo's cmb_data_dl50.json)
+    legendPos: 'bottom-left',
+    dataPoints: false,
+    errorBand: [
+      { specs:['tt', 'ee'], source:'planck', label:'Planck 2018 ±1σ', shade:'light' },
+      { specs:['tt', 'ee'], source:'act', url:'./emulator/data/cmb_data_dl50.json', label:'ACT DR6 ±1σ', shade:'act' },
+    ],
+    yLog:   { tt:false, ee:false, pp:false },
+    yFixed: true,
+    yRange: { tt:[0.96, 1.04], ee:[0.96, 1.04], pp:[0.65, 1.03] },
+    yTicks: { tt:[0.97, 1.0, 1.03], ee:[0.97, 1.0, 1.03], pp:[0.70, 0.85, 1.0] }, yTickDigits: 2,
+    yTitle: { tt:R_TITLE('TT'), ee:R_TITLE('EE'), pp:R_TITLE('\\phi\\phi') },
+    exportTitle: { tt:R_EXPORT('TT'), ee:R_EXPORT('EE'), pp:R_EXPORT('φφ') },
+    xRange: [50, 3000], xTicks: [100, 1000],
+    pie: {
+      title: 'Matter density', symbol: 'ω',
+      wedges: (r) => {
+        const { omega_cdm: c, omega_b: b, omega_nu: n } = r.derived, m = c + b + n;
+        return [ { sub:'c', color:PIE_COLOR.cdm, frac:c/m }, { sub:'b', color:PIE_COLOR.b, frac:b/m }, { sub:'ν', color:PIE_COLOR.nu, frac:n/m } ]
+          .filter(w => w.frac > 0);      // no nu label at M_nu = 0
+      },
+    },
+  },
+});
+</script>
 </body>
 </html>

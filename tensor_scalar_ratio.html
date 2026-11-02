@@ -5,10 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tensor to Scalar Ratio</title>
+    <script src="site.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="emulator/cmb-plot.css">
+    <script src="mathjax.js"></script>
 </head>
 <body>
     <header class="main-header"></header>
@@ -30,12 +31,11 @@
             <li>
                 <a href="#">Relevant Degeneracies</a>
                 <ul>
-                    <li><a href="ODSA">Optical depth and Scalar Amplitude</a></li>
+                    <li><a href="ODSA">Optical Depth and Scalar Amplitude</a></li>
                     <li><a href="NHF">Neutrinos and Helium Fraction</a></li>
                 </ul>
             </li>
-            <li><a href="about">About Us</a></li>
-            <li><a href="credits">Credits</a></li>
+            <li><a href="about">About</a></li>
         </ul>
     </nav>
     <div class="container">
@@ -46,15 +46,7 @@
             Tensor perturbations, on the other hand, are not limited to sourcing only E-mode polarization patterns. These "swirling'' perturbations create both a curl-free E-mode and a curled B-mode patterns. As the tensor-to-scalar ratio increases, the contribution of these B-modes becomes larger, appearing as an excess of power in the BB polarization spectrum above the lensing-induced signal.</p> 
         <p class="section-body"> Since these primordial gravitational waves have wavelengths on the order of the size of the observable universe at that time (large angular scales, low multipoles), we expect the amplitude increase to manifest at these scales as well, trailing off at higher multipoles (smaller angular scales) due to Silk damping.</p> 
 
-        <div class="Cosmo-container">
-            <img id="imagetensor_scalarpage" src="class_figures/r_images/r_tot_BBonly_1.png">
-            <div class="new-slider-container">
-                <input type="range" id="mySlidertensor_scalarpage" min="1" max="31" value="1" oninput="updateValue_tensor_scalar(this.value); updateSliderBackground(this.value, 'mySlidertensor_scalarpage');">
-                <div class="slider-value">
-                    <span>\(10^{2}\,r=\)</span><span id="sliderValuetensor_scalarpage">0.0</span>
-                </div>
-            </div>
-        </div>
+        <div id="emuRootTensor"></div>
 
         <p class="section-body">Accurate measurement of the tensor-to-scalar ratio will provide enormous insight into the mechanisms present in the early universe. Since B-mode polarization signatures are unique to tensorial sources like gravitational effects, their search directly targets these perturbations while avoiding the larger E-modes altogether. Among early-universe scenarios, inflation hypothesizes that the very early universe went through a period of accellerated expansion leaving behind a stochastic background of gravitational waves that produces a characteristic B-mode signal. 
             In contrast, alternatives such as bouncing cosmologies, where the universe underwent a period of slow-contraction prior to the onset of the expansion, generally do not produce gravitational waves at an observable level. A confirmed detection (or absence thereof) of primordial B-modes will therefore play a decisive role in discriminating between competing models of the early universe.</p> 
@@ -63,10 +55,37 @@
             Despite the obstacles, the promise of uncovering new physics from the earliest moments of cosmic history keeps the search for B-modes at the forefront of modern cosmology.</p>  
     </div>
 
-<script src="imageSwitch.js"></script>
+<script type="module">
+import { createCMBPlot } from './emulator/cmb-plot.js';
+// Lensed D_l^BB vs r from the CLASS table (emulator/data/tensor_bb.json; ~/cosmology/pages_model_tensor): lensed scalar +
+// lensed tensor, rounded Planck 2018 means with one 0.06 eV neutrino, HMcode-2020, inflation-consistent tensor tilt.
+// One log-log panel, l 2-2500; slider 10^2 r in [0, 1]. Black: r = 0 (lensing B-modes only). Data (emulator/data/
+// bb_data.json, sources in emulator/data/README.md): asymmetric errors where published, x-bars = published bins,
+// values <= 0 drawn at the axis floor, Planck PR4 95% upper limits as bars with downward arrows.
+createCMBPlot(document.getElementById('emuRootTensor'), {
+  modelUrls: { table: './emulator/data/tensor_bb.json' },
+  dataUrl: './emulator/data/bb_data.json',
+  model: 'tensor', xaxis: 'log', showPie: false, showDerived: false,
+  sliders: ['r100'],
+  display: {
+    specs: ['bb'],
+    reference: 'model', referenceLabel: '\u039BCDM (r = 0)',
+    yLog: { bb:true }, yFixed: true, yRange: { bb:[8e-10, 1e-3] },
+    xRange: [2, 2500], xTicks: [10, 100, 1000],
+    aspect: 0.8,
+    legendPos: 'top-left', legendCompact: true,    // drawn even where it overlaps data
+    dataSets: [
+      { key:'bk18',   label:'BICEP/Keck 2018 (foreground-cleaned)', color:'#000000', kind:'points' },
+      { key:'act',    label:'ACT DR6 (foreground-cleaned)',         color:'#2ca02c', kind:'points' },
+      { key:'sptpol', label:'SPTpol 500d',                          color:'#d62728', kind:'points' },
+      { key:'pb17',   label:'POLARBEAR 2017',                       color:'#ff7f0e', kind:'points' },
+      { key:'pb22',   label:'POLARBEAR 2022',                       color:'#8c564b', kind:'points' },
+      { key:'pr4',    label:'Planck PR4 95% upper limit',           color:'#1f77b4', kind:'limit' },
+    ],
+  },
+});
+</script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script></body>
-
-</body>
 </html>

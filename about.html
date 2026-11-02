@@ -15,9 +15,11 @@
     <link rel ="icon" href="figures/cmbverse_logo2_min.ico" type="image/x-icon"/>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us</title>
+    <title>About</title>
+    <script src="site.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
+    <script src="mathjax.js"></script>
 </head>
 <body>
     <header class=main-header></header>
@@ -39,58 +41,51 @@
             <li>
                 <a href="#">Relevant Degeneracies</a>
                 <ul>
-                    <li><a href="ODSA">Optical depth and Scalar Amplitude</a></li>
+                    <li><a href="ODSA">Optical Depth and Scalar Amplitude</a></li>
                     <li><a href="NHF">Neutrinos and Helium Fraction</a></li>
                 </ul>
             </li>
-            <li><a href="about">About Us</a></li>
-            <li><a href="credits">Credits</a></li>
+            <li><a href="about">About</a></li>
         </ul>
     </nav>
 <div class="container">
-    <h1 class="section-title mt-5">About Us</h1>
-<p class="section-body"> This group, composed entirely of high school and undergraduate students, is dedicated to creating user-friendly animations that help students actively explore the effects of different cosmological parameters on the Cosmic Microwave Background. Guided by Ph.D. candidate Gabriele Montefalcone, the team aims to enhance student learning by providing interactive tools for cosmology courses.</p>
-    <div class="about-container">
-        <div class="about-text">
-            <div class="about-name">Jack Chubick</div>
-            <div class="about-description">
-                Jack is a current Senior at Westwood High School. He is interested in Cosmology and space sciences and how computer science is applied for advancements and understanding in the field. He hopes to study Aerospace Engineering at university and work in the spaceflight industry after graduating.
-            </div>
-        </div>
-        <img src="figures/IMG_3086.jpg" alt="Jack" class="about-picture">
-    </div>
+    <h1 class="section-title mt-5">About CMBverse</h1>
+    <p class="section-body">
+        CMBverse is an interactive website for learning about the Cosmic Microwave Background (CMB). Explore a wide range of \( \Lambda\rm{CDM} \) cosmological parameter configurations via our interactive plots, and see the resulting power spectra in real time. Powered by our Einstein-Boltzmann solver emulators, CMBverse delivers accurate visualization at live-rendering speeds. In the future, we plan to extend CMBverse to CMB secondaries and to other cosmological probes, such as the matter power spectrum and the 21&nbsp;cm power spectrum from cosmic dawn. CMBverse is developed by Chase Enlowsmith under the mentorship of Gabriele Montefalcone.
+    </p>
 
-    <div class="about-container">
-        <div class="about-text">
-            <div class="about-name">Sofia Dunkerley</div>
-            <div class="about-description">
-                Sofia is an aspiring astrophysicist who is currently a high school senior. Her primary interests are the cosmic microwave background, dark matter, and black holes. She is a competitive figure skater and loves cats.
-            </div>
-        </div>
-        <img src="figures/Bio profile 2.jpg" alt="Sofia" class="about-picture">
-    </div>
-    <div class="about-container">
-        <div class="about-text">
-            <div class="about-name">Chase Enlowsmith </div>
-            <div class="about-description">
-                Chase is an undergraduate student at the University of Texas at Austin, where he studies Physics, Mathematics, and Astronomy. His academic pursuits are driven by a deep fascination with astrophysics, cosmology, and the philosophy of science. Beyond his cosmological aspirations, Chase is captivated by the parallels between the empirical and the abstract, the limits of human understanding, and the ways in which the universe is interpreted and expressed through art and thought.
-            </div>
-        </div>
-        <img src="figures/IMG_7918.jpg" alt="Chase" class="about-picture">
-    </div>
-    <div class="about-container">
-        <div class="about-text">
-            <div class="about-name">Gabriele Montefalcone </div>
-            <div class="about-description">
-                Gabriele is a Ph.D. candidate in physics at the University of Texas at Austin, studying theoretical cosmology. His research combines theory and data-driven approaches to tackle fundamental questions in cosmology, like the nature of the dark sector and inflation. His work focuses both on model-building as well utilizing precise Cosmic Microwave Background measurements to explore new physics in the early and late universe.
-            </div>
-        </div>
-        <img src="figures/gab1.jpeg" alt="Gab" class="about-picture">
-    </div>
+    <h3 class="section-title mt-5" id="contact">Contact</h3>
+    <p class="section-body">
+        Questions, comments, and bug reports are welcome. Please contact Chase Enlowsmith at cenlowsmith@utexas.edu.
+    </p>
+
+    <section class="acknowledgments" id="acknowledgments">
+    <h3 class="section-title mt-5">Acknowledgments</h3>
+    <p class="section-body">
+        We thank Sofia Dunkerley and Jack Chubick, current undergraduates at the University of Texas at Austin, for their early contributions to CMBverse.
+    </p>
+    <p class="section-body">
+        We also thank Katherine Freese, Benjamin Wallisch, and Subhajit Ghosh for helpful discussions. We are especially grateful to Benjamin Wallisch for providing a custom Matplotlib style file, which was instrumental in formatting the images for this project.
+    </p>
+    <p class="section-body">
+        We acknowledge the use of the Boltzmann solver <a href="https://lesgourg.github.io/class_public/" class="citation-link"><span class="code-name">CLASS</span></a>, and the Python packages Matplotlib, NumPy, and SciPy.
+    </p>
+    <p class="section-body">
+        Our emulators were trained using a modified version of <a href="https://github.com/AarhusCosmology/connect_public" class="citation-link"><span class="code-name">CONNECT</span></a>, the neural-network emulation framework developed by Andreas Nygaard, Emil Brinch Holm, Steen Hannestad, and Thomas Tram (Nygaard et al., JCAP 05 (2023) 025, <a href="https://arxiv.org/abs/2205.15726" class="citation-link">arXiv:2205.15726</a>). Our modifications are documented in our <a href="https://github.com/ChaseE-17/connect_public" class="citation-link">public fork</a>.
+    </p>
+    <p class="section-body">
+        We also utilized publicly available data from the <a href="https://www.cosmos.esa.int/web/planck/planck-collaboration" class="citation-link">Planck Collaboration</a>, the <a href="https://act.princeton.edu/" class="citation-link">Atacama Cosmology Telescope</a> (ACT), and the <a href="https://pole.uchicago.edu/public/Home.html" class="citation-link">South Pole Telescope</a> (SPT).
+    </p>
+    <p class="section-body">
+        In writing the different sections, we consulted Barbara Ryden's <a href="https://inspirehep.net/literature/639628" class="citation-link"><i>Introduction to Cosmology</i></a>, Daniel Baumann's <a href="https://inspirehep.net/literature/2108905" class="citation-link"><i>Cosmology</i></a>, and Wayne Hu's <a href="https://background.uchicago.edu/" class="citation-link"><i>CMB Tutorial</i></a>.
+    </p>
+    <p class="section-body">
+        Lastly, we disclose our use of Anthropic's Claude. All modeling and design decisions were made by us, including <span class="code-name">CLASS</span> inputs and settings, sampling and training choices, figure design, emulator parameters and hyperparameters, GUI tools and features, dataset selection, and all pedagogical choices. Under our direction, Claude automated much of the code implementation, including data generation scripts, the website backend for the emulators, GUI feature logic, and page layout. Claude also helped find bugs and run various calculations. All AI-generated code and results were reviewed and revised where needed. The explanatory text on this site was written entirely by us, and we take full responsibility for its content.
+    </p>
+    </section>
 </div>
-    <script src="imageSwitch.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script></body>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

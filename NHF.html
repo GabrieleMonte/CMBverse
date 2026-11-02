@@ -16,10 +16,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neutrinos and Helium Fraction</title>
+    <script src="site.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="emulator/cmb-plot.css">
+    <script src="mathjax.js"></script>
 </head>
 <body>
     <header class="main-header"></header>
@@ -41,12 +42,11 @@
             <li>
                 <a href="#">Relevant Degeneracies</a>
                 <ul>
-                    <li><a href="ODSA">Optical depth and Scalar Amplitude</a></li>
+                    <li><a href="ODSA">Optical Depth and Scalar Amplitude</a></li>
                     <li><a href="NHF">Neutrinos and Helium Fraction</a></li>
                 </ul>
             </li>
-            <li><a href="about">About Us</a></li>
-            <li><a href="credits">Credits</a></li>
+            <li><a href="about">About</a></li>
         </ul>
     </nav>
 
@@ -59,23 +59,29 @@
         \theta_d=(H/n_e)^{1/2}\theta_s
         \]
         <p class="section-body"> Here, \(\theta_d\) represents the damping angular scale. For a fixed \(\theta_s\), it becomes clear how variations in \(N_{\rm eff}\) (through \(H\)) and \(Y_{p}\) (through \(n_e\)) influence \(\theta_d\) in opposite directions. We show this explictly in the panels below.</p>
-        <div class="Dl-container">
-            <img id="NHFimage" src="class_figures/Neff_degen_figures/Dl_Neff_v11_YHes_v11.png">
-            <div class="new-slider-container">
-                <input type="range" id="mySliderNeffNHF" min="1" max="21" value="11" oninput="updateCombinedNHFValue()">
-                <div class="new-slider-value">
-                    <span>\( N_{\rm eff} = \)</span><span id="sliderValueNeffNHF">2.99</span>
-                </div>
-                <input type="range" id="mySliderYHeNHF" min="1" max="21" value="11" oninput="updateCombinedNHFValue()">
-                <div class="new-slider-value">
-                    <span>\( Y_{p} = \)</span><span id="sliderValueYHeNHF">0.24</span>
-                </div>
-            </div>
-        </div>
-<script src="imageSwitch.js"></script>
+        <div id="emuRootNHF"></div>
+
+    </div>
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script></body>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
+    <script type="module">
+    import { createCMBPlot } from './emulator/cmb-plot.js';
+    const MODELS = { tt:'./emulator/sep_tt_neutrino/model.json', te:'./emulator/sep_te_neutrino/model.json', ee:'./emulator/sep_ee_neutrino/model.json' };
+    const DATA = './emulator/data/cmb_data.json';
+    const LCDM = './emulator/data/lcdm_neutrino.json';
+    // N_eff-YHe degeneracy: both sliders free over the neutrino model's full (N_eff, YHe) box.
+    // theta_s fixed (H0 derived by the model); omega_cdm tied to N_eff inside the emulator (a_eq fixed);
+    // YHe independent of BBN. Defaults = shared fiducial (N_eff 3.044, YHe = BBN 0.245640). Linear l-axis.
+    createCMBPlot(document.getElementById('emuRootNHF'), {
+      modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
+      model: 'neutrino', xaxis: 'linear', showPie: false,
+      sliders: ['N_eff', 'YHe'],
+    });
+    </script>
 </body>
 </html>

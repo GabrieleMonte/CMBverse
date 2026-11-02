@@ -16,10 +16,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dark Energy</title>
+    <script src="site.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="emulator/cmb-plot.css">
+    <script src="mathjax.js"></script>
 </head>
 <body>
     <header class="main-header"></header>
@@ -41,12 +42,11 @@
             <li>
                 <a href="#">Relevant Degeneracies</a>
                 <ul>
-                    <li><a href="ODSA">Optical depth and Scalar Amplitude</a></li>
+                    <li><a href="ODSA">Optical Depth and Scalar Amplitude</a></li>
                     <li><a href="NHF">Neutrinos and Helium Fraction</a></li>
                 </ul>
             </li>
-            <li><a href="about">About Us</a></li>
-            <li><a href="credits">Credits</a></li>
+            <li><a href="about">About</a></li>
         </ul>
     </nav>
 <div class="container">
@@ -60,20 +60,33 @@
              These shifts in the angular scale of the sound horizon manifest as changes in the frequency of the oscillations observed in the CMB power spectra. Specifically, if \( \Omega_\Lambda \) is increased, the peaks will shift to the left (smaller multiples, larger angular scales),
          while if \( \Omega_\Lambda \) is decreased, the peaks will shift to the right (larger multiples, smaller angular scales). </p>
          <p class="section-body"> Additionally, an increase in \( \Omega_\Lambda \) enhances the power on large angular scales due to the late Integrated Sachs–Wolfe (ISW) effect. The onset of dark energy domination generates a decay of gravitation potentials, hence causing CMB photons to experience less of a gravitational redshift when they exit these decaying wells compared to when they entered. As a result of this, the temperature fluctuations increase on larger scales.</p>
-        <div class="Cosmo-container">
-            <img id="Omega_L_image" src="class_figures/Omega_L_Figures_New/Dl_omega_L_v22.png">
-            <div class="slider-container">
-                <input type="range" id="slideValue_Omega_L" min="1" max="30" value="22" oninput="updateValue_Omega_L(this.value); updateSliderBackground(this.value, 'slideValue_Omega_L');">
-                <div class="slider-value">
-                    <span>\( \Omega_\Lambda = \)</span><span id="sliderValue_Omega_L">0.680</span>
-                </div>
-            </div>
-        </div>
+        <div id="emuRootDE"></div>
 
-<script src="imageSwitch.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script></body>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.15.0/dist/tf-backend-wasm.min.js"></script>
+    <script type="module">
+    import { createCMBPlot } from './emulator/cmb-plot.js';
+    const MODELS = { tt:'./emulator/sep_tt_curv/model.json', te:'./emulator/sep_te_curv/model.json', ee:'./emulator/sep_ee_curv/model.json' };
+    const DATA = './emulator/data/cmb_data.json';
+    const LCDM = './emulator/data/lcdm_geo.json';
+    // Dark Energy — vary Omega_Lambda (flat, Omega_k=0); h derived by the model. (l axes per panel: see display below)
+    createCMBPlot(document.getElementById('emuRootDE'), {
+      modelUrls: MODELS, dataUrl: DATA, lcdmUrl: LCDM,
+      model: 'geo', xaxis: 'linear', showPie: false,
+      // l axes as the original figure: TT linear D_l on a log l axis (its own axis); EE (log D_l) and TE
+      // (linear) share a linear l axis
+      display: {
+        yLog: { tt:false }, yRange: { tt:[0, 7] },
+        xBySpec: { tt: { xaxis:'log', xRange:[2, 4000], xTicks:[10, 100, 1000] } },
+      },
+      sliders: ['Omega_Lambda'],
+      ranges: { 'Omega_Lambda': [0.0, 0.95] },
+    });
+    </script></body>
 
 </body>
 </html>
