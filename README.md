@@ -43,8 +43,8 @@ Matter; (iii) $\Omega_\Lambda$, $\Omega_k$, $\tau_{\rm reio}$, and $A_s$, for Da
 Optical Depth, Curvature, and Optical Depth and Scalar Amplitude; (iv) $N_{\rm eff}$ and
 $Y_{\rm He}$, for Neutrinos and Helium Fraction and the two $N_{\rm eff}$ graphs on Neutrinos; and
 (v) $M_\nu$, for the neutrino-mass graph. The Tensor to Scalar Ratio page instead evaluates a
-precomputed CLASS table of the B-mode spectrum as a function of $r$, which matches CLASS to a fit
-error of $7\times10^{-12}$.
+precomputed CLASS table of the B-mode spectrum as a function of $r$, which reproduces the CLASS
+spectra to numerical precision.
 
 On the TT, TE, and EE panels, we show the binned bandpowers of *Planck* 2018, ACT DR6, and SPT-3G
 D1, while on the B-mode page we show the BICEP/Keck 2018, ACT DR6, SPTpol 500d, and POLARBEAR 2017
