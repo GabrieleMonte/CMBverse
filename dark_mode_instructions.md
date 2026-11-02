@@ -155,15 +155,9 @@ The live widget sliders are in §2.6.
 
 ### 2.5 About page
 
-The light design shows the page color through the bio box, like a window cut into the gray card.
-Dark mode keeps that relationship.
-
-| Element | Light | Dark |
-|---|---|---|
-| `.about-container` card | `#F4F4F4`, shadow `rgba(0,0,0,.1)` | `#182033`, shadow `rgba(0,0,0,.4)` |
-| `.about-description` bio box | `#FAFAF7` (= page bg) | `#0E1424` (= page bg) |
-| `.about-name`, `.about-description` text | `#2C3E50` | `#E2E8F5` |
-| `.about-picture` ring | `#7B4397` | `#B48AD6` |
+The team cards (`.about-container`, `.about-name`, `.about-description`, `.about-picture`), their photos and
+the `--card` token were removed on 2026-11-02, when the About page became prose sections. It now uses only
+the body text and link colors.
 
 ### 2.6 Emulator widget chrome (`emulator/cmb-plot.css`)
 
