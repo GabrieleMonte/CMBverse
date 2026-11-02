@@ -143,7 +143,7 @@ Contrast ratios are WCAG against the surface named (4.5:1 is the readable-text m
 |---|---|---|
 | `.citation-link` | `#7B4397`, hover `#2C3E50` | `#B48AD6`, hover `#E2E8F5` |
 | Plain links (Bootstrap default, e.g. "public fork", `.credit-button` on Credits, which has no CSS rule) | `#007BFF`, hover `#0056B3` | `#8AB4F8` (8.7), hover `#B3CDFB` |
-| `<code>` (Bootstrap pink) | `#E83E8C` | `#F27CB4` (7.3) |
+| `<code>` | inherits the surrounding text (link purple inside links) | same (inherits) |
 
 ### 2.4 Legacy sliders: removed
 

@@ -43,7 +43,6 @@
     --shadow-pop: rgba(0, 0, 0, 0.12);
     --link: #007bff;            /* Bootstrap's link colors */
     --link-hover: #0056b3;
-    --code: #e83e8c;
     --plot-ink: #000;           /* axis titles, legend text over the plots */
     --pie-text: #1a1a1a;        /* labels outside the pie */
     --pie-sep: #fff;            /* gaps between pie wedges */
@@ -74,14 +73,13 @@
     --shadow-pop: rgba(0, 0, 0, 0.5);
     --link: #8AB4F8;
     --link-hover: #B3CDFB;
-    --code: #F27CB4;
     --plot-ink: #D0D6E2;
     --pie-text: #E2E8F5;
     --pie-sep: #0E1424;
 }
 a { color: var(--link); }
 a:hover { color: var(--link-hover); }
-code { color: var(--code); }
+code { color: inherit; }   /* code names (e.g. CLASS) match the text around them; inside a link, the link color */
 
 /* Reset some default styles */
 body, h1, h2, h3, p {
@@ -286,7 +284,7 @@ nav ul li:hover ul {
 /* Desktop/tablet nav buttons. Each top-level link is one centered box, so a label that wraps (below ~1000px)
    stays centered with a single rounded highlight; buttons share the bar's height. The negative vertical margins
    cancel the padding so a one-line bar is exactly as tall as before. Only the two menu headings (the items
-   with a submenu) may wrap; Home, About Us and Credits stay on one line. Sizes keep the one-line highlight
+   with a submenu) may wrap; Home and About stay on one line. Sizes keep the one-line highlight
    32px tall inside the 41.6px bar, as the old inline links had: 1.25 line height + 0.375rem padding, and
    -0.2rem margins so the box adds nothing to the bar's height. */
 @media (min-width: 601px) {
@@ -531,13 +529,22 @@ body {
 /* Citation link styling */
 .citation-link {
     color: var(--accent); /* Purple color to match the site's palette */
-    text-decoration: underline;
-    font-weight: 600; /* semibold, like the headings */
+    text-decoration: underline;   /* color + underline at text weight, as arXiv, Nature and GOV.UK do */
     transition: color 0.3s ease; /* Smooth transition for hover effect */
 }
 
 .citation-link:hover {
     color: var(--text); /* Dark slate blue on hover */
+}
+/* Names of codes (CLASS, CONNECT) in small caps, as the CONNECT paper sets them (\textsc). all-small-caps keeps
+   the text "CLASS" for copying and screen readers; STIX Two Text has true small-cap glyphs (c2sc). */
+.code-name {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.04em;
+}
+/* About page acknowledgments: every link in the single site purple */
+.acknowledgments a {
+    color: var(--accent);
 }
 
 /* Make wide MathJax expressions (e.g. the parameter table) horizontally

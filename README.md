@@ -20,7 +20,8 @@ sliders, overlaid on binned Planck / ACT / SPT data.
 | `neutrinos.html` | Three live graphs. Graphs 1 & 2 on the **neutrino** emulator (`model:'neutrino'`): Graph 1 varies N_eff with BBN helium; Graph 2 holds the damping angle fixed and shows the undamped, 4th-peak-normalized spectra with a zoom column. The **neutrino-mass** graph on the **mnu** emulator (`model:'mnu'`): ratios to the massless case for TT/EE/φφ. |
 | `NHF.html` | Live **neutrino** emulator with two sliders (N_eff, YHe) over the model's full plane. |
 | `tensor_scalar_ratio.html` | One live **BB** graph on the **tensor** backend (`model:'tensor'`, a CLASS table, no TF.js): lensed D_ℓ^BB on log-log axes, 10²r slider, six B-mode datasets, compact legend top left. Physics/design: `/Users/chase/cosmology/pages_model_tensor`. |
-| `about.html`, `credits.html` | Static info pages. |
+| `about.html` | About page: summary, future goals, contact, and Acknowledgments (the former Credits page). |
+| `credits.html` | Redirect stub to `about.html#acknowledgments`, so old Credits links keep working (GitHub Pages has no server-side redirects). |
 | `emulator/` | The emulator model, the shared plot widget, and the data overlays (below). |
 | `figures/`, `style.css` | Site assets and global styles. (The precomputed `class_figures/` image sets and their `imageSwitch.js` driver were removed on 2026-10-20: every page is now live.) |
 | `site.js` | Site chrome: the light/dark theme and its toggle (**Theming**), and the phone menu (**Navigation**). |
