@@ -1,6 +1,7 @@
-// Light / dark theme (dark_mode_instructions.md). Loaded synchronously in <head>, before the stylesheets,
-// so <html data-theme> is set before first paint. A saved choice wins; otherwise the OS setting is followed
-// live. The toggle is added to the right end of <nav> once the DOM is ready.
+// Site chrome. Loaded synchronously in <head>, before the stylesheets.
+// - Light / dark theme (dark_mode_instructions.md): <html data-theme> is set before first paint. A saved choice
+//   wins; otherwise the OS setting is followed live. The toggle is added to the right end of <nav>.
+// - Phone menu: at <= 600px (style.css) the nav list folds behind a "Menu" button; the current page is marked.
 (function(){
   var KEY = 'cmbverse-theme', root = document.documentElement;
   var os = window.matchMedia('(prefers-color-scheme: dark)');
@@ -43,5 +44,33 @@
     });
     nav.appendChild(b);
     apply(root.dataset.theme);
+    setupMenu(nav);
   });
+
+  // The .has-menu class is what lets CSS collapse the list, so without JavaScript the list simply stays open.
+  function setupMenu(nav){
+    var list = nav.querySelector(':scope > ul');
+    if (!list) return;
+    list.id = 'site-menu';
+    var m = document.createElement('button');
+    m.type = 'button'; m.className = 'nav-menu-btn';
+    m.setAttribute('aria-controls', 'site-menu'); m.setAttribute('aria-expanded', 'false');
+    m.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Menu';
+    function setOpen(open){
+      nav.classList.toggle('menu-open', open);
+      m.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    m.addEventListener('click', function(){ setOpen(!nav.classList.contains('menu-open')); });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && nav.classList.contains('menu-open')){ setOpen(false); m.focus(); }
+    });
+    nav.insertBefore(m, list);
+    nav.classList.add('has-menu');
+    // mark the current page; hrefs are written both as "neutrinos" and "index.html"
+    var here = pageName(location.pathname);
+    list.querySelectorAll('a[href]').forEach(function(a){
+      if (a.getAttribute('href') !== '#' && pageName(a.pathname) === here) a.setAttribute('aria-current', 'page');
+    });
+  }
+  function pageName(path){ return path.split('/').pop().replace(/\.html$/, '') || 'index'; }
 })();

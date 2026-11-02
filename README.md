@@ -23,7 +23,7 @@ sliders, overlaid on binned Planck / ACT / SPT data.
 | `about.html`, `credits.html` | Static info pages. |
 | `emulator/` | The emulator model, the shared plot widget, and the data overlays (below). |
 | `figures/`, `style.css` | Site assets and global styles. (The precomputed `class_figures/` image sets and their `imageSwitch.js` driver were removed on 2026-10-20: every page is now live.) |
-| `theme.js` | Light/dark theme and the nav-bar toggle (see **Theming** below). |
+| `site.js` | Site chrome: the light/dark theme and its toggle (**Theming**), and the phone menu (**Navigation**). |
 | `mathjax.js` | Loads MathJax 4 with the STIX2 math font; the one place its version and options are set (see **Typography**). |
 | `fonts/` | STIX Two Text web fonts (Regular, Italic, SemiBold; unmodified v2.13 files) and their SIL OFL license. |
 | `dark_mode_instructions.md` | Dark-mode spec: behavior, the full light→dark color map, implementation footprint. |
@@ -209,11 +209,27 @@ APS co-developed.
 
 ---
 
+## Navigation
+
+The nav markup is the same `<ul>` on every page; `style.css` and `site.js` adapt it by width:
+
+- **Above ~1000px:** one line. **601–1000px:** each top-level link is a centered flex box, so a wrapped
+  label ("Cosmological / Parameters") keeps one rounded highlight. Only the two submenu headings may wrap.
+  Submenus open on hover.
+- **≤ 600px (phones):** `site.js` adds a "☰ Menu" button (`aria-expanded`, closes on Escape) and the class
+  `has-menu`, which folds the list into a 48px bar. Open, the list pushes the page down: 44px rows, the two
+  `href="#"` headings shown as small section labels, sub-pages always visible and indented under a thin
+  rule. The logo header hugs the logo (`aspect-ratio`). Without JavaScript the list simply stays open.
+- **Current page:** `site.js` sets `aria-current="page"` on the matching link (extensionless hrefs such as
+  `neutrinos` and `index.html` both match). The phone menu tints it.
+
+---
+
 ## Theming (light / dark)
 
 The full spec and color map are in `dark_mode_instructions.md`. In brief:
 
-- **`theme.js`** is loaded synchronously in every page's `<head>` (one line), before the stylesheets. It
+- **`site.js`** is loaded synchronously in every page's `<head>` (one line), before the stylesheets. It
   sets `<html data-theme="light|dark">` before first paint, using the saved choice
   (`localStorage['cmbverse-theme']`) or else the OS setting, followed live. It injects the toggle button at
   the right end of `<nav>` and syncs open tabs through the `storage` event.
@@ -224,7 +240,7 @@ The full spec and color map are in `dark_mode_instructions.md`. In brief:
   one. The module global `PAL` is chosen at the start of every `render()` (the same pattern as `VIEW`).
   A data set's dark color comes from `DARK_OF` (keyed by its light hex) unless it passes `colorDark`.
   Each widget watches `data-theme` with a `MutationObserver` and redraws, so it doesn't depend on
-  `theme.js`.
+  `site.js`.
 - **Exports are always light.** PNG pins `PAL = LIGHT` around `drawExport`; the SVG builder draws with the
   light constants directly.
 - Slider fills set only a `--fill` percentage (the gradient is in CSS). Legend and touch-toggle swatches

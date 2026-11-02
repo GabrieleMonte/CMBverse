@@ -1392,7 +1392,7 @@ export function createCMBPlot(root, config){
   buildOverlays();
   buildLegend();
   paintSwatches();
-  new MutationObserver(() => { paintSwatches(); scheduleRender(); })   // light/dark switch (theme.js)
+  new MutationObserver(() => { paintSwatches(); scheduleRender(); })   // light/dark switch (site.js)
     .observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
   (async () => {
     try {

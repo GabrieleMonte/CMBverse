@@ -14,7 +14,7 @@
     --font-ui: var(--font-text);
 }
 
-/* Theme colors. theme.js sets <html data-theme="light|dark">; the dark values override these
+/* Theme colors. site.js sets <html data-theme="light|dark">; the dark values override these
    below. Shared with emulator/cmb-plot.css. See dark_mode_instructions.md for the full map. */
 :root {
     --bg: #FAFAF7;              /* page background: paper off-white */
@@ -36,6 +36,8 @@
     --nav-hover: #7B4397;
     --nav-hover-text: #fff;
     --chrome-border: #555;
+    --nav-rule: rgba(255, 255, 255, 0.35);     /* phone menu: submenu indent line (both themes) */
+    --nav-current: rgba(255, 255, 255, 0.14);  /* phone menu: current page tint (both themes) */
     --shadow: rgba(0, 0, 0, 0.1);
     --shadow-menu: rgba(0, 0, 0, 0.2);
     --shadow-pop: rgba(0, 0, 0, 0.12);
@@ -244,7 +246,7 @@ nav ul li:hover ul {
     display: block;
 }
 
-/* Light/dark toggle, added to the right end of the nav by theme.js */
+/* Light/dark toggle, added to the right end of the nav by site.js */
 .theme-toggle {
     position: absolute;
     right: 1rem;
@@ -329,7 +331,7 @@ nav ul li:hover ul {
 /* stacked mobile nav: pin to the top-right corner instead of the vertical middle */
 @media (max-width: 600px) {
     .theme-toggle {
-        top: 0.5rem;
+        top: 0.4rem;   /* centered in the 48px phone menu bar */
         transform: none;
     }
 }
@@ -354,43 +356,97 @@ img, video, iframe, embed {
 body {
     font-size: 1rem;
 }
-/* Adjust header height for smaller screens */
-@media (max-width: 550px) {
-    header {
-        height: auto; /* Allow height to adjust automatically */
-        min-height: 15vh; /* Ensure a minimum height */
-        max-height: 25vh; /* Ensure a maximum height */
-    }
+/* Phones (<= 600px): the logo header hugs the logo, and the nav folds into a 48px "Menu" bar (site.js) that
+   opens a compact list pushing the page down: 44px rows, the two menu headings as small section labels,
+   sub-pages indented under a thin rule, the current page tinted. Without JavaScript (no .has-menu on the nav)
+   the list simply stays open. */
+.nav-menu-btn {
+    display: none;
 }
-/* Mobile styles for the main page header */
-@media (max-width: 550px) {
-    header.main-header {
-        background: url('figures/cmbverse_logo.png') no-repeat center center;
-        background-size: contain; /* Ensure the entire image is shown */
-        padding: 1rem; /* Add some padding to ensure the image is centered */
-    }
-}
-/* Set navigation links to stack vertically on smaller screens */
 @media (max-width: 600px) {
+    header.main-header {
+        min-height: 0;
+        max-height: none;
+        height: auto;
+        aspect-ratio: 2029 / 302;   /* figures/cmbverse_logo.png */
+        padding: 0;
+        margin: 0.75rem 0 0;      /* bottom border sits on the nav bar, as on desktop */
+    }
+    nav {
+        padding: 0.25rem 0.5rem;
+    }
+    .nav-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        height: 2.5rem;
+        padding: 0 0.75rem;
+        border: 0;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--nav-text);
+        font: bold 1rem var(--font-ui);
+        cursor: pointer;
+    }
+    .nav-menu-btn svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    .nav-menu-btn:hover {
+        background: var(--nav-hover);
+        color: var(--nav-hover-text);
+    }
+    .nav-menu-btn:focus-visible {
+        outline: 2px solid var(--nav-text);
+        outline-offset: 2px;
+    }
+    nav.has-menu > ul {
+        display: none;
+    }
+    nav.has-menu.menu-open > ul {
+        display: flex;
+    }
     nav ul {
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
+        padding: 0.25rem 0 0.5rem;
     }
     nav ul li {
         width: 100%;
     }
     nav ul li a {
         display: block;
-        width: 100%;
-        text-align: center;
         margin: 0;
-        padding: 1rem 0;
+        padding: 0.75rem;
+        line-height: 1.25;
+        text-align: left;
+    }
+    /* the menu headings ("#" links) become section labels */
+    nav > ul > li:has(> ul) > a {
+        padding: 0.9rem 0.75rem 0.35rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        opacity: 0.8;
+        pointer-events: none;
     }
     nav ul li ul {
+        display: block;
         position: static;
+        min-width: 0;
+        margin: 0 0 0.25rem 0.75rem;
+        padding: 0;
+        border-left: 1px solid var(--nav-rule);
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
     }
     nav ul li ul li a {
-        padding: 1rem 0;
+        padding: 0.55rem 0.75rem;
+        font-weight: normal;
+    }
+    nav a[aria-current="page"] {
+        background-color: var(--nav-current);
     }
 }
 /* About Us page container */

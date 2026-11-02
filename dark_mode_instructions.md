@@ -33,11 +33,11 @@ The choice is site-wide and persists across all 12 pages.
   scrollbars, focus rings) match. Light mode leaves `color-scheme` at its default (`normal`), which
   already renders light.
 - **No flash of light mode, one line per page.** Everything theme-related lives in one shared
-  file, `theme.js` (site root), loaded *synchronously* in each page's `<head>` before the
+  file, `site.js` (site root), loaded *synchronously* in each page's `<head>` before the
   stylesheets:
 
   ```html
-  <script src="theme.js"></script>
+  <script src="site.js"></script>
   ```
 
   Its first statement sets `data-theme` before first paint. The rest waits for
@@ -58,9 +58,9 @@ The choice is site-wide and persists across all 12 pages.
   `0.6rem` below 700px). Each top-level link is a centered flex box (2026-11-01). A wrapped label stays
   centered under one rounded highlight, and only the two submenu headings may wrap. A test confirmed
   the toggle clears all link text from 320 to 1600px. Above 1000px the nav is unchanged.
-- **Mobile (≤ 600px, where the nav links stack vertically):** pinned to the top-right corner of
-  the nav, above the stacked links, never inside the column.
-- **Markup** (created by `theme.js`, not written into the pages): `<button class="theme-toggle" role="switch" aria-checked="true|false" aria-label="Dark mode">`.
+- **Mobile (≤ 600px):** the nav is a 48px bar with "☰ Menu" on the left (see the README's
+  **Navigation**) and the toggle at its right end, vertically centered in the bar (`top: 0.4rem`).
+- **Markup** (created by `site.js`, not written into the pages): `<button class="theme-toggle" role="switch" aria-checked="true|false" aria-label="Dark mode">`.
   It is keyboard-focusable and toggles with Enter or Space, with a visible focus ring in both themes.
 - Tooltip (`title`) text to be written with the toggle design. Placeholder: "Switch to dark mode" / "Switch to light mode".
 - Until the cosmology design is chosen, use a plain sun/moon icon as a stand-in.
@@ -74,7 +74,7 @@ The choice is site-wide and persists across all 12 pages.
   pattern the file already uses for `VIEW` ("a module global set at the start of every draw"),
   so several widgets on one page can't clash.
 - Each plot instance watches `<html data-theme>` with a `MutationObserver` and calls its
-  existing `scheduleRender()`. `cmb-plot.js` therefore doesn't depend on `theme.js`, and the
+  existing `scheduleRender()`. `cmb-plot.js` therefore doesn't depend on `site.js`, and the
   emulator still works on a page without it.
 - DOM pieces built in JS:
   - **slider fill gradient:** `setFill()` sets only a `--fill` percentage, and the gradient
@@ -237,7 +237,7 @@ titles, black legend text and white pie separators.
 ### 3.1 Dependency map
 
 ```
-theme.js ──sets──▶ <html data-theme>
+site.js ──sets──▶ <html data-theme>
                        │
        ┌───────────────┼────────────────────────────┐
        ▼               ▼                            ▼
@@ -255,15 +255,15 @@ theme.js ──sets──▶ <html data-theme>
               drawExport (PNG) ◀── pins PAL = LIGHT ──▶ buildSVG (SVG)
 ```
 
-`theme.js` and `cmb-plot.js` are coupled only through the `data-theme` attribute, never by
+`site.js` and `cmb-plot.js` are coupled only through the `data-theme` attribute, never by
 importing each other.
 
 ### 3.2 What changes, file by file
 
 | File | Change | Size |
 |---|---|---|
-| `theme.js` *(new)* | set `data-theme`; inject toggle; `localStorage` (try/catch); OS listener; `storage` sync | ~35 lines |
-| 12 × `*.html` | one `<script src="theme.js">` line in `<head>` | +1 line each |
+| `site.js` *(new)* | set `data-theme`; inject toggle; `localStorage` (try/catch); OS listener; `storage` sync | ~35 lines |
+| 12 × `*.html` | one `<script src="site.js">` line in `<head>` | +1 line each |
 | `style.css` | token blocks for light + dark; swap ~30 hex literals for `var(--…)` in place; toggle styles; link/`code` overrides | +~60, ~30 edited |
 | `emulator/cmb-plot.css` | swap ~25 hex literals for `var(--…)` in place; slider gradient rule; pie text/stroke classes | +~5, ~25 edited |
 | `emulator/cmb-plot.js` | see §3.3 | +~30, ~15 edited |
@@ -314,7 +314,7 @@ The additions are:
   anyway.
 - **Three widgets on one page** (neutrinos) share the module-level `PAL`. That's safe for the
   same reason `VIEW` is: every draw sets it first, and JS is single-threaded.
-- **Synchronous `theme.js`:** if the file fails to load, pages render in light mode without a
+- **Synchronous `site.js`:** if the file fails to load, pages render in light mode without a
   toggle. Nothing else breaks.
 
 ### 3.6 Cleanup found along the way — done in `86f495f5`
