@@ -91,8 +91,8 @@ const DIVIDER_COLOR = '#999999';       // dashed l=30 divider on log-linear pane
 const ERRBAND_FILL = { light:'#D3D3D1', dark:'rgba(40,40,40,0.42)', act:'#B2DAB0' };
 const ERRBAND_EDGE = { light:'#8C8C8A', act:'#2ca02c' };
 
-// Plot palettes. The constants above are the light one; DARK is used on screen when <html data-theme="dark">
-// (dark_mode_instructions.md §2.7). PAL is a module global set at the start of every draw, like VIEW;
+// Plot palettes. The constants above are the light one; DARK is used on screen when <html data-theme="dark">.
+// PAL is a module global set at the start of every draw, like VIEW;
 // exports pin it to LIGHT. The SVG export body draws with the constants directly (always light).
 const LIGHT = { ink:'#000', model:COLOR_MODEL, lcdm:COLOR_LCDM, data:COLOR, band:BAND_FILL, divider:DIVIDER_COLOR, errband:ERRBAND_FILL,
   errbandEdge:ERRBAND_EDGE };

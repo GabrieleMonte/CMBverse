@@ -1,5 +1,5 @@
 // Site chrome. Loaded synchronously in <head>, before the stylesheets.
-// - Light / dark theme (dark_mode_instructions.md): <html data-theme> is set before first paint. A saved choice
+// - Light / dark theme: <html data-theme> is set before first paint. A saved choice
 //   wins; otherwise the OS setting is followed live. The toggle is added to the right end of <nav>.
 // - Phone menu: at <= 600px (style.css) the nav list folds behind a "Menu" button; the current page is marked.
 (function(){

@@ -15,7 +15,7 @@
 }
 
 /* Theme colors. site.js sets <html data-theme="light|dark">; the dark values override these
-   below. Shared with emulator/cmb-plot.css. See dark_mode_instructions.md for the full map. */
+   below. Shared with emulator/cmb-plot.css. */
 :root {
     --bg: #FAFAF7;              /* page background: paper off-white */
     --text: #2C3E50;            /* body text, headings */
