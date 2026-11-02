@@ -44,7 +44,7 @@ export const META = {
   T_CMB_uK: 2.7255e6,
 };
 
-// ---- Natural cubic spline (identical to cmb-emulator.js) --------------------
+// ---- Natural cubic spline (identical to cmb-emulator-separate.js) -----------
 function makeSpline(xs, ys) {
   const n = xs.length, h = new Array(n - 1);
   for (let i = 0; i < n - 1; i++) h[i] = xs[i + 1] - xs[i];

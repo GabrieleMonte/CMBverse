@@ -1,14 +1,14 @@
 /* =============================================================================
  * cmb-emulator-separate.js  (S3 deployment: three single-spectrum models)
  * -----------------------------------------------------------------------------
- * Same public API as cmb-emulator.js (load / predict / curve / curveFrom, and a
+ * Same public API as the other backends (load / predict / curve / curveFrom, and a
  * META with inputNames/ranges/defaults), but backed by THREE separate CONNECT
  * graph models — one per spectrum:
  *   sep_tt_5000ep : 121 outputs -> TT[0:115] + 6 derived[115:121]
  *   sep_te_5000ep : 115 outputs -> TE[0:115]
  *   sep_ee_5000ep : 115 outputs -> EE[0:115]
  * predict() runs the three models ONCE and assembles the same
- * {ell, Cl, Dl, derived} shape the joint emulator returns, so the page's
+ * {ell, Cl, Dl, derived} shape every backend returns, so the page's
  * render()/curveFrom() path is unchanged. Derived params come from the TT model.
  *
  * IMPORTANT — input basis: these models were trained with log10(omega_cdm) as
@@ -48,7 +48,7 @@ export const META = {
   T_CMB_uK: 2.7255e6,
 };
 
-// ---- Natural cubic spline (identical to cmb-emulator.js) --------------------
+// ---- Natural cubic spline ---------------------------------------------------
 export function makeSpline(xs, ys) {
   const n = xs.length, h = new Array(n - 1);
   for (let i = 0; i < n - 1; i++) h[i] = xs[i + 1] - xs[i];
