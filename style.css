@@ -367,7 +367,9 @@ body {
         max-height: none;
         height: auto;
         aspect-ratio: 2029 / 302;   /* figures/cmbverse_logo.png */
-        padding: 0;
+        box-sizing: content-box;  /* aspect-ratio sizes the logo itself; the padding below adds the gap */
+        padding: 0 0 0.6rem;      /* a little space between the logo and the menu bar */
+        background-origin: content-box;
         margin: 0.75rem 0 0;      /* bottom border sits on the nav bar, as on desktop */
     }
     nav {

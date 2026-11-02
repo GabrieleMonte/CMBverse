@@ -621,11 +621,12 @@ export function createCMBPlot(root, config){
     }
     slidersHost.append(row);
 
-    // mobile-only data toggles (above the pie on mobile)
+    // mobile-only data toggles: the legend's entries as a "Data shown" row (touch devices hide the on-plot
+    // legend; cmb-plot.css), so everything the legend controls stays selectable
     if (cfg.showDataToggles){
       const mtog = document.createElement('div'); mtog.className='emu-mobile-toggles';
       mtog.innerHTML = '<h4>Data shown</h4>';
-      const mkTog = (key, label, kind) => {
+      const mkTog = (key, label, mark) => {
         const l = document.createElement('label');
         const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=VIS[key]; cb.dataset.key=key;
         cb.addEventListener('change', () => {
@@ -634,19 +635,12 @@ export function createCMBPlot(root, config){
           if (lg) lg.checked = cb.checked;
           render();
         });
-        const sw = document.createElement('span');
-        sw.className = kind==='line' ? 'emu-swatch emu-swatch-line' : 'emu-swatch';
-        swatches.push([sw, key, 'fill']);
+        const sw = document.createElement('span'); sw.className = legSwatchClass(mark);
+        swatches.push([sw, key, mark]);
         const tx = document.createElement('span'); tx.textContent=label;
         l.append(cb, sw, tx); return l;
       };
-      mtog.append(mkTog('lcdm', refLabel, 'line'));
-      if (dsets.length) mtog.append(...dsets.map(ds => mkTog(ds.key, ds.label, ds.kind === 'limit' ? 'line' : 'dot')));
-      else mtog.append(
-        mkTog('planck','Planck 2018', 'dot'),
-        mkTog('act','ACT DR6', 'dot'),
-        mkTog('spt','SPT-3g D1', 'dot'),
-      );
+      mtog.append(...legendRows().map(([key, label, , mark]) => mkTog(key, label, mark)));
       slidersHost.append(mtog);
     }
 
@@ -954,6 +948,7 @@ export function createCMBPlot(root, config){
       ...dsets.map(ds => [ds.key, ds.label, dsColor(ds), ds.kind === 'limit' ? 'limit' : 'dot']),
     ];
   }
+  const legSwatchClass = (mark) => mark==='dot' ? 'emu-leg-dot' : mark==='fill' ? 'emu-leg-box' : mark==='limit' ? 'emu-leg-limit' : 'emu-leg-line';
   // HTML legend and mobile-toggle swatches, [element, key, mark]; painted at boot and on a theme change
   const swatches = [];
   function paintSwatches(){
@@ -984,7 +979,7 @@ export function createCMBPlot(root, config){
         render();
       });
       const sw = document.createElement('span');
-      sw.className = mark==='dot' ? 'emu-leg-dot' : mark==='fill' ? 'emu-leg-box' : mark==='limit' ? 'emu-leg-limit' : 'emu-leg-line';
+      sw.className = legSwatchClass(mark);
       swatches.push([sw, key, mark]);
       const tx = document.createElement('span'); tx.textContent=label;
       row.append(cb, sw, tx); box.append(row);

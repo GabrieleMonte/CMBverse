@@ -157,7 +157,9 @@ Every option defaults to the standard D_ℓ figure, so a page sets only what it 
   hold the model's θ_s; used by the earlier S3 matter Graph 2, kept for S3 widgets).
 - `xaxis: 'linear' | 'loglin' | 'log'` — the widget's ℓ axis. `loglin` = log below ℓ 30, linear above; `log` =
   pure log, powers of ten labelled 10ⁿ with log minor ticks.
-- `showPie`, `showMatterPie`, `showDerived`, `showSave`, `showLegend`, `showDataToggles` (booleans).
+- `showPie`, `showMatterPie`, `showDerived`, `showSave`, `showLegend`, `showDataToggles` (booleans). On touch
+  devices ≤ 980 px the on-plot legend is hidden and data selection moves to the "Data shown" row
+  (`showDataToggles`); saved PNG/SVG figures always include the legend.
 
 **`display: { … }`** (per-widget plot view)
 - *Curves:* `specs` (panel spectra, e.g. `['tt','ee','pp']`); `transform(spec, ell, value)` (applied to every
@@ -178,7 +180,7 @@ Every option defaults to the standard D_ℓ figure, so a page sets only what it 
   solid bar across the bin with a downward arrow at its centre (the usual upper-limit glyph). On a log axis every value at or below the axis floor (a negative D, or a lower error
   end ≤ 0) is drawn at the floor. Each set gets a legend row/checkbox (mark `dot`, or `limit` = bar with arrow).
 - *Legend:* `legendPos: 'top-right'` (default) `| 'top-left' | 'bottom-right' | 'bottom-left'` of the top panel (on
-  screen and in exports). ODSA uses bottom-left, the neutrino-mass graph bottom-right, the tensor page top-left.
+  screen and in exports). ODSA and the neutrino-mass graph use bottom-left, the tensor page top-left.
   `legendCompact: true` draws a tighter legend (less padding and row spacing, smaller type, closer to the corner) on
   screen and in exports, for long legends (the tensor page's seven rows).
 - *Axes:* `yLog`, `yRange`, `ySym`, `yFixed`, `yTicks`, `yTickDigits`, `yHideLabels` (ticks drawn without a
