@@ -16,11 +16,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neutrinos</title>
+    <script src="site.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <link rel="stylesheet" href="emulator/cmb-plot.css">
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="mathjax.js"></script>
 </head>
 <body>
     <header class="main-header"></header>
@@ -42,12 +42,11 @@
             <li>
                 <a href="#">Relevant Degeneracies</a>
                 <ul>
-                    <li><a href="ODSA">Optical depth and Scalar Amplitude</a></li>
+                    <li><a href="ODSA">Optical Depth and Scalar Amplitude</a></li>
                     <li><a href="NHF">Neutrinos and Helium Fraction</a></li>
                 </ul>
             </li>
-            <li><a href="about">About Us</a></li>
-            <li><a href="credits">Credits</a></li>
+            <li><a href="about">About</a></li>
         </ul>
     </nav>
 <div class="container">
@@ -122,7 +121,7 @@ const THD = 0.0016144385060630974, A_UND = 0.68, KAPPA = { tt:1.3, ee:1.17, te:0
 const K_TITLE = (x) => `\\(\\mathcal{K}_\\ell^{\\mathrm{${x}}}\\,[10^3\\,\\mu\\mathrm{K}^2]\\)`;
 createCMBPlot(document.getElementById('emuRootNnu2'), {
   modelUrls: MODELS,
-  model: 'neutrino', xaxis: 'linear', showPie: false, showDataToggles: false,
+  model: 'neutrino', xaxis: 'linear', showPie: false,
   sliders: ['N_eff'],
   derive: (p) => { p['YHe'] = LINES.g2(p['N_eff']); },
   display: {
@@ -154,20 +153,20 @@ const R_EXPORT = (x) => [{ t:'C', it:true, sub:'ℓ', sup:x }, { t:' / ' }, { t:
 createCMBPlot(document.getElementById('emuRootMnu'), {
   modelUrls: { tt:'./emulator/sep_tt_mnu_reparam/model.json', ee:'./emulator/sep_ee_mnu_reparam/model.json', pp:'./emulator/sep_pp_mnu_reparam/model.json' },
   dataUrl: DATA,
-  model: 'mnu', xaxis: 'log', showPie: false, showDataToggles: false,
+  model: 'mnu', xaxis: 'log', showPie: false,
   sliders: ['M_nu'],
   start: { M_nu: 0.06 },          // open (and Reset) at Planck 2018's baseline: one massive neutrino, 0.06 eV
   display: {
     specs: ['tt', 'ee', 'pp'],
     reference: 'unity', referenceLabel: 'M\u03BD = 0',
     extraReference: { label: '\u039BCDM', params: { M_nu: 0.06 } },   // Planck baseline, as on the other graphs
-    // relative 1-sigma data envelopes (D +/- s)/D, no points: Planck 2018 (light, TT and EE) and ACT DR6
-    // (dark, EE; the Delta l = 50 CMB-only bins from the repo's cmb_data_dl50.json)
-    legendPos: 'bottom-right',
+    // relative 1-sigma data envelopes (D +/- s)/D, no points: Planck 2018 (light grey, TT and EE) and ACT DR6
+    // (opaque light green, TT and EE; the Delta l = 50 CMB-only bins from the repo's cmb_data_dl50.json)
+    legendPos: 'bottom-left',
     dataPoints: false,
     errorBand: [
       { specs:['tt', 'ee'], source:'planck', label:'Planck 2018 ±1σ', shade:'light' },
-      { specs:['ee'], source:'act', url:'./emulator/data/cmb_data_dl50.json', label:'ACT DR6 ±1σ', shade:'dark' },
+      { specs:['tt', 'ee'], source:'act', url:'./emulator/data/cmb_data_dl50.json', label:'ACT DR6 ±1σ', shade:'act' },
     ],
     yLog:   { tt:false, ee:false, pp:false },
     yFixed: true,
