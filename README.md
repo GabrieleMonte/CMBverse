@@ -63,8 +63,20 @@ fiducial returns h = 0.6736).
 ### Shared plot widget (`emulator/cmb-plot.js` + `cmb-plot.css`)
 `createCMBPlot(root, config)` builds one widget inside `root`: the panel canvas (TT/EE/TE by default),
 sliders, legend, pie(s), derived-parameter readout, Reset and Save (PNG/SVG). Any number of instances can
-coexist on a page. Type size and line weights scale with the canvas width, capped at the standard 660 px
-plot width, so every graph renders at the same size.
+coexist on a page. Type size and line weights scale with the canvas width (`figScale`), capped at the
+standard 660 px plot width, so every graph renders at the same size.
+
+**Sizing.** The canvas fills its container (`.emu-plot-wrap`) and keeps the figure's aspect (height/width:
+1.19 by default, `display.aspect` per widget); it redraws on window resize.
+- **Side-by-side layout (> 980 px, sliders beside the plot):** the container's width is
+  `min(660px, max(420px, (100svh − 3rem) / aspect))`, so the whole figure fits the visible window height
+  while keeping its shape, as Bokeh's `scale_both`. It's 800/610 px for the zoom figure; the 610 px floor
+  keeps it out of its stacked layout. JS only sets `--emu-aspect` on the container.
+- **Stacked layouts (≤ 980 px, tablets and phones):** the plot fills the width (up to 660 px) and the sidebar
+  drops below it, unchanged by the height fit.
+- **Saved figures are universal:** PNG (×3) and SVG always render at the figure's design size (660 px wide,
+  800 px for the zoom figure) with that size's type scale, never the on-screen size, so a figure saved on a
+  phone, a laptop or a desktop is byte-identical.
 
 **How curves are drawn.** Each adapter fits a natural cubic spline through the model's ℓ nodes
 (`curveFrom`). On linear ℓ axes the curve is evaluated at every integer ℓ. On log and log-linear axes,

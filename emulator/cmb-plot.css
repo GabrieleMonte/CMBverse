@@ -128,6 +128,15 @@
    main + zoom columns and a slimmer sidebar (slider, buttons, derived values; no pie).
    800 + 18 + 220 = 1038px fits the 1110px page container. */
 .emu-widget--zoom .emu-plot-wrap{ flex:1 1 560px; max-width:800px; }
+
+/* Side-by-side layout only (> 980px, sliders beside the plot): also cap the plot's width so its height
+   (width x aspect) fits the visible window, keeping the figure's shape (as Bokeh's sizing_mode "scale_both").
+   --emu-aspect is set per widget in cmb-plot.js; the canvas sizes itself from this box. The floor keeps short
+   windows readable and keeps the zoom figure out of its stacked layout (cmb-plot.js STACK_BELOW_W = 610). */
+@media (min-width:981px){
+  .emu-plot-wrap{ max-width:min(660px, max(420px, calc((100svh - 3rem) / var(--emu-aspect, 1.19)))); }
+  .emu-widget--zoom .emu-plot-wrap{ max-width:min(800px, max(610px, calc((100svh - 3rem) / var(--emu-aspect, 0.95)))); }
+}
 .emu-widget--zoom .emu-sliders{ flex:0 0 220px; }
 
 /* energy-density pie */

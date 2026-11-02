@@ -326,6 +326,8 @@ export function createCMBPlot(root, config){
 
   // ---- per-instance state --------------------------------------------------
   let SS = 1;
+  // text/line scale for a figure W px wide, relative to the standard 600-660px figure (render and exports)
+  const figScale = (W) => Math.max(0.8, Math.min(1.6, Math.min(W, 660)/600));
   let emulator = null, OBS = null, LCDM = null;
   // config.start: initial (and Reset) values for slider params, e.g. { M_nu: 0.06 } (Planck's baseline)
   const params = Object.assign({}, META.defaults, config.fixed || {}, config.start || {});
@@ -541,6 +543,7 @@ export function createCMBPlot(root, config){
   const axisOverlay = document.createElement('div'); axisOverlay.className='emu-axis-overlay';
   const statusEl    = document.createElement('div'); statusEl.className='emu-status'; statusEl.textContent='loading model…';
   wrap.append(cv, axisOverlay, statusEl);
+  wrap.style.setProperty('--emu-aspect', ASPECT);   // the CSS height fit (side-by-side layout) needs the shape
   const slidersHost = document.createElement('div'); slidersHost.className='emu-sliders';
   widget.append(wrap, slidersHost);
   root.append(widget);
@@ -1207,16 +1210,19 @@ export function createCMBPlot(root, config){
     g.restore();
   }
   function drawExport(g, W, H){
-    const pal = PAL; PAL = LIGHT;            // exports are always light
+    const pal = PAL, ss = SS; PAL = LIGHT; SS = figScale(W);   // exports: light, and the design size's scale
     applyView();
     g.fillStyle = EXPORT_BG; g.fillRect(0,0,W,H);
     const { padL, geoms } = layout(W, H);
     drawFigure(g, W, H);
     drawTitlesCanvas(g, geoms, padL, W, H);
     drawLegendCanvas(g, geoms[0], W);
-    PAL = pal;
+    PAL = pal; SS = ss;
   }
-  function exportSize(){ const W = wrap.clientWidth; return { W, H: Math.round(W * (isStacked(W) ? ASPECT_STACKED : ASPECT)) }; }
+  // Saved figures are universal: always the figure's design size (the CSS width caps), never the on-screen
+  // size, so a PNG/SVG is identical whichever device or window it was saved from.
+  const FIG_W = zoom ? 800 : 660;
+  function exportSize(){ return { W: FIG_W, H: Math.round(FIG_W * (isStacked(FIG_W) ? ASPECT_STACKED : ASPECT)) }; }
   function savePNG(openInTab){
     const { W, H } = exportSize();
     const oc = document.createElement('canvas'); oc.width = W*PNG_SCALE; oc.height = H*PNG_SCALE;
@@ -1229,7 +1235,7 @@ export function createCMBPlot(root, config){
     }, 'image/png');
   }
   function buildSVG(W, H){
-    const pal = PAL; PAL = LIGHT;            // exports are always light (legendRows reads PAL)
+    const pal = PAL, ss = SS; PAL = LIGHT; SS = figScale(W);   // exports: light (legendRows reads PAL), design scale
     applyView();
     const svgResult = emulator.predict(params);
     const { padL, geoms } = layout(W, H);
@@ -1333,7 +1339,7 @@ export function createCMBPlot(root, config){
       ly += f*LEG_ROW;
     }
     P.push('</svg>');
-    PAL = pal;
+    PAL = pal; SS = ss;
     return P.join('');
   }
   function saveSVG(){ const { W, H } = exportSize(); downloadBlob(new Blob([buildSVG(W,H)], { type:'image/svg+xml' }), `cmbverse_${tstamp()}.svg`); }
@@ -1375,7 +1381,7 @@ export function createCMBPlot(root, config){
     ctx.clearRect(0,0,W,H);
     // text/line scale from the standard figure width (the 660px .emu-plot-wrap max): a widget made wider
     // for extra columns (display.zoom) keeps the same type size and line weights as every other graph.
-    SS = Math.max(0.8, Math.min(1.6, Math.min(W, 660)/600));
+    SS = figScale(W);
     const { padL, geoms } = layout(W, H);
     const result = emulator.predict(params);  // ONE inference per update
     drawFigure(ctx, W, H, result);
