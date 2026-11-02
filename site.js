@@ -66,11 +66,11 @@
     });
     nav.insertBefore(m, list);
     nav.classList.add('has-menu');
-    // mark the current page; hrefs are written both as "neutrinos" and "index.html"
+    // mark the current page; hrefs are extensionless ("home", "neutrinos")
     var here = pageName(location.pathname);
     list.querySelectorAll('a[href]').forEach(function(a){
       if (a.getAttribute('href') !== '#' && pageName(a.pathname) === here) a.setAttribute('aria-current', 'page');
     });
   }
-  function pageName(path){ return path.split('/').pop().replace(/\.html$/, '') || 'index'; }
+  function pageName(path){ return path.split('/').pop().replace(/\.html$/, '') || 'home'; }
 })();

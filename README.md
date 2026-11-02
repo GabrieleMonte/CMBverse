@@ -15,7 +15,7 @@ parameters.
 
 | Page | Sliders | Source |
 |---|---|---|
-| [Home](https://gabrielemontefalcone.com/CMBverse/) | $\omega_b$, $\omega_c$, $\Omega_\Lambda$, $\ln(10^{10}A_s)$, $n_s$, $\tau_{\rm reio}$ | [`index.html`](index.html) |
+| [Home](https://gabrielemontefalcone.com/CMBverse/home) | $\omega_b$, $\omega_c$, $\Omega_\Lambda$, $\ln(10^{10}A_s)$, $n_s$, $\tau_{\rm reio}$ | [`home.html`](home.html) |
 | ***Cosmological Parameters*** | | |
 | [Dark and Baryonic Matter](https://gabrielemontefalcone.com/CMBverse/matter) | $\omega_c$; $\omega_b$ at fixed $\omega_m$ | [`matter.html`](matter.html) |
 | [Primordial Power Spectrum](https://gabrielemontefalcone.com/CMBverse/primordial_power_spectrum) | $\ln(10^{10}A_s)$ and $n_s$ | [`primordial_power_spectrum.html`](primordial_power_spectrum.html) |
@@ -85,7 +85,7 @@ directly from disk, the site has to be served over HTTP from the repository root
 python3 -m http.server 8000
 ```
 
-The home page is then at <http://localhost:8000/index.html>. Note that the menu uses the
+The home page is then at <http://localhost:8000/home.html>. Note that the menu uses the
 extensionless URLs of GitHub Pages (e.g. `matter`), which this simple server does not resolve, so
 locally each page is opened by its file name (e.g. <http://localhost:8000/matter.html>).
 

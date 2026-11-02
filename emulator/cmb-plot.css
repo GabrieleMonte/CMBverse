@@ -1,6 +1,6 @@
 /* ============================================================
-   Emulator widget styles (scoped to .emu-*). Shared by index.html
-   and matter.html via <link>. Extracted from index.html's inline
+   Emulator widget styles (scoped to .emu-*). Shared by home.html
+   and matter.html via <link>. Extracted from home.html's inline
    <style> so multiple plot instances on one page share one stylesheet.
    NOTE: layout hooks are class-based (.emu-sliders) rather than id-based
    so more than one instance can coexist on a page.

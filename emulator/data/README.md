@@ -24,7 +24,7 @@ Row columns:
 
 The two bandpower files differ **only in the ACT block**; Planck and SPT are identical between them.
 
-### `cmb_data.json` — ACT at Δℓ=20 (plotting binning), trimmed  ← used by `index.html`
+### `cmb_data.json` — ACT at Δℓ=20 (plotting binning), trimmed  ← used by `home.html`
 
 - **ACT DR6** CMB-only, **foreground-subtracted combined** spectrum at the **Δℓ=20 plotting
   binning**, **trimmed to bin center ℓ ≤ 4100** (122 bins each, ℓ 593–4084). The full
@@ -91,7 +91,7 @@ CLASS input and derived h, 100θ_s, YHe.
 
 | file | backend / pages | fiducial |
 |------|-----------------|----------|
-| `lcdm_s3.json` | S3: `index`, `primordial_power_spectrum` | ω_b 0.02237, ω_cdm 0.12, Ω_Λ 0.685, ln10¹⁰A_s 3.044, n_s 0.9649, τ 0.0544, one 0.06 eV ν (h 0.67389) |
+| `lcdm_s3.json` | S3: `home`, `primordial_power_spectrum` | ω_b 0.02237, ω_cdm 0.12, Ω_Λ 0.685, ln10¹⁰A_s 3.044, n_s 0.9649, τ 0.0544, one 0.06 eV ν (h 0.67389) |
 | `lcdm_geo.json` | geo: the four scheme pages (123 nodes, every ℓ ≤ 30) | as S3 with Ω_k = 0 |
 | `lcdm_matter.json` | matter: `matter` | as S3 with YHe 0.245 |
 | `lcdm_neutrino.json` | neutrino: `NHF`, `neutrinos` Graph 1 | N_eff 3.044 (massless), YHe 0.245640, ω_cdm 0.1201075, 100θ_s 1.041783 (h 0.67808) |

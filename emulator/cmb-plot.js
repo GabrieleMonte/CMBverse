@@ -1,8 +1,8 @@
 /* ============================================================
  * cmb-plot.js — reusable CMB-emulator plot widget.
  *
- * Extracted from index.html's inline driver so the SAME engine powers both
- * index.html (all six sliders) and matter.html (two instances, omega_cdm only).
+ * Extracted from home.html's inline driver so the SAME engine powers both
+ * home.html (all six sliders) and matter.html (two instances, omega_cdm only).
  * createCMBPlot(root, config) builds the whole widget inside `root` and returns
  * a small controller. All per-widget state lives in the closure, so any number
  * of instances can coexist on one page.
